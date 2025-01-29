@@ -11,24 +11,30 @@ const Hero: FC = () => {
         <h1 className="text-5xl mt-40">
           Crafting digital experiences through code and creative deign
         </h1>
-        <Button>
-          <span>My Work</span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="size-6"
+        <div>
+          <Button
+            variant="secondary"
+            iconAfter={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m4.5 5.25 7.5 7.5 7.5-7.5m-15 6 7.5 7.5 7.5-7.5"
+                />
+              </svg>
+            }
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m4.5 5.25 7.5 7.5 7.5-7.5m-15 6 7.5 7.5 7.5-7.5"
-            />
-          </svg>
-        </Button>
-        <Button>Let&apos;s Talk</Button>
+            <span>View My Work</span>
+          </Button>
+          <Button variant="text">Let&apos;s Talk</Button>
+        </div>
       </div>
       <div>
         <Image src={heroImage} alt="My portrait" />

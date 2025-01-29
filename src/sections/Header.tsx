@@ -1,4 +1,5 @@
 import { FC } from "react";
+import Button from "@/components/Button";
 
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const navItems = [
@@ -49,9 +50,12 @@ const Header: FC = () => {
                 <rect x="3" y="7" width="18" height="2" fill="currentColor" />
               </svg>
             </div>
-            <button className="bg-red-orange-500 h-11 px-6 rounded-xl text-white border border-red-orange-500 uppercase hidden md:inline-flex items-center">
+            <Button
+              variant="primary"
+              className="hidden md:inline-flex items-center"
+            >
               Contact Me
-            </button>
+            </Button>
           </div>
         </div>
       </div>
