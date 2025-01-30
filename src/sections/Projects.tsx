@@ -32,7 +32,7 @@ const projects = [
 
 const Projects: FC = () => {
   return (
-    <section className="py-24 md:py-32 lg:py-40">
+    <section className="section">
       <div className="container">
         <h2 className="text-4xl md:text-7xl lg:text-8xl">Selected Works</h2>
         <div className="mt-10 md:mt-16 lg:mt-20">
@@ -61,8 +61,8 @@ const Projects: FC = () => {
                     className="size-6"
                   >
                     <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                       d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"
                     />
                   </svg>
