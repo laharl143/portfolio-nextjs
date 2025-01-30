@@ -3,8 +3,8 @@ import { Archivo } from "next/font/google";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Minimal Single Page Portfolio",
-  description: "Created with Frontend Tribe",
+  title: "Erskine Duenas",
+  description: "Created using NextJs",
 };
 
 const archivo = Archivo({

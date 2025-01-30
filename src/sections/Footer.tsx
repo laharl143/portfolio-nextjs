@@ -58,7 +58,7 @@ const Footer: FC = () => {
                   </svg>
                 }
               >
-                info@alextaylor.com
+                erskine.duenas@gmail.com
               </Button>
             </div>
             <div>
@@ -75,7 +75,7 @@ const Footer: FC = () => {
           </div>
         </div>
         <p className="py-16 text-white/30 text-sm">
-          Copyright &copy; Alex Taylor &bull; All rights reserved
+          Copyright &copy; Erskine Duenas &bull; All rights reserved
         </p>
       </div>
     </footer>
