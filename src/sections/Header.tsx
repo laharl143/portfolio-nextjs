@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState, useEffect } from "react";
+import { FC, useState, useEffect, MouseEvent } from "react";
 import Button from "@/components/Button";
 import { motion, useAnimate } from "motion/react";
 
@@ -110,18 +110,18 @@ const Header: FC = () => {
     navScope,
   ]);
 
-const handleClickMobileNavItem = (e: MouseEvent<HTMLAnchorElement>) => {
-  e.preventDefault();
-  setIsOpen(false);
+  const handleClickMobileNavItem = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setIsOpen(false);
 
-  const url = new URL(e.currentTarget.href)
-  const hash = url.hash
+    const url = new URL(e.currentTarget.href);
+    const hash = url.hash;
 
-  const target = document.querySelector(hash);
+    const target = document.querySelector(hash);
 
-  if (!target) return;
-  target.scrollIntoView({behavior: 'smooth'})
-}
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <header className="">
@@ -134,10 +134,13 @@ const handleClickMobileNavItem = (e: MouseEvent<HTMLAnchorElement>) => {
             <a
               href={href}
               key={label}
-              className="text-stone-200 border-t  last:border-b border-stone-800 py-8 group/nav-item relative isolate" onClick={handleClickMobileNavItem}
+              className="text-stone-200 border-t  last:border-b border-stone-800 py-8 group/nav-item relative isolate"
+              onClick={handleClickMobileNavItem}
             >
               <div className="container !max-w-full flex items-center justify-between">
-                <span className="text-3xl group-hover/nav-item:pl-4 transition-all duration-500">{label}</span>
+                <span className="text-3xl group-hover/nav-item:pl-4 transition-all duration-500">
+                  {label}
+                </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
