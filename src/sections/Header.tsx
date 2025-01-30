@@ -103,6 +103,7 @@ const Header: FC = () => {
     bottomLineScope,
   ]);
 
+  //stopped @36:01
   return (
     <header className="">
       <div className="fixed top-0 left-0 w-full mix-blend-difference backdrop-blur-md">
@@ -122,7 +123,10 @@ const Header: FC = () => {
         <div className="container !max-w-full">
           <div className="flex justify-end h-20 items-center">
             <div className="flex items-center gap-4">
-              <div className="size-11 border border-stone-400 rounded-full inline-flex items-center justify-center bg-stone-200" onClick={() => setIsOpen(!isOpen)}>
+              <div
+                className="size-11 border border-stone-400 rounded-full inline-flex items-center justify-center bg-stone-200"
+                onClick={() => setIsOpen(!isOpen)}
+              >
                 <svg
                   width="24"
                   height="24"
