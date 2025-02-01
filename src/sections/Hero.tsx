@@ -1,21 +1,18 @@
 "use client";
 
 import { FC, useEffect, useRef } from "react";
-/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 import heroImage from "@/assets/images/hero-image.jpg";
 import Image from "next/image";
 import Button from "@/components/Button";
-import SplitType from "split-type";
 import {
-  useAnimate,
   motion,
-  stagger,
   useScroll,
   useTransform,
 } from "motion/react";
+import useTextRevealAnimation from "@/hooks/useTextRevealAnimation";
 
 const Hero: FC = () => {
-  const [titleScope, titleAnimate] = useAnimate();
+  // const [titleScope, titleAnimate] = useAnimate(); //old implementation of useTextRevealAnimation
   const scrollingDiv = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -25,25 +22,29 @@ const Hero: FC = () => {
 
   const portraitWidth = useTransform(scrollYProgress, [0, 1], ["100%", "240%"]);
 
-  //12/5 = 2.4 * 100 = 240%
+  const { scope, entranceAnimation } = useTextRevealAnimation();
 
   useEffect(() => {
-    new SplitType(titleScope.current, {
-      types: "lines,words",
-      tagName: "span",
-    });
+    entranceAnimation();
+  }, [entranceAnimation]);
+  // old implementation of useTextRevealAnimation
+  // useEffect(() => {
+  //   new SplitType(titleScope.current, {
+  //     types: "lines,words",
+  //     tagName: "span",
+  //   });
 
-    titleAnimate(
-      titleScope.current.querySelectorAll(".word"),
-      {
-        transform: "translateY(0)",
-      },
-      {
-        duration: 0.5,
-        delay: stagger(0.2),
-      }
-    );
-  }, []);
+  //   titleAnimate(
+  //     titleScope.current.querySelectorAll(".word"),
+  //     {
+  //       transform: "translateY(0)",
+  //     },
+  //     {
+  //       duration: 0.5,
+  //       delay: stagger(0.2),
+  //     }
+  //   );
+  // }, []);
 
   return (
     <section>
@@ -54,7 +55,7 @@ const Hero: FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-5xl md:text-6xl lg:text-7xl mt-40 md:mt-0"
-              ref={titleScope}
+              ref={scope}
             >
               Crafting digital experiences through code and creative design
             </motion.h1>
@@ -116,7 +117,10 @@ const Hero: FC = () => {
         </div>
         <div className="md:col-span-5 relative">
           {" "}
-          <motion.div className="mt-20 md:mt-0 md:size-full md:absolute md:right-0 max-md:!w-full" style={{width: portraitWidth}}>
+          <motion.div
+            className="mt-20 md:mt-0 md:size-full md:absolute md:right-0 max-md:!w-full"
+            style={{ width: portraitWidth }}
+          >
             <Image
               src={heroImage}
               alt="My portrait"
@@ -125,10 +129,7 @@ const Hero: FC = () => {
           </motion.div>
         </div>
       </div>
-      <div
-        className="md:h-[200vh]"
-        ref={scrollingDiv}
-      ></div>
+      <div className="md:h-[200vh]" ref={scrollingDiv}></div>
     </section>
   );
 };
