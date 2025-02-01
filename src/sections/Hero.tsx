@@ -53,7 +53,8 @@ const Hero: FC = () => {
               className="text-5xl md:text-6xl lg:text-7xl mt-40 md:mt-0"
               ref={scope}
             >
-              Crafting digital experiences through code and creative design
+              Passion and Excellence: I am confident to say that I am the living
+              embodiment of these two words
             </motion.h1>
             <div className="flex flex-col md:flex-row md:items-center mt-10 items-start gap-6">
               <motion.div
