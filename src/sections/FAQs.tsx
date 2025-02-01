@@ -7,9 +7,8 @@ import { twMerge } from "tailwind-merge";
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const faqs = [
   {
-    question: "How long does it take to build a website?",
-    answer:
-      "It depends on the complexity of the website and the scope of the project.",
+    question: "Are you an experienced Developer?",
+    answer: "Yes. I have 2.5 years of experience as a Full Stack Developer",
   },
   {
     question: "What is your development process like?",

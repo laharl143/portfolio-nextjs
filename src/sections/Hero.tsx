@@ -98,7 +98,7 @@ const Hero: FC = () => {
                     </div>
                   }
                 >
-                  <span>View My Work</span>
+                  <span>Download CV</span>
                 </Button>
               </motion.div>
               <motion.div
