@@ -216,6 +216,11 @@ const Header: FC = () => {
               <Button
                 variant="primary"
                 className="hidden md:inline-flex items-center"
+                onClick={() =>
+                  document
+                    .getElementById("contact")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
               >
                 Contact Me
               </Button>
