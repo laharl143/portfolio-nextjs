@@ -63,6 +63,7 @@ const Hero: FC = () => {
                 transition={{ duration: 0.5, delay: 1.75 }}
               >
                 <Button
+                  pdfUrl="/erskine_resume.pdf"
                   variant="secondary"
                   iconAfter={
                     <div className="overflow-hidden size-5">

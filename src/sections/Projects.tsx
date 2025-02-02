@@ -34,7 +34,7 @@ const Projects: FC = () => {
   return (
     <section className="section" id="projects">
       <div className="container">
-        <h2 className="text-4xl md:text-7xl lg:text-8xl">Selected Works</h2>
+        <h2 className="text-4xl md:text-7xl lg:text-8xl">Projects</h2>
         <div className="mt-10 md:mt-16 lg:mt-20">
           {projects.map(({ name, image }) => (
             <a
