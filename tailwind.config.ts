@@ -28,6 +28,15 @@ const config: Config = {
         "red-orange": {
           500: "rgb(255, 85, 51)",
         },
+        "neon": {
+          500: "#00D7FF",
+        },
+        "neon-light": {
+          500: "#0096FF",
+        },
+        "neon-dark": {
+          500: "#0002A1",
+        },
       },
     },
   },

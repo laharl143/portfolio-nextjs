@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 
 const Button = (
   props: {
-    variant: "primary" | "secondary" | "text";
+    variant: "primary" | "secondary" | "third" | "text";
     iconAfter?: ReactNode;
     pdfUrl?: string;
   } & ButtonHTMLAttributes<HTMLButtonElement>
@@ -22,11 +22,14 @@ const Button = (
   return (
     <button
       className={twMerge(
-        " h-11 px-6 rounded-xl  border border-red-orange-500 uppercase inline-flex items-center gap-2 transition duration-500 relative group/button",
-        variant === "primary" && "bg-red-orange-500 text-white",
-        variant === "secondary" && "hover:bg-red-orange-500 hover:text-white",
+        " h-11 px-6 rounded-xl  border border-neon-500 uppercase inline-flex items-center gap-2 transition duration-500 relative group/button",
+        variant === "primary" &&
+          "bg-neon-500 text-white hover:bg-white hover:text-black hover:border-white",
+        variant === "secondary" && "hover:bg-neon-500 hover:text-white",
+        variant === "third" &&
+          "hover:bg-neon-500 hover:text-white border-transparent hover:border-transparent",
         variant === "text" &&
-          "h-auto px-0 border-transparent after:transition-all after:duration-500 after:content-[''] after:h-px after:w-0 after:absolute after:top-full after:bg-red-orange-500 hover:after:w-full",
+          "h-auto px-0 border-transparent after:transition-all after:duration-500 after:content-[''] after:h-px after:w-0 after:absolute after:top-full after:bg-neon-light-500 hover:after:w-full",
         className
       )}
       onClick={handleClick}

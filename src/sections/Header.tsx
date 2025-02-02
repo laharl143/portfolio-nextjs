@@ -166,7 +166,7 @@ const Header: FC = () => {
           <div className="flex justify-between h-20 items-center">
             <div>
               <a href="/">
-                <span className="text-xl font-bold uppercase text-white">
+                <span className="text-xl font-bold uppercase text-white lg:text-3xl">
                   Erskine&nbsp; Duenas
                 </span>
               </a>
@@ -179,7 +179,7 @@ const Header: FC = () => {
           <div className="flex justify-end h-20 items-center">
             <div className="flex items-center gap-4">
               <div
-                className="size-11 border border-stone-400 rounded-full inline-flex items-center justify-center bg-stone-200"
+                className="size-11 border border-stone-400 rounded-full inline-flex items-center justify-center bg-stone-200 transition duration-500 hover:bg-neon-500 hover:text-white hover:border-transparent"
                 onClick={() => setIsOpen(!isOpen)}
               >
                 <svg

@@ -4,8 +4,16 @@ import { FC, useEffect, useRef } from "react";
 import heroImage from "@/assets/images/ers-1-image.png";
 import Image from "next/image";
 import Button from "@/components/Button";
+import SocialLinkButton from "@/components/SocialLinkButton";
 import { motion, useScroll, useTransform } from "motion/react";
 import useTextRevealAnimation from "@/hooks/useTextRevealAnimation";
+import { personalData } from "../../utils/data/personal-data";
+import { IoLogoGithub } from "react-icons/io";
+import { BiLogoLinkedin } from "react-icons/bi";
+import { FaFacebook} from 'react-icons/fa';
+import { SiCodewars } from "react-icons/si";
+
+
 
 const Hero: FC = () => {
   // const [titleScope, titleAnimate] = useAnimate(); //old implementation of useTextRevealAnimation
@@ -53,10 +61,10 @@ const Hero: FC = () => {
               className="text-5xl md:text-6xl lg:text-7xl mt-40 md:mt-0"
               ref={scope}
             >
-              Passion and Excellence: I am confident to say that I am the living
-              embodiment of these two words
+              Passion and Perseverance: I am confident to say that I am the
+              living embodiment of these two words
             </motion.h1>
-            <div className="flex flex-col md:flex-row md:items-center mt-10 items-start gap-6">
+            <div className="flex flex-col md:flex-row sm:flex-row md:items-center sm:items-center mt-10 items-start gap-6">
               <motion.div
                 initial={{ opacity: 0, y: "100%" }}
                 animate={{ opacity: 1, y: 0 }}
@@ -103,13 +111,24 @@ const Hero: FC = () => {
                   <span>Download CV</span>
                 </Button>
               </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: "100%" }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 2.2 }}
-              >
-                <Button variant="text">Let&apos;s Talk</Button>
-              </motion.div>
+              <SocialLinkButton
+                href={personalData.github}
+                icon={<IoLogoGithub />}
+              />
+              <SocialLinkButton
+                href={personalData.linkedIn}
+                icon={<BiLogoLinkedin />}
+                size={46}
+              />
+              <SocialLinkButton
+                href={personalData.facebook}
+                icon={<FaFacebook />}
+              />
+              <SocialLinkButton
+                href={personalData.codewars}
+                icon={<SiCodewars />}
+                size={42}
+              />
             </div>
           </div>
         </div>
