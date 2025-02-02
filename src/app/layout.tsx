@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Erskine Duenas",
@@ -20,8 +21,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased bg-stone-200 text-stone-900 ${archivo.variable} font-sans`}>
+      <body
+        className={`antialiased bg-stone-200 text-stone-900 ${archivo.variable} font-sans`}
+      >
         {children}
+        <Analytics />
       </body>
     </html>
   );
