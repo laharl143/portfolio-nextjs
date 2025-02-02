@@ -112,28 +112,27 @@ const Hero: FC = () => {
                 </Button>
               </motion.div>
               <SocialLinkButton
-                href={personalData.github}
-                icon={<IoLogoGithub />}
-              />
-              <SocialLinkButton
                 href={personalData.linkedIn}
                 icon={<BiLogoLinkedin />}
                 size={46}
               />
               <SocialLinkButton
-                href={personalData.facebook}
-                icon={<FaFacebook />}
+                href={personalData.github}
+                icon={<IoLogoGithub />}
               />
               <SocialLinkButton
                 href={personalData.codewars}
                 icon={<SiCodewars />}
                 size={42}
-                padding={3}
+                padding={"3"}
               />
               <SocialLinkButton
                 href={personalData.monkeyType}
                 icon={<SiMonkeytype />}
-                padding={3}
+              />
+              <SocialLinkButton
+                href={personalData.facebook}
+                icon={<FaFacebook />}
               />
             </div>
           </div>

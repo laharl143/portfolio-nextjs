@@ -10,7 +10,7 @@ interface SocialLinkButtonProps {
   bgColor?: string;
   delay?: number;
   bgHover?: string;
-  padding?: number;
+  padding?: string;
 }
 
 const SocialLinkButton: FC<SocialLinkButtonProps> = ({
@@ -20,7 +20,7 @@ const SocialLinkButton: FC<SocialLinkButtonProps> = ({
   bgColor = "transparent",
   delay = 3,
   bgHover = "neon-500",
-  padding = 1.5
+  padding = "2",
 }) => {
   return (
     <motion.div
