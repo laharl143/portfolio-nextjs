@@ -11,9 +11,9 @@ export const personalData = {
   facebook: "https://www.facebook.com/erskine.duenas/",
   linkedIn: "https://www.linkedin.com/in/erskine-duenas/",
   codewars: "https://www.codewars.com/users/laharl143",
+  monkeyType: "https://monkeytype.com/profile/laharl143",
   twitter: "",
   stackOverflow: "",
   leetcode: "",
   devUsername: "laharl143",
-  resume: "https://github.com/laharl143",
 };

@@ -166,7 +166,7 @@ const Header: FC = () => {
           <div className="flex justify-between h-20 items-center">
             <div>
               <a href="/">
-                <span className="text-xl font-bold uppercase text-white lg:text-3xl">
+                <span className="text-xl font-bold uppercase text-white md:text-2xl lg:text-3xl">
                   Erskine&nbsp; Duenas
                 </span>
               </a>

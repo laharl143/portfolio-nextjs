@@ -24,7 +24,7 @@ const Button = (
       className={twMerge(
         " h-11 px-6 rounded-xl  border border-neon-500 uppercase inline-flex items-center gap-2 transition duration-500 relative group/button",
         variant === "primary" &&
-          "bg-neon-500 text-white hover:bg-white hover:text-black hover:border-white",
+          "bg-neon-500 text-white hover:bg-transparent hover:text-black hover:border-neon-500",
         variant === "secondary" && "hover:bg-neon-500 hover:text-white",
         variant === "third" &&
           "hover:bg-neon-500 hover:text-white border-transparent hover:border-transparent",

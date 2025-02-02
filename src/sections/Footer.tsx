@@ -22,10 +22,6 @@ const navItems = [
     href: "#faqs",
     label: "Faqs",
   },
-  {
-    href: "#contact",
-    label: "Contact",
-  },
 ];
 
 const Footer: FC = () => {
@@ -71,6 +67,9 @@ const Footer: FC = () => {
                 Enough talk. Let&apos;s make something great together.
               </h2>
               <Button
+                onClick={() =>
+                  (window.location.href = "mailto:erskine.duenas@gmail.com")
+                }
                 variant="secondary"
                 className="mt-8"
                 iconAfter={
