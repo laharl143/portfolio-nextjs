@@ -128,6 +128,7 @@ const Hero: FC = () => {
                 href={personalData.codewars}
                 icon={<SiCodewars />}
                 size={42}
+                padding={3}
               />
             </div>
           </div>

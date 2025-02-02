@@ -10,6 +10,7 @@ interface SocialLinkButtonProps {
   bgColor?: string;
   delay?: number;
   bgHover?: string;
+  padding?: number;
 }
 
 const SocialLinkButton: FC<SocialLinkButtonProps> = ({
@@ -18,7 +19,8 @@ const SocialLinkButton: FC<SocialLinkButtonProps> = ({
   size = 48,
   bgColor = "transparent",
   delay = 3,
-  bgHover = "neon-500"
+  bgHover = "neon-500",
+  padding = 1.5
 }) => {
   return (
     <motion.div
@@ -36,7 +38,7 @@ const SocialLinkButton: FC<SocialLinkButtonProps> = ({
     >
       <Link target="_blank" href={href}>
         <div
-          className={`bg-${bgColor} p-1.5 rounded-full hover:bg-${bgHover} hover:scale-110 transition-all duration-300 ease-in-out text-gray-800 cursor-pointer`}
+          className={`bg-${bgColor} p-${padding} rounded-full hover:bg-${bgHover} hover:scale-110 transition-all duration-300 ease-in-out text-gray-800 hover:text-white cursor-pointer`}
         >
           {React.cloneElement(icon, { size: size })}
         </div>
