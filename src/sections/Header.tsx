@@ -11,7 +11,7 @@ const navItems = [
     href: "#hero",
   },
   {
-    label: "Experiences",
+    label: "Projects",
     href: "#projects",
   },
   {

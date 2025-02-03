@@ -1,32 +1,42 @@
 import { FC } from "react";
-import image1 from "@/assets/images/project-1.jpg";
-import image2 from "@/assets/images/project-2.jpg";
-import image3 from "@/assets/images/project-3.jpg";
-import image4 from "@/assets/images/project-4.jpg";
-import image5 from "@/assets/images/project-5.jpg";
+import simon from "@/assets/images/simon-pic.jpg";
+import drum from "@/assets/images/drum-kit.png";
+import maze from "@/assets/images/maze-game.png";
+import quote from "@/assets/images/quote-pic.png";
+import movie from "@/assets/images/movie-fight.png";
 import Image from "next/image.js";
 
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const projects = [
   {
-    name: "Artisan Brew Co.",
-    image: image1,
+    name: "Simon game",
+    tech: ["JavaScript", "HTML", "CSS"],
+    image: simon,
+    href: "https://laharl143.github.io/Simon-game/",
   },
   {
-    name: "Wavelength Studios",
-    image: image2,
+    name: "Drum kit",
+    tech: ["JavaScript", "HTML", "CSS"],
+    image: drum,
+    href: "https://laharl143.github.io/Drum-kit/",
   },
   {
-    name: "Nova Fitness",
-    image: image3,
+    name: "Maze",
+    tech: ["JavaScript", "HTML", "CSS"],
+    image: maze,
+    href: "https://laharl143.github.io/maze-vanilla-js/",
   },
   {
-    name: "Urban Plates",
-    image: image4,
+    name: "Quote Generator",
+    tech: ["JavaScript", "HTML", "CSS"],
+    image: quote,
+    href: "https://laharl143.github.io/quote-generator/",
   },
   {
-    name: "Bloom Botanicals",
-    image: image5,
+    name: "Movie Fight",
+    tech: ["JavaScript", "HTML", "CSS"],
+    image: movie,
+    href: "https://laharl143.github.io/movie-fight-vanilla-js/",
   },
 ];
 
@@ -36,9 +46,9 @@ const Projects: FC = () => {
       <div className="container">
         <h2 className="text-4xl md:text-7xl lg:text-8xl">Projects</h2>
         <div className="mt-10 md:mt-16 lg:mt-20">
-          {projects.map(({ name, image }) => (
+          {projects.map(({ name, image, href }) => (
             <a
-              href="#"
+              href={href}
               key={name}
               className="border-t last:border-b border-stone-400 border-dotted py-6 md:py-8 lg:py-10 flex flex-col relative group/project"
             >
