@@ -48,7 +48,7 @@ const Intro: FC = () => {
       ref={sectionRef}
     >
       <div className="container">
-        <h2 className="text-4xl md:text-7xl lg:text-8xl lg:w-[80%]" ref={scope}>
+        <h2 className="text-6xl md:text-8xl lg:text-9xl lg:w-[100%]" ref={scope}>
           I am deeply passionate about continuous learning and personal growth.
         </h2>
       </div>

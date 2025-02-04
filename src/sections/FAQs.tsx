@@ -7,23 +7,29 @@ import { twMerge } from "tailwind-merge";
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const faqs = [
   {
-    question: "Are you an experienced Developer?",
-    answer: "Yes. I have 2.5 years of experience as a Full Stack Developer",
+    question: "What is your experience as a software developer?",
+    answer: "I have 2.5 years of experience as a Professional Full Stack Developer",
   },
   {
-    question: "What is your development process like?",
+    question: "What professional projects have you worked on?",
     answer:
-      "I follow a hands-on approach starting with project planning, building out the core features, and regular check-ins to make sure everything matches your needs.",
+      `I have worked on two major projects with Japanese clients: Apaman – A Japanese Airbnb-style rental platform.
+Trading Manager – A system for managing Japan’s electricity market.`,
   },
   {
-    question: "Do you work with international clients?",
+    question: "What technologies do you specialize in?",
     answer:
-      "Yes, I work with clients globally and can accommodate different time zones for meetings and communication.",
+      "My core tech stack includes JavaScript, Node.js, React, and Java, allowing me to build scalable and efficient web applications.",
   },
   {
-    question: "What industries do you specialize in?",
+    question: "Do you have experience working with international clients?",
     answer:
-      "I have experience across various industries including technology, retail, hospitality, and professional services, bringing fresh perspectives to each project.",
+      "Yes! I have worked with Japanese clients and understand the importance of clean code, scalability, and meeting global development standards.",
+  },
+  {
+    question: "How can I get in touch with you?",
+    answer:
+      "You can reach me via email or LinkedIn. Feel free to connect with me for project inquiries or collaboration opportunities!",
   },
 ];
 
