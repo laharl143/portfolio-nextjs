@@ -18,7 +18,7 @@ const SocialLinkButton: FC<SocialLinkButtonProps> = ({
   icon,
   size = 48,
   bgColor = "transparent",
-  delay = 3,
+  delay = 4,
   bgHover = "neon-500",
 }) => {
   return (
