@@ -8,12 +8,12 @@ import { twMerge } from "tailwind-merge";
 const faqs = [
   {
     question: "What is your experience as a software developer?",
-    answer: "I have 2.5 years of experience as a Professional Full Stack Developer",
+    answer:
+      "I have 2.5 years of experience as a Professional Full Stack Developer",
   },
   {
     question: "What professional projects have you worked on?",
-    answer:
-      `I have worked on two major projects with Japanese clients: Apaman – A Japanese Airbnb-style rental platform.
+    answer: `I have worked on two major projects with Japanese clients: Apaman – A Japanese Airbnb-style rental platform.
 Trading Manager – A system for managing Japan’s electricity market.`,
   },
   {
@@ -70,7 +70,7 @@ const FAQs: FC = () => {
                 </div>
                 <div
                   className={twMerge(
-                    "inline-flex items-center justify-center size-11 border border-stone-400 rounded-full shrink-0 transition duration-300 bg-stone-200",
+                    "inline-flex items-center justify-center size-11 border border-stone-400 dark:bg-stone-900  rounded-full shrink-0 transition duration-300 bg-stone-200",
                     faqIndex === selectedIndex && "rotate-45"
                   )}
                 >

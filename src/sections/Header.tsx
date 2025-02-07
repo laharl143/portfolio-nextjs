@@ -180,7 +180,7 @@ const Header: FC = () => {
           <div className="flex justify-end h-20 items-center">
             <div className="flex items-center gap-4">
               <div
-                className="size-11 border border-stone-400 rounded-full inline-flex items-center justify-center bg-stone-200 transition duration-500 hover:bg-neon-500 hover:text-white hover:border-transparent cursor-pointer"
+                className="size-11 border border-stone-400 rounded-full inline-flex items-center justify-center bg-stone-200 dark:bg-stone-900 transition duration-500 hover:bg-neon-500 hover:text-white hover:border-transparent dark:hover:bg-primary/10 cursor-pointer"
                 onClick={() => setIsOpen(!isOpen)}
               >
                 <svg
@@ -216,7 +216,7 @@ const Header: FC = () => {
               </div>
               <Button
                 variant="primary"
-                className="hidden md:inline-flex items-center"
+                className="hidden md:inline-flex items-center dark:hover:text-primary/90"
                 onClick={() =>
                   document
                     .getElementById("contact")

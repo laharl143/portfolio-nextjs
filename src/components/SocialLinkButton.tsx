@@ -37,7 +37,7 @@ const SocialLinkButton: FC<SocialLinkButtonProps> = ({
     >
       <Link target="_blank" href={href}>
         <div
-          className={`bg-${bgColor} p-2 rounded-full hover:bg-${bgHover} hover:scale-110 transition-all duration-300 ease-in-out text-gray-800 hover:text-white cursor-pointer`}
+          className={`bg-${bgColor} p-2 rounded-full hover:bg-${bgHover} hover:scale-110 transition-all duration-300 ease-in-out text-gray-800 hover:text-white cursor-pointer dark:text-gray-200`}
         >
           {React.cloneElement(icon, { size: size })}
         </div>
