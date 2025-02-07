@@ -3,6 +3,7 @@
 import { FC, useState, useEffect, MouseEvent } from "react";
 import Button from "@/components/Button";
 import { motion, useAnimate } from "motion/react";
+import { ThemeToggleButton } from "@/components/ThemeToggleButton";
 
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const navItems = [
@@ -179,7 +180,7 @@ const Header: FC = () => {
           <div className="flex justify-end h-20 items-center">
             <div className="flex items-center gap-4">
               <div
-                className="size-11 border border-stone-400 rounded-full inline-flex items-center justify-center bg-stone-200 transition duration-500 hover:bg-neon-500 hover:text-white hover:border-transparent"
+                className="size-11 border border-stone-400 rounded-full inline-flex items-center justify-center bg-stone-200 transition duration-500 hover:bg-neon-500 hover:text-white hover:border-transparent cursor-pointer"
                 onClick={() => setIsOpen(!isOpen)}
               >
                 <svg
@@ -224,6 +225,7 @@ const Header: FC = () => {
               >
                 Contact Me
               </Button>
+              <ThemeToggleButton />
             </div>
           </div>
         </div>
