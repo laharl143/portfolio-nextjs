@@ -12,12 +12,12 @@ const navItems = [
     href: "#hero",
   },
   {
-    label: "Projects",
-    href: "#projects",
+    label: "Skills",
+    href: "#skills",
   },
   {
-    label: "Testimonials",
-    href: "#testimonials",
+    label: "Projects",
+    href: "#projects",
   },
   {
     label: "FAQs",
