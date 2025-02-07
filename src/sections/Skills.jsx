@@ -49,7 +49,7 @@ function Skills() {
                       className="h-full w-auto rounded-lg"
                     />
                   </div>
-                  <p className="text-black text-sm sm:text-lg">{skill}</p>
+                  <p className="text-black dark:text-white text-sm sm:text-lg">{skill}</p>
                 </div>
               </div>
             </div>
