@@ -6,6 +6,14 @@ import quote from "@/assets/images/quote-pic.png";
 import movie from "@/assets/images/movie-fight.png";
 import airbnb from "@/assets/images/airbnb-logo.png";
 import Image from "next/image.js";
+import { FaReact, FaJs, FaHtml5, FaCss3 } from "react-icons/fa";
+import {
+  SiNextdotjs,
+  SiTailwindcss,
+  SiTypescript,
+  SiBulma,
+} from "react-icons/si";
+import { GiAtom } from "react-icons/gi";
 
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const projects = [
@@ -29,7 +37,7 @@ const projects = [
   },
   {
     name: "Maze",
-    tech: ["JavaScript", "Matter.js", "HTML", "CSS"],
+    tech: ["JavaScript", "MatterJS", "HTML", "CSS"],
     image: maze,
     href: "https://laharl143.github.io/maze-vanilla-js/",
   },
@@ -46,6 +54,18 @@ const projects = [
     href: "https://laharl143.github.io/movie-fight-vanilla-js/",
   },
 ];
+
+const techIcons: Record<string, JSX.Element> = {
+  React: <FaReact className="text-blue-500 size-7" />,
+  TypeScript: <SiTypescript className="text-blue-700 size-7" />,
+  NextJs: <SiNextdotjs className="text-black size-7" />,
+  TailwindCSS: <SiTailwindcss className="text-teal-500 size-7" />,
+  JavaScript: <FaJs className="text-yellow-500 size-7" />,
+  HTML: <FaHtml5 className="text-orange-500 size-7" />,
+  CSS: <FaCss3 className="text-blue-600 size-7" />,
+  Bulma: <SiBulma className="text-green-500 size-7" />,
+  MatterJS: <GiAtom className="text-purple-500 size-7" />,
+};
 
 const Projects: FC = () => {
   return (
@@ -78,9 +98,11 @@ const Projects: FC = () => {
                     <h3 className="text-2xl md:text-3xl lg:text-4xl">{name}</h3>
                     {/* Tech Stack (Hidden by default, appears on hover) */}
                     <div className="opacity-0 group-hover/project:opacity-100 transition-opacity duration-500 mt-2">
-                      <p className="text-sm md:text-base lg:text-lg text-stone-600">
-                        {tech.join(" • ")}
-                      </p>
+                      <div className="flex gap-3 opacity-0 group-hover/project:opacity-100 transition-opacity duration-500 mt-2">
+                        {tech.map((t) => (
+                          <span key={t}>{techIcons[t] || t}</span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                   {/* Hover Image */}
