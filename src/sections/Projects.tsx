@@ -29,7 +29,7 @@ const projects = [
   },
   {
     name: "Maze",
-    tech: ["JavaScript", "HTML", "CSS"],
+    tech: ["JavaScript", "Matter.js", "HTML", "CSS"],
     image: maze,
     href: "https://laharl143.github.io/maze-vanilla-js/",
   },
@@ -41,7 +41,7 @@ const projects = [
   },
   {
     name: "Movie Fight",
-    tech: ["JavaScript", "HTML", "CSS"],
+    tech: ["JavaScript", "Bulma", "HTML", "CSS"],
     image: movie,
     href: "https://laharl143.github.io/movie-fight-vanilla-js/",
   },
@@ -57,6 +57,8 @@ const Projects: FC = () => {
             <a
               href={href}
               key={name}
+              target="_blank"
+              rel="noopener noreferrer"
               className="border-t last:border-b border-stone-400 border-dotted py-6 md:py-8 lg:py-10 flex flex-col relative group/project"
             >
               {/* Background hover effect */}
