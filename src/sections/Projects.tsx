@@ -53,6 +53,20 @@ const projects = [
     image: movie,
     href: "https://laharl143.github.io/movie-fight-vanilla-js/",
   },
+  {
+    name: "POS System for restaurant",
+    tech: ["React", "NodeJs", "MongoDB", "Redux", "TailwindCSS"],
+    image: movie,
+    href: "",
+    comingSoon: true,
+  },
+  {
+    name: "Online Food Ordering App",
+    tech: ["React", "JavaScript", "NextJs", "TailwindCSS"],
+    image: movie,
+    href: "",
+    comingSoon: true,
+  },
 ];
 
 const techIcons: Record<string, JSX.Element> = {
@@ -85,7 +99,7 @@ const Projects: FC = () => {
       <div className="container">
         <h2 className="text-4xl md:text-7xl lg:text-8xl">Projects</h2>
         <div className="mt-10 md:mt-16 lg:mt-20">
-          {projects.map(({ name, image, href, tech }) => (
+          {projects.map(({ name, image, href, tech, comingSoon }) => (
             <a
               href={href}
               key={name}
@@ -127,6 +141,13 @@ const Projects: FC = () => {
                       </div>
                     </div>
                   </div>
+                  {/* Coming Soon Banner */}
+                  {comingSoon && (
+                    <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-gray-800 bg-opacity-50 text-white text-lg font-semibold rounded-md z-20 opacity-0 group-hover/project:opacity-100 transition-opacity duration-300">
+                      <span className="animate-pulse">Coming Soon!</span>
+                    </div>
+                  )}
+
                   {/* Hover Image */}
                   <div className="relative">
                     <div className="absolute aspect-video w-full top-1/2-translate-y-1/2 opacity-0 scale-90 group-hover/project:opacity-100 group-hover/project:scale-100 lg:group-hover/project:scale-110 transition-all duration-500 z-10">
