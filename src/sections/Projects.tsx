@@ -53,20 +53,20 @@ const projects = [
     image: movie,
     href: "https://laharl143.github.io/movie-fight-vanilla-js/",
   },
-  {
-    name: "POS System for restaurant",
-    tech: ["React", "NodeJs", "MongoDB", "Redux", "TailwindCSS"],
-    image: movie,
-    href: "",
-    comingSoon: true,
-  },
-  {
-    name: "Online Food Ordering App",
-    tech: ["React", "JavaScript", "NextJs", "TailwindCSS"],
-    image: movie,
-    href: "",
-    comingSoon: true,
-  },
+  // {
+  //   name: "POS System for restaurant",
+  //   tech: ["React", "NodeJs", "MongoDB", "Redux", "TailwindCSS"],
+  //   image: movie,
+  //   href: "",
+  //   comingSoon: true,
+  // },
+  // {
+  //   name: "Online Food Ordering App",
+  //   tech: ["React", "JavaScript", "NextJs", "TailwindCSS"],
+  //   image: movie,
+  //   href: "",
+  //   comingSoon: true,
+  // },
 ];
 
 const techIcons: Record<string, JSX.Element> = {
