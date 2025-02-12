@@ -82,7 +82,7 @@ const Projects: FC = () => {
               className="border-t last:border-b border-stone-400 border-dotted py-6 md:py-8 lg:py-10 flex flex-col relative group/project"
             >
               {/* Background hover effect */}
-              <div className="absolute bottom-0 left-0 w-full h-0 group-hover/project:h-full transition-all duration-700 bg-stone-300"></div>
+              <div className="absolute bottom-0 left-0 w-full h-0 group-hover/project:h-full transition-all duration-700 bg-stone-300 dark:bg-stone-700"></div>
               <div className="relative">
                 {/* Mobile Image */}
                 <div className="aspect-video md:hidden">
@@ -95,12 +95,23 @@ const Projects: FC = () => {
                 <div className="mt-8 md:mt-0 flex justify-between items-center md:grid md:[grid-template-columns:1fr_300px_max-content] md:gap-8">
                   {/* Project Name */}
                   <div className="lg:group-hover/project:pl-8 transition-all duration-700">
-                    <h3 className="text-2xl md:text-3xl lg:text-4xl">{name}</h3>
+                    <h3 className="text-2xl md:text-3xl lg:text-4xl text-gray-900 dark:text-white">
+                      {name}
+                    </h3>
                     {/* Tech Stack (Hidden by default, appears on hover) */}
                     <div className="opacity-0 group-hover/project:opacity-100 transition-opacity duration-500 mt-2">
                       <div className="flex gap-3 opacity-0 group-hover/project:opacity-100 transition-opacity duration-500 mt-2">
                         {tech.map((t) => (
-                          <span key={t}>{techIcons[t] || t}</span>
+                          <div
+                            key={t}
+                            className="group relative" // Added group class
+                          >
+                            {techIcons[t] || t}
+                            {/* Tech Stack text, appears on hover of tech icon */}
+                            <div className="absolute opacity-0 group-hover:opacity-100 left-0 top-8 bg-black text-white text-xs p-2 rounded-lg transition-opacity duration-300">
+                              {t}
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>

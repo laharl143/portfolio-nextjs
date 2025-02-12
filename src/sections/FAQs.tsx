@@ -55,7 +55,7 @@ const FAQs: FC = () => {
             >
               <div
                 className={twMerge(
-                  "absolute h-0 w-full bottom-0 left-0 bg-stone-300 -z-10 group-hover/faq:h-full transition-all duration-700",
+                  "absolute h-0 w-full bottom-0 left-0 bg-stone-300 -z-10 group-hover/faq:h-full transition-all duration-700  dark:bg-stone-700",
                   faqIndex === selectedIndex && "h-full"
                 )}
               ></div>
