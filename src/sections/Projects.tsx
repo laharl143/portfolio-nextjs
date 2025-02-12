@@ -37,7 +37,7 @@ const projects = [
   },
   {
     name: "Maze",
-    tech: ["JavaScript", "MatterJS", "HTML", "CSS"],
+    tech: ["JavaScript", "MatterJs", "HTML", "CSS"],
     image: maze,
     href: "https://laharl143.github.io/maze-vanilla-js/",
   },
@@ -64,7 +64,19 @@ const techIcons: Record<string, JSX.Element> = {
   HTML: <FaHtml5 className="text-orange-500 size-7" />,
   CSS: <FaCss3 className="text-blue-600 size-7" />,
   Bulma: <SiBulma className="text-green-500 size-7" />,
-  MatterJS: <GiAtom className="text-purple-500 size-7" />,
+  MatterJs: <GiAtom className="text-purple-500 size-7" />,
+};
+
+const techColors: Record<string, string> = {
+  React: "bg-blue-500",
+  TypeScript: "bg-blue-700",
+  NextJs: "bg-gray-900",
+  TailwindCSS: "bg-teal-500",
+  JavaScript: "bg-yellow-500",
+  HTML: "bg-orange-500",
+  CSS: "bg-blue-600",
+  Bulma: "bg-green-500",
+  MatterJs: "bg-purple-500",
 };
 
 const Projects: FC = () => {
@@ -102,13 +114,12 @@ const Projects: FC = () => {
                     <div className="opacity-0 group-hover/project:opacity-100 transition-opacity duration-500 mt-2">
                       <div className="flex gap-3 opacity-0 group-hover/project:opacity-100 transition-opacity duration-500 mt-2">
                         {tech.map((t) => (
-                          <div
-                            key={t}
-                            className="group relative" // Added group class
-                          >
+                          <div key={t} className="group relative">
                             {techIcons[t] || t}
-                            {/* Tech Stack text, appears on hover of tech icon */}
-                            <div className="absolute opacity-0 group-hover:opacity-100 left-0 top-8 bg-black text-white text-xs p-2 rounded-lg transition-opacity duration-300">
+                            {/* Tech Stack text with dynamic background color */}
+                            <div
+                              className={`absolute opacity-0 group-hover:opacity-100 left-1/2 -translate-x-1/2 top-8 text-white text-xs p-2 rounded-lg transition-opacity duration-300 ${techColors[t]}`}
+                            >
                               {t}
                             </div>
                           </div>
