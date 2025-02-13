@@ -60,7 +60,9 @@ const Hero: FC = () => {
               ref={scope}
             >
               <span className="text-red-500">Innovation</span> and
-              <span className="text-green-500"> Perseverance</span>: I am the living algorithm of these two principles, constantly debugging challenges and coding my way to success.
+              <span className="text-green-500"> Perseverance</span>: I am the
+              living algorithm of these two principles, constantly debugging
+              challenges and coding my way to success.
             </motion.h1>
             <div className="flex flex-col flex-wrap mt-16 md:flex-row sm:flex-row md:items-center sm:items-center items-start gap-6">
               <motion.div
