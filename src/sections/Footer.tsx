@@ -66,7 +66,7 @@ const Footer: FC = () => {
                 className="text-4xl md:text-7xl lg:text-8xl mt-8 font-extralight"
                 ref={scope}
               >
-                The future is built, not talked about. Let&apos;s get to work.
+                Let&apos;s Build the Future Together
               </h2>
               <Button
                 onClick={() =>
