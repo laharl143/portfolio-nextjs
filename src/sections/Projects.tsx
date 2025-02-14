@@ -8,7 +8,14 @@ import airbnb from "@/assets/images/airbnb-logo.png";
 import pos from "@/assets/images/pos-system-image.png";
 import food from "@/assets/images/food-order-img.jpg";
 import Image from "next/image.js";
-import { FaReact, FaJs, FaHtml5, FaCss3, FaNodeJs } from "react-icons/fa";
+import {
+  FaReact,
+  FaJs,
+  FaHtml5,
+  FaCss3,
+  FaNodeJs,
+  FaAws,
+} from "react-icons/fa";
 import {
   SiNextdotjs,
   SiTailwindcss,
@@ -16,8 +23,8 @@ import {
   SiBulma,
   SiMongodb,
   SiRedux,
+  SiMatterdotjs,
 } from "react-icons/si";
-import { GiAtom } from "react-icons/gi";
 
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const projects = [
@@ -27,6 +34,20 @@ const projects = [
     image: airbnb,
     href: "https://airbnb-clone-ers-due.vercel.app/",
     inProgress: true,
+  },
+  {
+    name: "Integrated Restaurant POS Platform",
+    tech: ["React", "NodeJs", "MongoDB", "Redux", "TailwindCSS"],
+    image: pos,
+    href: "",
+    comingSoon: true,
+  },
+  {
+    name: "Cloud-Based Food Delivery System",
+    tech: ["React", "JavaScript", "NextJs", "TailwindCSS", "AWS"],
+    image: food,
+    href: "",
+    comingSoon: true,
   },
   {
     name: "Simon game",
@@ -58,20 +79,6 @@ const projects = [
     image: movie,
     href: "https://laharl143.github.io/movie-fight-vanilla-js/",
   },
-  {
-    name: "POS System for restaurant",
-    tech: ["React", "NodeJs", "MongoDB", "Redux", "TailwindCSS"],
-    image: pos,
-    href: "",
-    comingSoon: true,
-  },
-  {
-    name: "Online Food Ordering App",
-    tech: ["React", "JavaScript", "NextJs", "TailwindCSS"],
-    image: food,
-    href: "",
-    comingSoon: true,
-  },
 ];
 
 const techIcons: Record<string, JSX.Element> = {
@@ -83,11 +90,12 @@ const techIcons: Record<string, JSX.Element> = {
   HTML: <FaHtml5 className="text-orange-500 size-7" />,
   CSS: <FaCss3 className="text-blue-600 size-7" />,
   Bulma: <SiBulma className="text-green-500 size-7" />,
-  MatterJs: <GiAtom className="text-purple-500 size-7" />,
+  MatterJs: <SiMatterdotjs className="text-indigo-500 size-7" />,
   NodeJs: <FaNodeJs className="text-green-600 size-7" />,
   MongoDB: <SiMongodb className="text-green-700 size-7" />,
   MongoDBAtlas: <SiMongodb className="text-blue-600 size-7" />,
   Redux: <SiRedux className="text purple-600 size-7" />,
+  AWS: <FaAws className="text-[#FF9900] size-7" />,
 };
 
 const techColors: Record<string, string> = {
@@ -99,11 +107,12 @@ const techColors: Record<string, string> = {
   HTML: "bg-orange-500",
   CSS: "bg-blue-600",
   Bulma: "bg-green-500",
-  MatterJs: "bg-purple-500",
+  MatterJs: "bg-indigo-500",
   NodeJs: "bg-green-600",
   MongoDB: "bg-green-700",
   MongoDBAtlas: "bg-blue-600",
   Redux: "bg-purple-600",
+  AWS: "bg-[#FF9900]",
 };
 
 const Projects: FC = () => {
