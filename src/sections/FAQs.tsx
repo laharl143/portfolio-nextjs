@@ -13,7 +13,7 @@ const faqs = [
   {
     question: "What professional projects have you worked on?",
     answer:
-      "I've had the opportunity to work on two significant projects with Japanese clients:<br><br>1. <strong>APS</strong>: A Japanese Airbnb-style rental platform designed to streamline property rentals and enhance user experience.<br>2. <strong>Trading Manager</strong>: A comprehensive system for managing Japan’s electricity market, focusing on efficiency and scalability.<br><br>These projects have honed my skills in delivering high-quality solutions for complex, real-world problems.",
+      "I've had the opportunity to work on two significant projects with Japanese clients:<br><br>1. <strong>APS</strong>: Migration of a legacy property management system to a microservice architecture with 500+ screens and 800+ APIs, serving 1M+ users.<br>2. <strong>Power Trading System (Confidential)</strong>: A high-frequency electricity trading platform in Japan, focusing on efficiency, scalability, and real-time data processing.<br><br>These projects have honed my skills in delivering high-quality solutions for complex, real-world problems while adhering to strict performance and reliability standards.",
   },
   {
     question: "What technologies do you specialize in?",
