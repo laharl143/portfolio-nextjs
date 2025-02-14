@@ -59,16 +59,17 @@ const Hero: FC = () => {
               className="text-5xl md:text-5.5xl lg:text-6xl mt-40 md:mt-5 lg:mt-20"
               ref={scope}
             >
-              I’m powered by{" "}
-              <span className="text-green-500"> perseverance </span> and{" "}
-              <span className="text-red-500">curiosity</span>, constantly
-              learning and adapting to solve problems and deliver results.
+              I’m driven by{" "}
+              <span className="font-bold text-green-500">Perseverance</span>{" "}
+              and <span className="font-bold text-red-500">Curiosity</span>,
+              constantly learning and adapting to solve problems and deliver
+              results.
             </motion.h1>
             <div className="flex flex-col flex-wrap mt-16 md:flex-row sm:flex-row md:items-center sm:items-center items-start gap-6">
               <motion.div
                 initial={{ opacity: 0, y: "100%" }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 4 }}
+                transition={{ duration: 0.5, delay: 3 }}
               >
                 <Button
                   pdfUrl="/erskine_resume.pdf"
