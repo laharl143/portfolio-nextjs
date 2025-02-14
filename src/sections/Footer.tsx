@@ -56,7 +56,9 @@ const Footer: FC = () => {
                 shadow-[0_0_15px_5px_rgba(34,197,94,0.8)]"
             ></div>
 
-            <span className="uppercase">Actively looking for a hustle</span>
+            <span className="uppercase">
+              Seeking Full-Time Employment Opportunities
+            </span>
           </div>
           <div className="grid md:grid-cols-3 md:items-center">
             <div className="md:col-span-2">
@@ -64,7 +66,7 @@ const Footer: FC = () => {
                 className="text-4xl md:text-7xl lg:text-8xl mt-8 font-extralight"
                 ref={scope}
               >
-                Enough talk. Let&apos;s make something great together.
+                The future is built, not talked about. Let&apos;s get to work.
               </h2>
               <Button
                 onClick={() =>
