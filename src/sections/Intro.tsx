@@ -48,8 +48,12 @@ const Intro: FC = () => {
       ref={sectionRef}
     >
       <div className="container">
-        <h2 className="text-6xl md:text-8xl lg:text-9xl lg:w-[100%]" ref={scope}>
-          I am deeply passionate about continuous learning and personal growth.
+        <h2
+          className="text-6xl md:text-8xl lg:text-[7rem] lg:w-[100%]"
+          ref={scope}
+        >
+          I am deeply focused on learning, growth and always improving for the
+          long term.
         </h2>
       </div>
     </section>
