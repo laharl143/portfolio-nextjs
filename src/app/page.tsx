@@ -6,6 +6,8 @@ import Skills from "@/sections/Skills";
 // import Testimonials from "@/sections/Testimonials";
 import FAQs from "@/sections/FAQs";
 import Footer from "@/sections/Footer";
+import ScrollToTop from "../components/ScrollToTop";
+
 
 export default function Home() {
   return (
@@ -18,6 +20,7 @@ export default function Home() {
       {/* <Testimonials /> */}
       <FAQs />
       <Footer />
+      <ScrollToTop />
     </>
   );
 }
