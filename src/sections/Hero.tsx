@@ -59,10 +59,10 @@ const Hero: FC = () => {
               className="text-5xl md:text-5.5xl lg:text-6xl mt-40 md:mt-5 lg:mt-20"
               ref={scope}
             >
-              <span className="text-red-500">Innovation</span> and
-              <span className="text-green-500"> Perseverance</span>: I am the
-              living algorithm of these two principles, constantly debugging
-              challenges and coding my way to success.
+              I’m powered by{" "}
+              <span className="text-green-500"> perseverance </span> and{" "}
+              <span className="text-red-500">curiosity</span>, constantly
+              learning and adapting to solve problems and deliver results.
             </motion.h1>
             <div className="flex flex-col flex-wrap mt-16 md:flex-row sm:flex-row md:items-center sm:items-center items-start gap-6">
               <motion.div

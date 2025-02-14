@@ -8,7 +8,6 @@ import FAQs from "@/sections/FAQs";
 import Footer from "@/sections/Footer";
 import ScrollToTop from "../components/ScrollToTop";
 
-
 export default function Home() {
   return (
     <>
