@@ -49,11 +49,16 @@ const Intro: FC = () => {
     >
       <div className="container">
         <h2
-          className="text-6xl md:text-8xl lg:text-[7rem] lg:w-[100%]"
+          className="text-6xl md:text-8xl lg:text-9xl lg:w-[100%]"
           ref={scope}
         >
-          I am deeply focused on learning, growth and always improving for the
-          long term.
+          Still learning,
+          <br />
+          Still growing,
+          <br />
+          Still leveling up,
+          <br />
+          Long-term
         </h2>
       </div>
     </section>
