@@ -5,7 +5,7 @@ import heroImage from "@/assets/images/eat-sleep-code.png";
 import Image from "next/image";
 import Button from "@/components/Button";
 import SocialLinkButton from "@/components/SocialLinkButton";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform } from "framer-motion"; // Ensure you import from "framer-motion"
 import useTextRevealAnimation from "@/hooks/useTextRevealAnimation";
 import { personalData } from "../../utils/data/personal-data";
 import { IoLogoGithub } from "react-icons/io";
@@ -14,7 +14,6 @@ import { FaFacebook } from "react-icons/fa";
 import { SiCodewars, SiMonkeytype } from "react-icons/si";
 
 const Hero: FC = () => {
-  // const [titleScope, titleAnimate] = useAnimate(); //old implementation of useTextRevealAnimation
   const scrollingDiv = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -29,24 +28,6 @@ const Hero: FC = () => {
   useEffect(() => {
     entranceAnimation();
   }, [entranceAnimation]);
-  // old implementation of useTextRevealAnimation
-  // useEffect(() => {
-  //   new SplitType(titleScope.current, {
-  //     types: "lines,words",
-  //     tagName: "span",
-  //   });
-
-  //   titleAnimate(
-  //     titleScope.current.querySelectorAll(".word"),
-  //     {
-  //       transform: "translateY(0)",
-  //     },
-  //     {
-  //       duration: 0.5,
-  //       delay: stagger(0.2),
-  //     }
-  //   );
-  // }, []);
 
   return (
     <section id="hero">
@@ -60,8 +41,8 @@ const Hero: FC = () => {
               ref={scope}
             >
               I’m driven by{" "}
-              <span className="font-bold text-green-500">Perseverance</span>{" "}
-              and <span className="font-bold text-red-500">Curiosity</span>,
+              <span className="font-bold text-green-500">Perseverance</span> and{" "}
+              <span className="font-bold text-red-500">Curiosity</span>,
               constantly learning and adapting to solve problems and deliver
               results.
             </motion.h1>
@@ -71,46 +52,74 @@ const Hero: FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 3 }}
               >
-                <Button
-                  pdfUrl="/erskine_duenas_cv.pdf"
-                  variant="secondary"
-                  iconAfter={
-                    <div className="overflow-hidden size-5">
-                      <div className="h-5 w-10 flex group-hover/button:-translate-x-1/2 transition-transform duration-500">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth="1.5"
-                          stroke="currentColor"
-                          className="size-5"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="m4.5 5.25 7.5 7.5 7.5-7.5m-15 6 7.5 7.5 7.5-7.5"
-                          />
-                        </svg>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth="1.5"
-                          stroke="currentColor"
-                          className="size-5"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="m4.5 5.25 7.5 7.5 7.5-7.5m-15 6 7.5 7.5 7.5-7.5"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  }
-                >
-                  <span>Download CV</span>
-                </Button>
+                <motion.div className="relative inline-block">
+                  {/* Comic-Style Ribbon */}
+                  <motion.div
+                    className="absolute -top-8 -left-6 bg-neon-500 text-white text-xs font-bold px-3 py-1 rounded shadow-lg
+               before:absolute before:content-[''] before:w-0 before:h-0
+               before:border-l-[8px] before:border-l-transparent
+               before:border-r-[8px] before:border-r-transparent
+               before:border-t-[10px] before:border-neon-500
+               before:bottom-[-10px] before:right-2"
+                    animate={{
+                      y: [0, -5, 0], // Bouncing effect
+                    }}
+                    transition={{
+                      repeat: Infinity,
+                      repeatDelay: 1.5,
+                      duration: 1.2,
+                    }}
+                  >
+                    Click Me!
+                  </motion.div>
+
+                  {/* Download CV Button */}
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      pdfUrl="/erskine_duenas_cv.pdf"
+                      variant="secondary"
+                      iconAfter={
+                        <div className="overflow-hidden size-5">
+                          <div className="h-5 w-10 flex group-hover/button:-translate-x-1/2 transition-transform duration-500">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth="1.5"
+                              stroke="currentColor"
+                              className="size-5"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="m4.5 5.25 7.5 7.5 7.5-7.5m-15 6 7.5 7.5 7.5-7.5"
+                              />
+                            </svg>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth="1.5"
+                              stroke="currentColor"
+                              className="size-5"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="m4.5 5.25 7.5 7.5 7.5-7.5m-15 6 7.5 7.5 7.5-7.5"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                      }
+                    >
+                      <span>Download CV</span>
+                    </Button>
+                  </motion.div>
+                </motion.div>
               </motion.div>
               <SocialLinkButton
                 href={personalData.linkedIn}
