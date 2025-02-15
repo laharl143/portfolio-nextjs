@@ -128,23 +128,28 @@ const Hero: FC = () => {
                 href={personalData.linkedIn}
                 icon={<BiLogoLinkedin />}
                 size={46}
+                platform="linkedin"
               />
               <SocialLinkButton
                 href={personalData.github}
                 icon={<IoLogoGithub />}
+                platform="github"
               />
               <SocialLinkButton
                 href={personalData.codewars}
                 icon={<SiCodewars />}
                 size={42}
+                platform="codewars"
               />
               <SocialLinkButton
                 href={personalData.monkeyType}
                 icon={<SiMonkeytype />}
+                platform="monkeytype"
               />
               <SocialLinkButton
                 href={personalData.facebook}
                 icon={<FaFacebook />}
+                platform="facebook"
               />
             </div>
           </div>

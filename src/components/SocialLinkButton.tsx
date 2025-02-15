@@ -9,8 +9,8 @@ interface SocialLinkButtonProps {
   size?: number;
   bgColor?: string;
   delay?: number;
-  bgHover?: string;
   padding?: string;
+  platform?: "linkedin" | "github" | "codewars" | "monkeytype" | "facebook";
 }
 
 const SocialLinkButton: FC<SocialLinkButtonProps> = ({
@@ -19,8 +19,18 @@ const SocialLinkButton: FC<SocialLinkButtonProps> = ({
   size = 48,
   bgColor = "transparent",
   delay = 3,
-  bgHover = "neon-500",
+  platform,
 }) => {
+  const brandColors = {
+    linkedin: "hover:bg-[#0A66C2]",
+    github: "hover:bg-[#181717]",
+    codewars: "hover:bg-[#B1361E]",
+    monkeytype: "hover:bg-[#FFD700]",
+    facebook: "hover:bg-[#1877F2]",
+  };
+
+  const hoverColor = platform ? brandColors[platform] : "hover:bg-neon-500";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: "100%" }}
@@ -37,7 +47,7 @@ const SocialLinkButton: FC<SocialLinkButtonProps> = ({
     >
       <Link target="_blank" href={href}>
         <div
-          className={`bg-${bgColor} p-2 rounded-full hover:bg-${bgHover} hover:scale-110 transition-all duration-300 ease-in-out text-gray-800 hover:text-white cursor-pointer dark:text-gray-200`}
+          className={`bg-${bgColor} p-2 rounded-full ${hoverColor} hover:scale-110 transition-all duration-300 ease-in-out text-gray-800 hover:text-white cursor-pointer dark:text-gray-200`}
         >
           {React.cloneElement(icon, { size: size })}
         </div>
