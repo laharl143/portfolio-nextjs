@@ -8,7 +8,7 @@ import { ThemeToggleButton } from "@/components/ThemeToggleButton";
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const navItems = [
   {
-    label: "Home",
+    label: "About me",
     href: "#hero",
   },
   {

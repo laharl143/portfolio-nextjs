@@ -46,7 +46,7 @@ const Hero: FC = () => {
               constantly learning and adapting to solve problems and deliver
               results.
             </motion.h1>
-            <div className="flex flex-col flex-wrap mt-16 md:flex-row sm:flex-row md:items-center sm:items-center items-start gap-6">
+            <div className="flex flex-col flex-wrap mt-20 md:flex-row sm:flex-row md:items-center sm:items-center items-start gap-6">
               <motion.div
                 initial={{ opacity: 0, y: "100%" }}
                 animate={{ opacity: 1, y: 0 }}
@@ -160,6 +160,7 @@ const Hero: FC = () => {
               alt="My portrait"
               className="size-full object-cover"
             />
+            1
           </motion.div>
         </div>
       </div>

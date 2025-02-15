@@ -8,7 +8,7 @@ import { useInView } from "motion/react";
 const navItems = [
   {
     href: "#hero",
-    label: "Home",
+    label: "About me",
   },
   {
     href: "#skills",
