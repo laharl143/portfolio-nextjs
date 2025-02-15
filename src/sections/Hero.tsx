@@ -60,7 +60,7 @@ const Hero: FC = () => {
                before:border-l-[8px] before:border-l-transparent
                before:border-r-[8px] before:border-r-transparent
                before:border-t-[10px] before:border-neon-500
-               before:bottom-[-10px] before:right-2"
+               before:bottom-[-8px] before:right-1"
                     style={{ opacity: 0.5 }} // Reduced opacity to 50%
                     animate={{
                       y: [0, -5, 0], // Bouncing effect
