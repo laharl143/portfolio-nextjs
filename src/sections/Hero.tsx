@@ -5,7 +5,7 @@ import heroImage from "@/assets/images/eat-sleep-code.png";
 import Image from "next/image";
 import Button from "@/components/Button";
 import SocialLinkButton from "@/components/SocialLinkButton";
-import { motion, useScroll, useTransform } from "framer-motion"; // Ensure you import from "framer-motion"
+import { motion, useScroll, useTransform } from "framer-motion";
 import useTextRevealAnimation from "@/hooks/useTextRevealAnimation";
 import { personalData } from "../../utils/data/personal-data";
 import { IoLogoGithub } from "react-icons/io";
@@ -53,21 +53,24 @@ const Hero: FC = () => {
                 transition={{ duration: 0.5, delay: 3 }}
               >
                 <motion.div className="relative inline-block">
-                  {/* Comic-Style Ribbon */}
+                  {/* Improved Comic-Style Ribbon */}
                   <motion.div
-                    className="absolute -top-8 -left-6 bg-neon-500 text-white text-xs font-bold px-3 py-1 rounded shadow-lg
+                    className="absolute -top-8 -left-6 bg-neon-500 text-white text-xs font-bold px-3 py-1 rounded-lg shadow-md
                before:absolute before:content-[''] before:w-0 before:h-0
                before:border-l-[8px] before:border-l-transparent
                before:border-r-[8px] before:border-r-transparent
                before:border-t-[10px] before:border-neon-500
                before:bottom-[-10px] before:right-2"
+                    style={{ opacity: 0.5 }} // Reduced opacity to 50%
                     animate={{
                       y: [0, -5, 0], // Bouncing effect
+                      rotate: [0, -5, 5, 0], // Slight rotation for a playful effect
                     }}
                     transition={{
                       repeat: Infinity,
                       repeatDelay: 1.5,
                       duration: 1.2,
+                      ease: "easeInOut",
                     }}
                   >
                     Click Me!
