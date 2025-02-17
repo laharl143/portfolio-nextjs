@@ -165,7 +165,6 @@ const Hero: FC = () => {
               alt="My portrait"
               className="size-full object-cover"
             />
-            1
           </motion.div>
         </div>
       </div>
