@@ -4,31 +4,43 @@ import { FC, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { twMerge } from "tailwind-merge";
 
+const getYearsOfExperience = () => {
+  const start = new Date("2022-10-24");
+  const now = new Date();
+  const diff = (now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+  return Math.floor(diff * 10) / 10; // e.g. 2.5, 3.1
+};
+
 const faqs = [
   {
-    question: "What is your experience as a software developer?",
+    question: "What is your current role and experience?",
     answer:
-      "I bring 2.5 years of professional experience as a Full Stack Developer, specializing in building robust, scalable, and user-friendly web applications. My expertise spans both frontend and backend development, ensuring end-to-end solutions for diverse projects.",
+      `I'm currently an <strong>Application Developer at IBM Philippines</strong>, with over <strong>${getYearsOfExperience()} years</strong> of professional experience building enterprise-grade systems. I was recognized as the <strong>Top Performer</strong> of my project team in December 2025 out of 25 developers. I lean back-end but am fully capable across the stack.`,
   },
   {
     question: "What professional projects have you worked on?",
     answer:
-      "I've had the opportunity to work on two significant projects with Japanese clients:<br><br>1. <strong>APS</strong>: Migration of a legacy property management system to a microservice architecture with 500+ screens and 800+ APIs, serving 1M+ users.<br>2. <strong>Power Trading System (Confidential)</strong>: A high-frequency electricity trading platform in Japan, focusing on efficiency, scalability, and real-time data processing.<br><br>These projects have honed my skills in delivering high-quality solutions for complex, real-world problems while adhering to strict performance and reliability standards.",
+      "I've had the opportunity to work on several significant projects:<br><br>1. <strong>APS</strong>: Migration of a legacy property management system to a microservice architecture with 500+ screens and 800+ APIs, serving 1M+ users.<br><br>2. <strong>Power Trading System (Internal System)</strong>: A high-frequency electricity trading platform in Japan, focusing on efficiency, scalability, and real-time data processing.<br><br>3. <strong>NHK Broadcast Schedule Management (Internal System)</strong>: Built and maintained for Japan Broadcasting Corporation, one of Japan's largest broadcasters.<br><br>4. <strong>Vital Stats Wellness</strong>: A full-stack medical wellness platform built for a Philippine startup client.",
   },
   {
     question: "What technologies do you specialize in?",
     answer:
-      "I specialize in a modern tech stack that includes <strong>JavaScript</strong>, <strong>Node.js</strong>, <strong>React</strong>, and <strong>Java</strong>. These technologies enable me to build scalable, efficient, and maintainable web applications. I also have experience with tools like TailwindCSS, MongoDB, and AWS for seamless development and deployment.",
+      "My core stack includes <strong>Java</strong>, <strong>Angular</strong>, and <strong>TypeScript</strong> on the enterprise side,sharpened through real production work at IBM. On the full-stack side, I work with <strong>React</strong>, <strong>Next.js</strong>, and <strong>JavaScript</strong>. For databases, I have experience with <strong>DB2</strong>, <strong>MySQL</strong>, and <strong>PostgreSQL</strong>. I also work with <strong>Supabase</strong>, <strong>AWS</strong>, <strong>Docker</strong>, <strong>Git</strong>, and <strong>TailwindCSS</strong>. I'm currently deepening my knowledge in <strong>system design and software architecture</strong> as I work toward becoming a Software Architect.",
   },
   {
     question: "Do you have experience working with international clients?",
     answer:
-      "Absolutely! I have collaborated with Japanese clients, delivering projects that meet global standards. Working in an international environment has taught me the importance of clear communication, clean code, and scalable solutions to cater to diverse user needs.",
+      "Yes, my primary client at IBM is <strong>NHK (Japan Broadcasting Corporation)</strong>. I communicate directly with the NHK technical team in Japanese (JLPT N4 certified, N3 level). Working across cultures has sharpened my attention to detail, documentation standards, and cross-team communication.",
+  },
+  {
+    question: "Are you open to new opportunities?",
+    answer:
+      "I'm currently focused on growing within IBM. That said, I'm always open to conversations about exciting roles particularly those involving back-end engineering, system architecture, or full-stack development. Feel free to reach out via <strong>LinkedIn</strong> or <strong>email</strong>!",
   },
   {
     question: "How can I get in touch with you?",
     answer:
-      "I’d love to hear from you! You can reach out to me via <strong>email</strong> or connect with me on <strong>LinkedIn</strong>. Whether you have a project inquiry, a collaboration opportunity, or just want to chat about tech, feel free to get in touch!",
+      "You can reach me via <strong>email at erskine.duenas@gmail.com</strong> or connect with me on <strong>LinkedIn</strong>. I'm also active on GitHub where you can check out my personal projects. Whether it's a project inquiry, collaboration, or just a chat about tech, I'd love to hear from you!",
   },
 ];
 

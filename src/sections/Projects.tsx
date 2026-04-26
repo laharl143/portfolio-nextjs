@@ -25,13 +25,14 @@ import {
   SiMongodb,
   SiRedux,
   SiMatterdotjs,
+  SiSupabase,
 } from "react-icons/si";
 
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const projects = [
   {
-    name: "VitalStats Wellness",
-    tech: ["NextJs", "TypeScript", "TailwindCSS"],
+    name: "Vital Stats",
+    tech: ["NextJs", "TypeScript", "TailwindCSS", "Supabase"],
     image: vitalstats,
     href: "https://www.vitalstatwellness.online/",
     inProgress: true,
@@ -105,6 +106,7 @@ const techIcons: Record<string, JSX.Element> = {
   MongoDBAtlas: <SiMongodb className="text-blue-600 size-7" />,
   Redux: <SiRedux className="text purple-600 size-7" />,
   AWS: <FaAws className="text-[#FF9900] size-7" />,
+  Supabase: <SiSupabase className="text-[#3ECF8E] size-7" />,
 };
 
 const techColors: Record<string, string> = {
@@ -122,6 +124,7 @@ const techColors: Record<string, string> = {
   MongoDBAtlas: "bg-blue-600",
   Redux: "bg-purple-600",
   AWS: "bg-[#FF9900]",
+  Supabase: "bg-[#3ECF8E]",
 };
 
 const Projects: FC = () => {
