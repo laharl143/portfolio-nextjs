@@ -12,6 +12,10 @@ const navItems = [
     href: "#hero",
   },
   {
+    label: "Certifications",
+    href: "#badges",
+  },
+  {
     label: "Skills",
     href: "#skills",
   },
