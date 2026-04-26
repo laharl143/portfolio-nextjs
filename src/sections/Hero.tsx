@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useEffect, useRef } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import heroImage from "@/assets/images/eat-sleep-code.png";
 import Image from "next/image";
 import Button from "@/components/Button";
@@ -12,6 +12,109 @@ import { IoLogoGithub } from "react-icons/io";
 import { BiLogoLinkedin } from "react-icons/bi";
 import { FaFacebook } from "react-icons/fa";
 import { SiCodewars, SiMonkeytype } from "react-icons/si";
+
+const ScrollIndicator: FC = () => {
+  const [visible, setVisible] = useState(true);
+  const [idle, setIdle] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setVisible(!entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const checkPastHero = () => {
+      const badges = document.querySelector("#badges");
+      if (!badges) return;
+      const badgesTop = badges.getBoundingClientRect().top;
+      setPastHero(badgesTop <= window.innerHeight);
+    };
+
+    window.addEventListener("scroll", checkPastHero);
+    return () => window.removeEventListener("scroll", checkPastHero);
+  }, []);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+
+    const resetTimer = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY === lastScrollY) return;
+      lastScrollY = currentScrollY;
+
+      setIdle(false);
+      if (idleTimer.current) clearTimeout(idleTimer.current);
+      idleTimer.current = setTimeout(() => {
+        setIdle(true);
+      }, 5000);
+    };
+
+    // Start timer on mount
+    idleTimer.current = setTimeout(() => {
+      setIdle(true);
+    }, 5000);
+
+    window.addEventListener("scroll", resetTimer);
+
+    return () => {
+      window.removeEventListener("scroll", resetTimer);
+      if (idleTimer.current) clearTimeout(idleTimer.current);
+    };
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: visible ? 1 : 0,
+        scale: idle && !pastHero ? 4 : 1,
+        y: idle && !pastHero ? -60 : 0,
+      }}
+      transition={{ duration: 0.6, ease: "easeInOut" }}
+      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2 pointer-events-none"
+    >
+      <span className="text-xs text-gray-400 uppercase tracking-widest">Scroll</span>
+      <div className="flex flex-col items-center">
+        {[0, 1, 2].map((i) => (
+          <motion.svg
+            key={i}
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+            stroke="currentColor"
+            className="w-4 h-4 -mt-1"
+            animate={{ opacity: [0, 1, 0] }}
+            transition={{
+              repeat: Infinity,
+              duration: 1.5,
+              delay: i * 0.3,
+              ease: "easeInOut",
+            }}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
+            />
+          </motion.svg>
+        ))}
+      </div>
+    </motion.div>
+  );
+};
 
 const Hero: FC = () => {
   const scrollingDiv = useRef<HTMLDivElement>(null);
@@ -193,6 +296,8 @@ const Hero: FC = () => {
         </div>
       </div>
       <div className="md:h-[200vh]" ref={scrollingDiv}></div>
+
+      <ScrollIndicator />
     </section>
   );
 };
