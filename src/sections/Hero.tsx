@@ -52,19 +52,22 @@ const Hero: FC = () => {
               transition={{ duration: 0.6, delay: 3 }}
               className="text-2xl md:text-3xl mt-6 text-gray-500 font-normal"
             >
-              I'm an{" "}
+              I&apos;m an{" "}
               <span className="font-semibold text-foreground">
                 Application Developer
               </span>{" "}
               who leans back-end, sharpened by real enterprise work at{" "}
               <span className="inline-flex items-center gap-0">
-                <img
+                <Image
                   src="https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg"
                   alt="IBM"
+                  width={50}
+                  height={24}
                   className="h-6 md:h-7 w-auto inline-block align-baseline ml-1"
                   style={{ transform: 'translateY(3px)' }}
+                  unoptimized
                 />
-              </span> 
+              </span>
               . I build things that actually run in production.
             </motion.p>
             <div className="flex flex-col flex-wrap mt-10 md:flex-row sm:flex-row md:items-center sm:items-center items-start gap-6">
