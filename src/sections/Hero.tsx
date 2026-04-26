@@ -153,13 +153,13 @@ const Hero: FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 3 }}
-              className="text-2xl md:text-3xl mt-6 text-gray-500 font-normal"
+              className="text-2xl md:text-3xl mt-10 text-gray-500 font-normal"
             >
-              I&apos;m an{" "}
+              Currently an{" "}
               <span className="font-semibold text-foreground">
                 Application Developer
               </span>{" "}
-              who leans back-end, sharpened by real enterprise work at{" "}
+              at{" "}
               <span className="inline-flex items-center gap-0">
                 <Image
                   src="https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg"
@@ -171,9 +171,9 @@ const Hero: FC = () => {
                   unoptimized
                 />
               </span>
-              . I build things that actually run in production.
+              , back-end focused, full-stack capable, always building.
             </motion.p>
-            <div className="flex flex-col flex-wrap mt-10 md:flex-row sm:flex-row md:items-center sm:items-center items-start gap-6">
+            <div className="flex flex-col flex-wrap mt-14 md:flex-row sm:flex-row md:items-center sm:items-center items-start gap-6">
               <motion.div
                 initial={{ opacity: 0, y: "100%" }}
                 animate={{ opacity: 1, y: 0 }}

@@ -1,5 +1,6 @@
 import { FC } from "react";
 import simon from "@/assets/images/simon-pic.jpg";
+import vitalstats from "@/assets/images/vitalstats.png";
 import drum from "@/assets/images/drum-kit.png";
 import maze from "@/assets/images/maze-game.png";
 import quote from "@/assets/images/quote-pic.png";
@@ -28,6 +29,14 @@ import {
 
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const projects = [
+  {
+    name: "VitalStats Wellness",
+    tech: ["NextJs", "TypeScript", "TailwindCSS"],
+    image: vitalstats,
+    href: "https://www.vitalstatwellness.online/",
+    inProgress: true,
+    
+  },
   {
     name: "Airbnb Clone",
     tech: ["React", "TypeScript", "NextJs", "TailwindCSS", "MongoDBAtlas"],
