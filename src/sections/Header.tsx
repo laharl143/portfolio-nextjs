@@ -29,6 +29,36 @@ const navItems = [
   },
 ];
 
+const TitleToggle: FC = () => {
+  const [showAlt, setShowAlt] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowAlt((prev) => !prev);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <span className="text-xs md:text-sm flex justify-center items-center overflow-hidden h-5 relative w-full">
+      <motion.span
+        key={showAlt ? "alt" : "default"}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.4, ease: "easeInOut" }}
+        className="absolute"
+      >
+        {showAlt ? (
+          <span className="italic">[Aspiring Software Architect]</span>
+        ) : (
+          "[Application Developer]"
+        )}
+      </motion.span>
+    </span>
+  );
+};
+
 const Header: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [topLineScope, topLineAnimate] = useAnimate();
@@ -168,7 +198,11 @@ const Header: FC = () => {
             <div>
               <a href="/">
                 <span className="text-xl font-bold uppercase text-white md:text-3xl lg:text-4xl">
-                  Erskine&nbsp; Duenas <span className="text-sm flex justify-center items-center">[Software Engineer] </span>
+                  Erskine Duenas
+                  <span className="inline-flex items-center ml-2 text-sm font-bold px-2.5 py-0.5 rounded border border-white text-white normal-case tracking-widest align-middle">
+                    ED
+                  </span>
+                  <TitleToggle />
                 </span>
               </a>
             </div>

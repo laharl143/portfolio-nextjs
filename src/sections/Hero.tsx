@@ -37,7 +37,7 @@ const Hero: FC = () => {
             <motion.h1
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-5xl md:text-5.5xl lg:text-6xl mt-40 md:mt-5 lg:mt-20"
+              className="text-5xl md:text-5.5xl lg:text-6xl mt-24 md:-mt-32 lg:-mt-40"
               ref={scope}
             >
               I’m driven by{" "}
@@ -46,7 +46,28 @@ const Hero: FC = () => {
               constantly learning and adapting to solve problems and deliver
               results.
             </motion.h1>
-            <div className="flex flex-col flex-wrap mt-20 md:flex-row sm:flex-row md:items-center sm:items-center items-start gap-6">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 3 }}
+              className="text-2xl md:text-3xl mt-6 text-gray-500 font-normal"
+            >
+              I'm an{" "}
+              <span className="font-semibold text-foreground">
+                Application Developer
+              </span>{" "}
+              who leans back-end, sharpened by real enterprise work at{" "}
+              <span className="inline-flex items-center gap-0">
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg"
+                  alt="IBM"
+                  className="h-6 md:h-7 w-auto inline-block align-baseline ml-1"
+                  style={{ transform: 'translateY(3px)' }}
+                />
+              </span> 
+              . I build things that actually run in production.
+            </motion.p>
+            <div className="flex flex-col flex-wrap mt-10 md:flex-row sm:flex-row md:items-center sm:items-center items-start gap-6">
               <motion.div
                 initial={{ opacity: 0, y: "100%" }}
                 animate={{ opacity: 1, y: 0 }}
