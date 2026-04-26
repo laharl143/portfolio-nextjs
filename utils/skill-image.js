@@ -81,6 +81,7 @@ import kubernetes from '@/assets/svg/skills/kubernetes.svg'
 import linux from '@/assets/svg/skills/linux.svg'
 import sqlalchemy from '@/assets/svg/skills/sqlalchemy.svg'
 import fastapi from '@/assets/svg/skills/fastapi.svg'
+import springboot from '@/assets/svg/skills/spring-boot.svg';
 
 
 
@@ -251,6 +252,8 @@ export const skillsImage = (skill) => {
       return sqlalchemy;
     case 'fastapi':
       return fastapi;
+    case 'spring boot':
+      return springboot;
     default:
       break;
   }

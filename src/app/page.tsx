@@ -3,6 +3,7 @@ import Hero from "@/sections/Hero";
 import Intro from "@/sections/Intro";
 import Projects from "@/sections/Projects";
 import Skills from "@/sections/Skills";
+import Badges from "@/sections/Badges";
 // import Testimonials from "@/sections/Testimonials";
 import FAQs from "@/sections/FAQs";
 import Footer from "@/sections/Footer";
@@ -13,6 +14,7 @@ export default function Home() {
     <>
       <Header />
       <Hero />
+      <Badges />
       <Intro />
       <Skills />
       <Projects />
