@@ -24,7 +24,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 11 | Analytics (page views) | Existing | existing |
 | 12 | Projects restructuring & case study | Next slice | done |
 | 13 | Certifications curation | Next slice | done |
-| 14 | Hero repositioning copy | Next slice | planned |
+| 14 | Hero repositioning copy | Next slice | done |
 | 15 | SEO foundation | Next slice | planned |
 | 16 | Skills marquee cleanup | Next slice | planned |
 | 17 | On-site engagement tracking | Next slice | planned |
@@ -87,11 +87,12 @@ Finish the certification work already underway: rework the flat 23 badge grid in
 - [x] Verify it: `/check verify certifications curation` (PASS, 2026-09-18, all 6 behaviors confirmed in browser)
 code in `src/sections/Badges.tsx`, `utils/data/badges-data.js`
 
-### 14. Hero repositioning copy · planned
-Swap the generic "back-end focused, full-stack capable" subhead for language that plants the architect framing up top, per the copy already drafted in this project's history.
+### 14. Hero repositioning copy · done
+Swap the generic "back-end focused, full-stack capable" subhead for language that plants the architect framing up top. No drafted copy was actually found in project history; the engineer picked from 3 options drawn from the CV and the header's existing "[Aspiring Software Architect]" rotating tagline.
 **Done when:** the Hero subhead reads the agreed architect-framed copy; no layout regression.
-- [ ] Build it: `/develop hero repositioning copy`
-- [ ] Verify it: `/check verify hero repositioning copy`
+- [x] Build it: `/develop hero repositioning copy`
+- [x] Verify it: `/check verify hero repositioning copy` (PASS, 2026-09-18)
+code in `src/sections/Hero.tsx`
 
 ### 15. SEO foundation · needs a decision
 Meta tags, Open Graph and social share cards, sitemap, and structured data (Person schema) so the site looks professional when linked or shared and is discoverable in search.

@@ -171,7 +171,8 @@ const Hero: FC = () => {
                   unoptimized
                 />
               </span>
-              , back-end focused, full-stack capable, always building.
+              , architecting systems end to end, back-end focused, full-stack
+              capable.
             </motion.p>
             <div className="flex flex-col flex-wrap mt-14 md:flex-row sm:flex-row md:items-center sm:items-center items-start gap-6">
               <motion.div
