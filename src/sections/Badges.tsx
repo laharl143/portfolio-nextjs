@@ -47,12 +47,12 @@ function BadgeCard({ badge }: { badge: typeof badgesData[0] }) {
       className={`border border-gray-200 dark:border-gray-700 border-t-4 ${issuerColors[badge.issuer] || "border-t-gray-400"} rounded-xl p-7 flex flex-col items-center text-center gap-4 bg-white dark:bg-stone-900 transition-transform duration-200 ease-out cursor-pointer hover:border-neon-500 hover:shadow-xl h-full w-full`}
       style={{ willChange: "transform" }}
     >
-      <div className="relative w-36 h-36 shrink-0">
+      <div className="relative w-36 h-36 shrink-0 overflow-hidden">
         <Image
           src={badge.image}
           alt={badge.name}
           fill
-          className="object-contain"
+          className={`object-contain ${badge.issuer === "Oracle" ? "scale-[2.5]" : ""}`}
           unoptimized
         />
       </div>
