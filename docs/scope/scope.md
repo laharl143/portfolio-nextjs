@@ -22,7 +22,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 9 | Theme toggle | Existing | existing |
 | 10 | CV download | Existing | existing |
 | 11 | Analytics (page views) | Existing | existing |
-| 12 | Projects restructuring & case study | Next slice | planned |
+| 12 | Projects restructuring & case study | Next slice | in-progress |
 | 13 | Certifications curation | Next slice | done |
 | 14 | Hero repositioning copy | Next slice | planned |
 | 15 | SEO foundation | Next slice | planned |
@@ -66,10 +66,17 @@ code in `public/erskine_duenas_cv.pdf` (linked from Hero)
 
 ## Next slice
 
-### 12. Projects restructuring & case study · needs a decision
+### 12. Projects restructuring & case study
 Replace the flat project list with a tiered layout (flagship case study plus real project, in progress work, and foundations/learning projects collapsed), including a new case study for the multi agent orchestration pipeline work from your CV, so the site reflects the seniority your CV already shows.
 **Done when:** the Projects section renders 3 visually distinct tiers; the agentic pipeline case study is written and live; vanilla JS exercises are collapsed out of the primary view; alt text and keyboard navigation work across all tiers.
-- [ ] Design it (spec): `/architect projects restructuring & case study`
+- [x] Design it (spec): `/architect projects restructuring & case study`
+- [ ] Build it: `/develop projects restructuring & case study`
+   - [ ] Data shape + tier grouping (tier field, 3 grouped sections in order), satisfies AC-1, AC-2
+   - [ ] Foundations show all/show featured only toggle, satisfies AC-4
+   - [ ] Case study card (problem/approach/outcome, Miro flowchart visual with placeholder fallback), satisfies AC-2, AC-3
+   - [ ] Polish: image fallback, Flagship visual weight, accessibility pass, satisfies AC-5, AC-6, AC-7
+- [ ] Verify it: `/check verify projects restructuring & case study`
+spec [0001](../specs/0001-projects-restructuring-case-study.md)
 
 ### 13. Certifications curation · done
 Finish the certification work already underway: rework the flat 23 badge grid into a featured row (3 to 4 top credentials) with the rest behind a "show all" toggle, as discussed.
