@@ -10,6 +10,8 @@ const issuerColors: Record<string, string> = {
   "Cisco": "border-t-[#1BA0D7]",
   "ServiceNow": "border-t-[#62D84E]",
   "JS Institute": "border-t-[#F7DF1E]",
+  "Anthropic": "border-t-[#D97757]",
+  "Oracle": "border-t-[#C74634]",
 };
 
 function BadgeCard({ badge }: { badge: typeof badgesData[0] }) {
@@ -77,7 +79,7 @@ function BadgeCard({ badge }: { badge: typeof badgesData[0] }) {
   );
 }
 
-const filters = ["All", "IBM", "AWS", "Cisco", "ServiceNow", "JS Institute"];
+const filters = ["All", "IBM", "AWS", "Cisco", "ServiceNow", "JS Institute", "Anthropic", "Oracle"];
 
 const issuerShortNames: Record<string, string> = {
   "Amazon Web Services Training and Certification": "AWS",
