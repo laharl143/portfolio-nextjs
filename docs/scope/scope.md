@@ -13,7 +13,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 |---|---------|-------|--------|
 | 1 | Hero & intro | Existing | existing |
 | 2 | Header & navigation | Existing | existing |
-| 3 | Certifications & Badges | Existing | in-progress |
+| 3 | Certifications & Badges | Existing | existing |
 | 4 | Skills marquee | Existing | existing |
 | 5 | Projects showcase | Existing | existing |
 | 6 | Testimonials | Existing | existing |
@@ -23,7 +23,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 10 | CV download | Existing | existing |
 | 11 | Analytics (page views) | Existing | existing |
 | 12 | Projects restructuring & case study | Next slice | planned |
-| 13 | Certifications curation | Next slice | in-progress |
+| 13 | Certifications curation | Next slice | done |
 | 14 | Hero repositioning copy | Next slice | planned |
 | 15 | SEO foundation | Next slice | planned |
 | 16 | Skills marquee cleanup | Next slice | planned |
@@ -37,8 +37,8 @@ Landing hero with name, role tagline, mission statement, CV download, and social
 ### 2. Header & navigation · existing
 Sticky nav across About, Certifications, Skills, Projects, FAQs, Contact. code in `src/sections/Header.tsx`
 
-### 3. Certifications & Badges · in-progress
-Certification wall pulling from Credly. 21 of Credly's public badges are synced to `badges-data.js` (an earlier duplicate credential ID bug was fixed along the way); 2 Oracle Cloud certifications are not on Credly's public feed and are still pending links/images from you; the flat, uncurated 21 badge display has not yet been reworked into a featured plus collapsible view. code in `src/sections/Badges.tsx`, `utils/data/badges-data.js`
+### 3. Certifications & Badges · existing
+Certification wall pulling from Credly, 21 badges synced to `badges-data.js`, plus 2 Oracle Cloud certifications added manually (not on Credly's public feed). Curated into a featured/show all view by feature 13. code in `src/sections/Badges.tsx`, `utils/data/badges-data.js`
 
 ### 4. Skills marquee · existing
 Scrolling marquee of core skills (Java, Spring Boot, React, etc). code in `src/sections/Skills.jsx`
@@ -71,7 +71,7 @@ Replace the flat project list with a tiered layout (flagship case study plus rea
 **Done when:** the Projects section renders 3 visually distinct tiers; the agentic pipeline case study is written and live; vanilla JS exercises are collapsed out of the primary view; alt text and keyboard navigation work across all tiers.
 - [ ] Design it (spec): `/architect projects restructuring & case study`
 
-### 13. Certifications curation · in-progress
+### 13. Certifications curation · done
 Finish the certification work already underway: rework the flat 23 badge grid into a featured row (3 to 4 top credentials) with the rest behind a "show all" toggle, as discussed.
 **Done when:** the section shows a featured set by default with the full set behind one click; filter buttons still work against the full set.
 - [x] Build it: `/develop certifications curation`
