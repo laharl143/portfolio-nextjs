@@ -31,6 +31,10 @@ npm run build
 
 Stored in `docs/specs/`. Format: `docs/specs/NNNN-title.md`.
 
+## Project tracking
+
+`docs/scope/scope.md` is the pipeline's real operating memory (the skills read/write it directly). Jira project `DP` (dev-portfolio, site `vital-stats.atlassian.net`) mirrors it for day to day tracking: Epics = phases (`DP-1` existing, `DP-2` next slice), Stories = features, Subtasks = the exact skill commands (`Design it (/architect)`, `Build it (/develop)`, `Verify it (/check verify)`). After any `/scope`, `/architect`, `/develop`, or `/check verify` run that changes a feature's status, mirror the change into the matching Jira issue (status transition, new subtask, or updated description) so Jira stays accurate. `docs/scope/scope.md` is the source of truth on any conflict.
+
 ## Rules
 
 - Page sections live in `src/sections/` (Hero, Header, Badges, Projects, Skills, FAQs, Testimonials, Footer, Intro) and are composed in `src/app/page.tsx`.
