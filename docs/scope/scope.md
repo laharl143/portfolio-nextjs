@@ -72,10 +72,10 @@ Replace the flat project list with a tiered layout (flagship case study plus rea
 - [ ] Design it (spec): `/architect projects restructuring & case study`
 
 ### 13. Certifications curation · in-progress
-Finish the certification work already underway: add the 2 pending Oracle certs once you provide their links or images, and rework the flat 21 badge grid into a featured row (3 to 4 top credentials) with the rest behind a "show all" toggle, as discussed.
-**Done when:** all Oracle certs you provide are live with working links; the section shows a featured set by default with the full set behind one click; filter buttons still work against the full set.
+Finish the certification work already underway: rework the flat 23 badge grid into a featured row (3 to 4 top credentials) with the rest behind a "show all" toggle, as discussed.
+**Done when:** the section shows a featured set by default with the full set behind one click; filter buttons still work against the full set.
 - [ ] Build it: `/develop certifications curation`
-   - [ ] Add the 2 Oracle certs once you provide links/images
+   - [x] Add the 2 Oracle certs (live: AI Foundations Associate + Foundations Associate, both issued May 24, 2026)
    - [ ] Featured row (3 to 4 credentials) plus "show all" toggle for the rest
 - [ ] Verify it: `/check verify certifications curation`
 
