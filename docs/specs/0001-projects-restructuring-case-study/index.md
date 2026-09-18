@@ -1,19 +1,11 @@
 # 0001. Tier the Projects section and add an agentic pipeline case study
 
 **Date**: 2026-09-18
-**Status**: Proposed
+**Status**: Accepted
 
 ## Summary
 
 The Projects section currently lists all 9 projects as one flat, equally weighted list, from a live deployed app down to five vanilla JS practice exercises. This buries the work that actually shows senior/architect level skill. This decision restructures it into 3 visually distinct tiers (Flagship, In Progress, Foundations) and adds a new Flagship card, a short case study describing the multi agent orchestration pipeline work from the engineer's CV, so a recruiter scanning the page sees the strongest signal first.
-
-## Context
-
-Ed is job hunting for a mid to senior software engineer or architect track role. His CV describes real, senior level work (architecting multi agent orchestration pipelines across three production projects, automating a full development lifecycle: code audit, security audit, implementation, code review, and PR creation, with human review retained on every PR). None of that appears on the live site.
-
-The current `Projects.tsx` renders a single flat array (`Vital Stats`, `Airbnb Clone`, `Integrated Restaurant POS Platform`, `Cloud-Based Food Delivery System`, then five vanilla JS exercises: `Simon game`, `Drum kit`, `Maze`, `Quote Generator`, `Movie Fight`) with no grouping. Each row uses the same hover reveal interaction (tech stack chips, a preview image, an arrow) regardless of whether the project is a real deployed app or a learning exercise. A recruiter has to scroll past the same weight of visual attention on a Simon game clone as on the live Vital Stats app.
-
-The consequence of not deciding: the site keeps contradicting the CV. A hiring manager who reads both sees a senior engineer's resume paired with a junior looking portfolio, which is a real risk to how Ed gets perceived in a screen that often lasts under a minute.
 
 ## Requirements
 
@@ -31,43 +23,6 @@ The consequence of not deciding: the site keeps contradicting the CV. A hiring m
 - **AC-7**: Every tier, the case study card, and the show all toggle have correct alt text and are fully keyboard operable (matches the project's basic accessibility hygiene target).
 - **AC-8**: The In Progress tier keeps its existing "Coming Soon!" and "In Progress!" hover banners and the tech stack hover reveal, unchanged.
 
-## Options considered
-
-### Option 1: Fix in place, extend the existing component
-
-Add a `tier` field (and a `kind: 'case-study'` variant) to the existing `projects` data array in `Projects.tsx`, group the render by tier, and reuse the existing hover reveal row pattern for Flagship and In Progress, with a collapse toggle added for Foundations (mirroring `Badges.tsx`).
-
-**Pros**:
-- Reuses a pattern that already works and is already familiar from `Badges.tsx` (same toggle interaction, same visual language).
-- Lowest risk: no new files, no new dependencies, small diff.
-- Matches the Tracer Bullet approach: ships a complete, real, working slice end to end.
-
-**Cons**:
-- `Projects.tsx`'s render logic grows more branching in one file (tier grouping, a case study variant, collapse state).
-
-### Option 2: Extract tier and case study into new subcomponents
-
-Split the section into a `FlagshipTier`, `InProgressTier`, `FoundationsTier`, and a dedicated `CaseStudyCard` component, composed by the parent section.
-
-**Pros**:
-- Cleaner separation if the section keeps growing (a 4th tier, more case studies later).
-- Keeps the case study's distinct markup out of the shared row renderer.
-
-**Cons**:
-- More new files and wiring for a feature this size; the section has 9 items total, not enough to justify the extra structure yet.
-- Slower to ship, more surface for the interaction (hover reveal, banners) to drift between the original and the new components.
-
-### Option 3: Full redesign from scratch
-
-Replace the current group hover row pattern entirely with a new card grid design.
-
-**Pros**:
-- A chance to visually refresh the whole section.
-
-**Cons**:
-- Throws away an interaction pattern that already works and that users (recruiters) have no complaint about; the actual decision needed is tiering plus one new card, not a redesign.
-- Highest risk and most time for a decision that doesn't call for it.
-
 ## Decision
 
 **Chosen option**: Option 1: Fix in place, extend the existing component.
@@ -76,9 +31,7 @@ Add a `tier` and `kind` field to the existing data array, group the render into 
 
 **Implementation skills**: `tailwindcss-advanced-layouts` (`.claude/skills/tailwindcss-advanced-layouts/`, grid and spacing patterns for the tiered layout) · `framer-motion-animator` (`.claude/skills/framer-motion-animator/`, the `motion` package already used for hover/reveal transitions elsewhere on the site) · `shadcn-ui` (`.claude/skills/shadcn-ui/`, component conventions if a new primitive is needed for the case study card)
 
-## Rationale
-
-The existing hover reveal pattern is proven and already reused once this session (the Certifications curation toggle mirrors it in spirit). The project is small (19 source files, one engineer) and the scope header sets Tracer Bullet as the build approach, thin, complete, working slices over new structure. Option 2's extra components would pay off if the Projects section kept growing past 3 tiers or multiple case studies, but nothing in the current scope calls for that yet, so the cost isn't justified today. Option 3 is out of proportion to the actual decision, which is tiering plus one new card, not a section redesign.
+See `rationale.md` for the context, the options considered, and why Option 1 won.
 
 ## Feature design
 
@@ -131,13 +84,13 @@ No relationships; this is a flat, local array, the same shape family as `utils/d
 
 ## Build plan
 
-1. Extend the `projects` data array in `src/sections/Projects.tsx` with `tier` and `kind` fields per the confirmed mapping (Vital Stats and the new case study entry as `flagship`; Airbnb Clone, the POS platform, and the food delivery system as `in-progress`; the 5 vanilla JS exercises as `foundations`), satisfies **AC-1**, **AC-2**
-2. Group the render into 3 tier sections in order (Flagship, In Progress, Foundations), reusing the existing row markup for Flagship and In Progress, satisfies **AC-1**, **AC-8**
-3. Add the Foundations show all and show featured only toggle, mirroring the `showAll` state and button pattern in `src/sections/Badges.tsx`, satisfies **AC-4**
-4. Build the case study card variant (problem, approach, outcome layout plus the visual), using the drafted copy above, satisfies **AC-2**, **AC-3**
-5. Add the image `onError` fallback (on brand placeholder block with the project name) to the shared row renderer, satisfies **AC-6**
-6. Apply visual weight differentiation for the Flagship tier (larger card size or spacing versus In Progress and Foundations), confirmed to hold on mobile, satisfies **AC-5**
-7. Accessibility pass across all 3 tiers and the toggle (alt text, keyboard operability), satisfies **AC-7**
+1. [x] Extend the `projects` data array in `src/sections/Projects.tsx` with `tier` and `kind` fields per the confirmed mapping (Vital Stats and the new case study entry as `flagship`; Airbnb Clone, the POS platform, and the food delivery system as `in-progress`; the 5 vanilla JS exercises as `foundations`), satisfies **AC-1**, **AC-2**
+2. [x] Group the render into 3 tier sections in order (Flagship, In Progress, Foundations), reusing the existing row markup for Flagship and In Progress, satisfies **AC-1**, **AC-8**
+3. [x] Add the Foundations show all and show featured only toggle, mirroring the `showAll` state and button pattern in `src/sections/Badges.tsx`, satisfies **AC-4**
+4. [x] Build the case study card variant (problem, approach, outcome layout plus the visual), using the drafted copy above, satisfies **AC-2**, **AC-3**
+5. [x] Add the image `onError` fallback (on brand placeholder block with the project name) to the shared row renderer, satisfies **AC-6**
+6. [x] Apply visual weight differentiation for the Flagship tier (larger card size or spacing versus In Progress and Foundations), confirmed to hold on mobile, satisfies **AC-5**
+7. [x] Accessibility pass across all 3 tiers and the toggle (alt text, keyboard operability), satisfies **AC-7**
 
 ## Consequences
 
@@ -156,5 +109,9 @@ No relationships; this is a flat, local array, the same shape family as `utils/d
 
 ## Follow-up
 
-- [ ] Engineer to export or screenshot the jsmastery-pro/skills pipeline flowchart from Miro (`https://miro.com/app/board/uXjVHlORVG8=/`) and add it to `src/assets/images/` for the case study card; until then `/develop` uses the AC-6 placeholder fallback.
-- [ ] Engineer to review or edit the drafted case study copy (problem, approach, outcome) above before `/develop` builds it.
+- [x] ~~Engineer to export or screenshot the jsmastery-pro/skills pipeline flowchart from Miro (`https://miro.com/app/board/uXjVHlORVG8=/`) and add it to `src/assets/images/` for the case study card; until then `/develop` uses the AC-6 placeholder fallback.~~ No longer needed, see Amendment.
+- [x] ~~Engineer to review or edit the drafted case study copy (problem, approach, outcome) above before `/develop` builds it.~~ No longer needed, see Amendment.
+
+## Amendment (2026-09-18)
+
+The engineer decided against the case study card after seeing it live: it read as too self referential for the site. Removed from `Projects.tsx`; the Flagship tier now holds only Vital Stats. **AC-2** and **AC-3** (the case study's existence and content) are dropped, superseded by this amendment; all other acceptance criteria (AC-1, AC-4 through AC-8) still hold and are unaffected. The feature stays `done`; this amendment is the current record of what actually shipped.
