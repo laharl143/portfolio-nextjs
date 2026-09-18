@@ -74,10 +74,11 @@ Replace the flat project list with a tiered layout (flagship case study plus rea
 ### 13. Certifications curation · in-progress
 Finish the certification work already underway: rework the flat 23 badge grid into a featured row (3 to 4 top credentials) with the rest behind a "show all" toggle, as discussed.
 **Done when:** the section shows a featured set by default with the full set behind one click; filter buttons still work against the full set.
-- [ ] Build it: `/develop certifications curation`
+- [x] Build it: `/develop certifications curation`
    - [x] Add the 2 Oracle certs (live: AI Foundations Associate + Foundations Associate, both issued May 24, 2026)
-   - [ ] Featured row (3 to 4 credentials) plus "show all" toggle for the rest
+   - [x] Featured row (4 credentials: IBM Generative & Agentic AI Developer, both AWS Agentic/Generative AI Essentials badges, Oracle AI Foundations Associate) plus "show all"/"show featured only" toggle for the rest
 - [ ] Verify it: `/check verify certifications curation`
+code in `src/sections/Badges.tsx`, `utils/data/badges-data.js`
 
 ### 14. Hero repositioning copy · planned
 Swap the generic "back-end focused, full-stack capable" subhead for language that plants the architect framing up top, per the copy already drafted in this project's history.

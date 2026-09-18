@@ -5,6 +5,7 @@ export const badgesData = [
       date: "Issued May 24, 2026",
       url: "https://catalog-education.oracle.com/ords/certview/sharebadge?id=B7D002B9A35F034C5F72286CD5FADDD8534A89C6E64C995F33CC4C16EB75B1B0",
       image: "https://brm-workforce.oracle.com/pdf/certview/images/OCI25AICFAV1.png",
+      featured: true,
   },
   {
       name: "Oracle Cloud Infrastructure 2025 Certified Foundations Associate",
@@ -47,6 +48,7 @@ export const badgesData = [
       date: "Issued Apr 6, 2026",
       url: "https://www.credly.com/badges/bedd9ae8-3f2e-48ab-9b33-6e43f4aba1ea",
       image: "https://images.credly.com/images/d610767c-c268-49a3-af8d-1b0e7ad8940b/IBM-Generative-and-Agentic-AI-Developer---Intermediate.png",
+      featured: true,
   },
   {
     name: "AWS Knowledge: Cloud Essentials - Training Badge",
@@ -61,6 +63,7 @@ export const badgesData = [
     date: "Issued Dec 16, 2025",
     url: "https://www.credly.com/badges/cbe6cf77-0537-4cfa-8069-1679d7c60b2b",
     image: "https://images.credly.com/images/cb620644-88e4-4ee7-83a2-d33a6181e4b8/blob",
+    featured: true,
   },
   {
     name: "AWS Partner: Generative AI Essentials - Training Badge",
@@ -68,6 +71,7 @@ export const badgesData = [
     date: "Issued Nov 28, 2025",
     url: "https://www.credly.com/badges/8654da27-2547-4b0e-b866-9599ec9f468d",
     image: "https://images.credly.com/images/4b547104-5ce9-43d5-8708-a7abb4b0c7ec/blob",
+    featured: true,
   },
   {
     name: "Python Essentials 1",

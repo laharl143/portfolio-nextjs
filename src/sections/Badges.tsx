@@ -87,6 +87,7 @@ const issuerShortNames: Record<string, string> = {
 
 function Badges() {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [showAll, setShowAll] = useState(false);
 
   const filteredBadges = badgesData.filter((badge) => {
     if (activeFilter === "All") return true;
@@ -94,7 +95,13 @@ function Badges() {
     return shortName === activeFilter;
   });
 
-  const placeholderCount = (4 - (filteredBadges.length % 4)) % 4;
+  const isCurated = activeFilter === "All" && !showAll;
+  const visibleBadges = isCurated
+    ? badgesData.filter((badge) => badge.featured)
+    : filteredBadges;
+
+  const showPlaceholders = activeFilter === "All" && showAll;
+  const placeholderCount = showPlaceholders ? (4 - (visibleBadges.length % 4)) % 4 : 0;
 
   return (
     <section id="badges" className="section py-20">
@@ -124,13 +131,13 @@ function Badges() {
       </div>
 
       <div className="container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-stretch">
-        {filteredBadges.map((badge, index) => (
+        {visibleBadges.map((badge, index) => (
           <div key={index} className="flex flex-col">
             <BadgeCard badge={badge} />
           </div>
         ))}
-        {/* Placeholder cards — only show on All filter */}
-        {activeFilter === "All" && Array.from({ length: placeholderCount }).map((_, i) => (
+        {/* Placeholder cards — only when the full All grid is showing */}
+        {showPlaceholders && Array.from({ length: placeholderCount }).map((_, i) => (
           <div
             key={`placeholder-${i}`}
             className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-7 flex flex-col items-center justify-center text-center gap-3"
@@ -146,6 +153,30 @@ function Badges() {
           </div>
         ))}
       </div>
+
+      {/* Show all / show featured toggle — only meaningful on the unfiltered All view */}
+      {activeFilter === "All" && (
+        <div className="container flex justify-center mt-10">
+          <button
+            onClick={() => setShowAll((prev) => !prev)}
+            aria-expanded={showAll}
+            className="px-6 py-2.5 rounded-full text-sm font-medium border border-gray-300 text-gray-600 dark:text-gray-300 hover:border-neon-500 hover:text-neon-500 transition-all duration-300 inline-flex items-center gap-2"
+          >
+            {showAll ? "Show featured only" : `Show all ${badgesData.length} credentials`}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              aria-hidden="true"
+              className={`size-4 transition-transform duration-300 ${showAll ? "rotate-180" : ""}`}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
+        </div>
+      )}
     </section>
   );
 }
