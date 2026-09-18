@@ -76,8 +76,8 @@ Finish the certification work already underway: rework the flat 23 badge grid in
 **Done when:** the section shows a featured set by default with the full set behind one click; filter buttons still work against the full set.
 - [x] Build it: `/develop certifications curation`
    - [x] Add the 2 Oracle certs (live: AI Foundations Associate + Foundations Associate, both issued May 24, 2026)
-   - [x] Featured row (4 credentials: IBM Generative & Agentic AI Developer, both AWS Agentic/Generative AI Essentials badges, Oracle AI Foundations Associate) plus "show all"/"show featured only" toggle for the rest
-- [ ] Verify it: `/check verify certifications curation`
+   - [x] Featured row (6 credentials: both Oracle certs, Introduction to Modern AI, Well-Architected Proficient, Claude Partner Badge, IBM Generative & Agentic AI Developer) plus "show all"/"show featured only" toggle for the rest
+- [x] Verify it: `/check verify certifications curation` (PASS, 2026-09-18, all 6 behaviors confirmed in browser)
 code in `src/sections/Badges.tsx`, `utils/data/badges-data.js`
 
 ### 14. Hero repositioning copy · planned
