@@ -37,6 +37,7 @@ Stored in `docs/specs/`. Format: `docs/specs/NNNN-title.md`.
 
 ## Rules
 
+- When a feature in `docs/scope/scope.md` is marked `done` (by any skill, or directly by the engineer), commit that feature's changed files with a descriptive message and push to the tracking remote branch right after. No confirmation needed for this specific commit and push; other git operations still confirm as usual.
 - Page sections live in `src/sections/` (Hero, Header, Badges, Projects, Skills, FAQs, Testimonials, Footer, Intro) and are composed in `src/app/page.tsx`.
 - Reusable UI primitives live in `src/components/ui/`, following shadcn/ui conventions (`components.json`: style "new-york", Radix-based, class merging via `cn()` in `src/lib/utils.ts`).
 - Path alias `@/*` maps to `src/*`.
