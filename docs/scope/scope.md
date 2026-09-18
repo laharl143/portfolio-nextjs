@@ -1,4 +1,4 @@
-# Scope: Erskine Duenas — Portfolio Site
+# Scope: Erskine Duenas, Portfolio Site
 
 A personal portfolio site (Next.js) used to job hunt for a mid to senior software engineer or architect track role. This pass repositions the content and adds the cross cutting groundwork (SEO, light performance and accessibility hygiene, engagement tracking) a job hunting site needs.
 

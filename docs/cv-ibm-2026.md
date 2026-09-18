@@ -1,4 +1,4 @@
-# Ed Duenas — CV (IBM Internal, updated 09-Sep-2026)
+# Ed Duenas, CV (IBM Internal, updated 09-Sep-2026)
 
 Source: `Duenas, Ed CV updated 09-Sep-2026 EN-GB (4).pdf`
 
@@ -18,9 +18,9 @@ Passionate Software Engineer with 4+ years in IT, focused on scalable, efficient
 - Committed to agentic development workflows, regular code reviews, and documentation to reduce technical debt and foster knowledge sharing.
 
 **Industry experience (by tenure):**
-- 2 years — Public Broadcasting / Media
-- 1 year — Real Estate & Property Management
-- 1 year — Utilities / Energy
+- 2 years: Public Broadcasting / Media
+- 1 year: Real Estate & Property Management
+- 1 year: Utilities / Energy
 
 ## Key Skills
 
@@ -38,30 +38,30 @@ Performance Optimization, Agentic Workflows, Git/GitLab, Code Review & Audit Pip
 
 ## Education
 
-Bachelor of Science in Electronics and Communication Engineering, major in Programming & Software Design — Technological University of the Philippines, 2022
+Bachelor of Science in Electronics and Communication Engineering, major in Programming & Software Design, Technological University of the Philippines, 2022
 
 ## Digital Credentials
 
-- Claude Partner Badge — Claude Code (2026)
+- Claude Partner Badge, Claude Code (2026)
 - Oracle Cloud Infrastructure 2025 Certified AI Foundations Associate (2026)
 - Oracle Cloud Infrastructure 2025 Certified Foundations Associate (2026)
 - IBM Generative & Agentic AI Developer (2026)
-- Delivery Accreditation — AI Agents (2026)
-- AWS Knowledge: Cloud Essentials — Training Badge (2026)
-- AWS Partner: Agentic AI Essentials — Training Badge (2025)
-- AWS Partner: Generative AI Essentials — Training Badge (2025)
+- Delivery Accreditation, AI Agents (2026)
+- AWS Knowledge: Cloud Essentials, Training Badge (2026)
+- AWS Partner: Agentic AI Essentials, Training Badge (2025)
+- AWS Partner: Generative AI Essentials, Training Badge (2025)
 - [JSE-40-01] JSE – Certified Entry-Level JavaScript Programmer (2023)
 
 ## Languages
 
-- English — Very Good
-- Japanese — Basic
-- Tagalog — Fluent
+- English: Very Good
+- Japanese: Basic
+- Tagalog: Fluent
 
 ## Industry Experience Rating
 
-- Media & Entertainment — Experienced
-- Energy, Environment & Utilities — Foundational
+- Media & Entertainment: Experienced
+- Energy, Environment & Utilities: Foundational
 
 ## Work Experience
 
@@ -77,11 +77,11 @@ R&D Engineer specializing in Java, Spring Boot, ReactJS, NodeJS, ExpressJS, Vue.
 
 ## Assignment History
 
-### Application Developer — NHK, Japan
+### Application Developer, NHK, Japan
 **Apr 2025 – Present**
 Project: NHK編成送出システム整備プロジェクト (NHK Broadcasting System Development Project)
 
-NHK (Japan Broadcasting Corporation) — information-driven system for program scheduling and transmission, plus simultaneous internet broadcast distribution.
+NHK (Japan Broadcasting Corporation): information-driven system for program scheduling and transmission, plus simultaneous internet broadcast distribution.
 
 **Tech stack:** Java 17, Jakarta EE, Liberty/WebSphere, Maven, TypeScript, Angular, Carbon Design System, DBeaver, DB2, Jira, Eclipse, AWAG, GitLab
 
@@ -91,17 +91,17 @@ NHK (Japan Broadcasting Corporation) — information-driven system for program s
 - Handled production/hotfix work under tight turnaround, including same-day fixes across multiple linked tickets and batch processing issues.
 - Recognition reflects fast, reliable delivery paired with rigorous root-cause validation and close coordination with Japanese counterparts on spec-driven accuracy.
 
-### Assistant Research and Development Engineer — Osaka Gas / Daigas Group, Japan
+### Assistant Research and Development Engineer, Osaka Gas / Daigas Group, Japan
 **Jan 2024 – Mar 2025**
 Project: Trading Manager Application
 
-Maintained/enhanced a high-frequency trading platform for Japan's regulated energy market — processing, management, and monitoring of energy power trading activities, using Java (Spring Boot) and Vue.js. Implemented unit testing with JUnit achieving 90%+ code coverage; improved system performance by 20%. Managed tasks via Redmine in an Agile (Scrum) environment.
+Maintained/enhanced a high-frequency trading platform for Japan's regulated energy market, processing, management, and monitoring of energy power trading activities, using Java (Spring Boot) and Vue.js. Implemented unit testing with JUnit achieving 90%+ code coverage; improved system performance by 20%. Managed tasks via Redmine in an Agile (Scrum) environment.
 
 **Tech stack:** Java, Spring Boot, Gradle, JUnit, Rest Assured, JavaScript, Vue, Lychee Redmine, IntelliJ, H2 (embedded DB), SQL, Bitbucket, Jenkins
 
 **Contribution:** Full-Stack Developer in a 20-member team, daily stand-ups (朝会) conducted entirely in Japanese.
 
-### Junior Research and Development Engineer — APAMANSHOP, Japan
+### Junior Research and Development Engineer, APAMANSHOP, Japan
 **Oct 2022 – Jan 2024**
 Project: APS Property Management System Migration
 

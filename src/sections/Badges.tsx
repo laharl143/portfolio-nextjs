@@ -109,7 +109,7 @@ function Badges() {
         Certifications &amp; Badges
       </h2>
       <p className="container text-gray-500 text-lg mb-6">
-        Continuously earning credentials to back up my work —{" "}
+        Continuously earning credentials to back up my work,{" "}
         <span className="font-semibold text-foreground">{badgesData.length} credentials</span> and counting.
       </p>
 
@@ -136,7 +136,7 @@ function Badges() {
             <BadgeCard badge={badge} />
           </div>
         ))}
-        {/* Placeholder cards — only when the full All grid is showing */}
+        {/* Placeholder cards, only when the full All grid is showing */}
         {showPlaceholders && Array.from({ length: placeholderCount }).map((_, i) => (
           <div
             key={`placeholder-${i}`}
@@ -154,7 +154,7 @@ function Badges() {
         ))}
       </div>
 
-      {/* Show all / show featured toggle — only meaningful on the unfiltered All view */}
+      {/* Show all / show featured toggle, only meaningful on the unfiltered All view */}
       {activeFilter === "All" && (
         <div className="container flex justify-center mt-10">
           <button

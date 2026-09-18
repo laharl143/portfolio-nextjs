@@ -1,4 +1,4 @@
-# Erskine Duenas — Portfolio (portfolio-next)
+# Erskine Duenas, Portfolio (portfolio-next)
 
 ## Stack
 

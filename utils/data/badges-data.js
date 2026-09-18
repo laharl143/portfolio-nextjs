@@ -13,6 +13,7 @@ export const badgesData = [
       date: "Issued May 24, 2026",
       url: "https://catalog-education.oracle.com/ords/certview/sharebadge?id=C207D0DDCC5C2AA93529F886F53DD583F909CE2107E5C2AAF91BD7D2ECF8C691",
       image: "https://brm-workforce.oracle.com/pdf/certview/images/OCI25FNDCFAV1.png",
+      featured: true,
   },
   {
       name: "Introduction to Modern AI",
@@ -20,6 +21,7 @@ export const badgesData = [
       date: "Issued Sep 10, 2026",
       url: "https://www.credly.com/badges/6ba414ab-5069-467a-9440-77d97a79ac57",
       image: "https://images.credly.com/images/e2d12302-10f9-40d4-8ff1-066a7008b61d/blob",
+      featured: true,
   },
   {
       name: "Well-Architected Proficient",
@@ -27,6 +29,7 @@ export const badgesData = [
       date: "Issued Sep 10, 2026",
       url: "https://www.credly.com/badges/eecba411-6eb7-4801-b8b7-e6b5995a68fa",
       image: "https://images.credly.com/images/b870667f-00a3-48d7-b988-9c02b441b883/image.png",
+      featured: true,
   },
   {
       name: "Claude Partner Badge - Claude Code",
@@ -34,6 +37,7 @@ export const badgesData = [
       date: "Issued Aug 5, 2026",
       url: "https://www.credly.com/badges/61f68202-bc64-4083-9d23-62a5b5a7d795",
       image: "https://images.credly.com/images/d8bc1ecf-6369-4bf9-8920-84169b35d918/blob",
+      featured: true,
   },
   {
       name: "[JSE-40-01] JSE – Certified Entry-Level JavaScript Programmer",
@@ -63,7 +67,6 @@ export const badgesData = [
     date: "Issued Dec 16, 2025",
     url: "https://www.credly.com/badges/cbe6cf77-0537-4cfa-8069-1679d7c60b2b",
     image: "https://images.credly.com/images/cb620644-88e4-4ee7-83a2-d33a6181e4b8/blob",
-    featured: true,
   },
   {
     name: "AWS Partner: Generative AI Essentials - Training Badge",
@@ -71,7 +74,6 @@ export const badgesData = [
     date: "Issued Nov 28, 2025",
     url: "https://www.credly.com/badges/8654da27-2547-4b0e-b866-9599ec9f468d",
     image: "https://images.credly.com/images/4b547104-5ce9-43d5-8708-a7abb4b0c7ec/blob",
-    featured: true,
   },
   {
     name: "Python Essentials 1",
