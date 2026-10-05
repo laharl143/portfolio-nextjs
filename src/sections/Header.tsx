@@ -4,32 +4,37 @@ import { FC, useState, useEffect, MouseEvent } from "react";
 import Button from "@/components/Button";
 import { motion, useAnimate } from "motion/react";
 import { ThemeToggleButton } from "@/components/ThemeToggleButton";
+import { scrollToSectionIfSamePage } from "@/lib/section-nav";
 
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const navItems = [
   {
     label: "About me",
-    href: "#hero",
+    href: "/#hero",
   },
   {
     label: "Certifications",
-    href: "#badges",
+    href: "/#badges",
   },
   {
     label: "Skills",
-    href: "#skills",
+    href: "/#skills",
   },
   {
     label: "Projects",
-    href: "#projects",
+    href: "/#projects",
+  },
+  {
+    label: "Products",
+    href: "/products",
   },
   {
     label: "FAQs",
-    href: "#faqs",
+    href: "/#faqs",
   },
   {
     label: "Contact",
-    href: "#contact",
+    href: "/#contact",
   },
 ];
 
@@ -146,16 +151,8 @@ const Header: FC = () => {
   ]);
 
   const handleClickMobileNavItem = (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
     setIsOpen(false);
-
-    const url = new URL(e.currentTarget.href);
-    const hash = url.hash;
-
-    const target = document.querySelector(hash);
-
-    if (!target) return;
-    target.scrollIntoView({ behavior: "smooth" });
+    scrollToSectionIfSamePage(e);
   };
 
   return (

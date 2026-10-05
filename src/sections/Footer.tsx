@@ -4,22 +4,23 @@ import { FC, useEffect, MouseEvent } from "react";
 import Button from "@/components/Button";
 import useTextRevealAnimation from "@/hooks/useTextRevealAnimation";
 import { useInView } from "motion/react";
+import { scrollToSectionIfSamePage } from "@/lib/section-nav";
 
 const navItems = [
   {
-    href: "#hero",
+    href: "/#hero",
     label: "About me",
   },
   {
-    href: "#skills",
+    href: "/#skills",
     label: "Skills",
   },
   {
-    href: "#projects",
+    href: "/#projects",
     label: "Projects",
   },
   {
-    href: "#faqs",
+    href: "/#faqs",
     label: "Faqs",
   },
 ];
@@ -35,15 +36,7 @@ const Footer: FC = () => {
   }, [inView, entranceAnimation]);
 
   const handleClickNavItem = (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-
-    const url = new URL(e.currentTarget.href);
-    const hash = url.hash;
-
-    const target = document.querySelector(hash);
-
-    if (!target) return;
-    target.scrollIntoView({ behavior: "smooth" });
+    scrollToSectionIfSamePage(e);
   };
 
   return (

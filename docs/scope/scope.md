@@ -2,6 +2,8 @@
 
 A personal portfolio site (Next.js) used to job hunt for a mid to senior software engineer or architect track role. This pass repositions the content and adds the cross cutting groundwork (SEO, light performance and accessibility hygiene, engagement tracking) a job hunting site needs.
 
+The site is now growing past the portfolio. The public site stays as it is, gains a public Products page for your SMB SaaS ecosystem, and gets a private studio behind a login where you run your freelance business (clients, contracts, and the full systems map). The studio is an early version of your planned CRM and Invoicing products, with you as customer zero. A full rebrand to ED Solutions is parked in Deferred.
+
 **Build approach:** Tracer Bullet (each feature is built complete and working end to end before moving to the next; no throwaway shell, no MVP left half grown).
 **Workflow:** Alpha (`/check verify` after `/develop`; no formal test suite or second model review by default). The project default level of rigor. `/architect` is the recommended first stop for a feature with a real decision, but skippable when you already know the build. Any feature can carry its own tag (e.g. `· GA`) to do more or less.
 
@@ -28,6 +30,13 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 15 | SEO foundation | Next slice | planned |
 | 16 | Skills marquee cleanup | Next slice | planned |
 | 17 | On-site engagement tracking | Next slice | planned |
+| 18 | Public Products page | Products | in-progress |
+| 19 | Studio placement & stack | Studio foundation | planned |
+| 20 | Studio data model | Studio foundation | planned |
+| 21 | Studio login | Studio foundation | planned |
+| 22 | Client tracking | Studio slice 1 | planned |
+| 23 | Contracts & PDF export | Studio slice 2 | planned |
+| 24 | Private systems map | Studio slice 3 | planned |
 
 ## Existing
 
@@ -110,6 +119,65 @@ Add Vercel Analytics custom events for the actions that actually signal recruite
 **Done when:** each of the 3 action types fires a distinct named event, visible in the Vercel Analytics dashboard.
 - [ ] Build it: `/develop on-site engagement tracking`
 - [ ] Verify it: `/check verify on-site engagement tracking`
+
+## Products
+
+### 18. Public Products page · in-progress
+A public page that shows your product ecosystem: what is built, in progress, next, and planned, and how the products connect. The source today is the private "SMB Systems Map" artifact (15 systems plus their links). Only safe fields go public: name, status, a public summary, and the connections. Never notes, private repo links, lessons, or client names; RoomPOS is described generically ("POS for karaoke and room rental venues"). `/architect` decides whether the page reads a static, hand checked export (simplest and safe) or a live source.
+**Done when:** the page lists every system grouped or filterable by status, shows how they connect, is reachable from the header, contains no private field or client name anywhere in the shipped bundle, and works in light and dark themes and on mobile.
+- [x] Design it (spec): `/architect public products page`
+- [x] Build it: `/develop public products page`
+   - [x] Public only data file: types, 15 products with public summaries, 21 links, satisfies AC-2, AC-5
+   - [x] `/products` route with status sections and cards, plus route aware header links, satisfies AC-1, AC-2, AC-3, AC-7, AC-8
+   - [x] Connections on each card (Sends to, Receives from, Live/Planned, in page anchors), satisfies AC-4
+   - [x] Polish and privacy sweep: themes, 375px layout, headings, focus, static build check, satisfies AC-5, AC-6
+- [x] Verify it: `/check verify public products page` (PASS, 2026-10-05)
+spec [0002](../specs/0002-public-products-page/index.md) · code in `src/app/products/`, `src/sections/Products.tsx`, `utils/data/products-data.ts`, `src/lib/section-nav.ts`
+
+## Studio foundation
+
+### 19. Studio placement & stack · needs a decision · Beta
+Decide where the private studio lives and what it runs on: a separate private deploy (your current lean, so client data and contract PDFs never ship with the public site) or a login gated `/studio` area in this same app, plus the database and where PDFs are stored. This is load bearing: every studio feature builds on it. Stays inside this repo and on Next.js 14 unless you approve otherwise.
+**Done when:** the placement, database, and file storage choice are recorded in a spec with the risks weighed honestly, and an empty studio shell boots locally next to the public site without leaking into the public build.
+- [ ] Design it (spec): `/architect studio placement & stack`
+
+### 20. Studio data model · needs a decision · Beta
+Core records the studio builds on: clients, contacts, projects, contracts (with their status history), and systems with their links. Shaped so it can grow into your CRM and Invoicing products without a breaking migration.
+**Done when:** the entities and relationships support client tracking, the contract lifecycle (draft → sent → signed → active → ended), and the systems map; seed data is clearly fake (no real client data); no secrets in the repo.
+- [ ] Design it (spec): `/architect studio data model`
+
+### 21. Studio login · needs a decision · Beta
+Single owner sign in (just you) that protects every studio page and every studio data request.
+**Done when:** every studio route and data request rejects a signed out visitor; you can sign in and out; no credentials or secrets live in the repo.
+- [ ] Design it (spec): `/architect studio login`
+
+## Studio slice 1: Client tracking
+
+### 22. Client tracking · needs a decision · Beta
+The first real thread through the studio: sign in, add a client with contacts and projects, set a status, keep notes, find them again. This is the walking skeleton for the studio.
+**Done when:** signed in, you can create, edit, and list clients with their contacts, projects, status, and notes; empty and error states render; signed out, none of it is reachable.
+- [ ] Design it (spec): `/architect client tracking`
+
+## Studio slice 2: Contracts
+
+### 23. Contracts & PDF export · needs a decision · Beta
+Fill a contract template for a client, export it as a PDF, and track it through draft → sent → signed → active → ended. Signing happens outside the app for now (no e-signature). The state machine is kept clean so it grows into Invoicing.
+**Done when:** you can create a contract from a template for a client, export a correct PDF, move it only along allowed status steps with each change recorded, and see each client's contracts from the client view; PDFs are never publicly reachable.
+- [ ] Design it (spec): `/architect contracts & pdf export`
+
+## Studio slice 3: Private systems map
+
+### 24. Private systems map · needs a decision · Beta
+Move the full SMB Systems Map (every field, including private notes, lessons, and repo links) into the studio so it replaces the Claude artifact as your tracker. Decide how the public Products page (feature 18) stays in sync without ever exposing private fields.
+**Done when:** all 15 systems and their links are in the studio and editable; private fields show only when signed in; the public Products page still shows only the safe fields.
+- [ ] Design it (spec): `/architect private systems map`
+
+## Deferred
+Out of scope for this pass, kept so the plan stays honest.
+- **ED Solutions rebrand**: rename the public site to ED Solutions with a brand pass (wordmark, palette, type), revisit copy, metadata, and favicon; SEO foundation (feature 15) should then point at the new name · needs a decision
+- **Lead intake form**: a public inquiry form that lands as a new lead in studio client tracking · needs a decision
+- **E-signature**: sign contracts inside the studio · needs a decision
+- **Invoicing**: invoices from active contracts, the next step toward your Invoicing product · needs a decision
 
 ## Legend
 
