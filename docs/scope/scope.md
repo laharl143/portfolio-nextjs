@@ -30,7 +30,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 15 | SEO foundation | Next slice | planned |
 | 16 | Skills marquee cleanup | Next slice | planned |
 | 17 | On-site engagement tracking | Next slice | planned |
-| 18 | Public Products page | Products | in-progress |
+| 18 | Public Products page | Products | done |
 | 19 | Studio placement & stack | Studio foundation | planned |
 | 20 | Studio data model | Studio foundation | planned |
 | 21 | Studio login | Studio foundation | planned |
@@ -122,7 +122,7 @@ Add Vercel Analytics custom events for the actions that actually signal recruite
 
 ## Products
 
-### 18. Public Products page · in-progress
+### 18. Public Products page · done
 A public page that shows your product ecosystem: what is built, in progress, next, and planned, and how the products connect. The source today is the private "SMB Systems Map" artifact (15 systems plus their links). Only safe fields go public: name, status, a public summary, and the connections. Never notes, private repo links, lessons, or client names; RoomPOS is described generically ("POS for karaoke and room rental venues"). `/architect` decides whether the page reads a static, hand checked export (simplest and safe) or a live source.
 **Done when:** the page lists every system grouped or filterable by status, shows how they connect, is reachable from the header, contains no private field or client name anywhere in the shipped bundle, and works in light and dark themes and on mobile.
 - [x] Design it (spec): `/architect public products page`
