@@ -1,7 +1,7 @@
 # 0002. Public Products page from a static, public only data file
 
 **Date**: 2026-10-05 (updated 2026-10-05: standalone flag and the "not mapped yet" message)
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
