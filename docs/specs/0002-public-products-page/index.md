@@ -1,11 +1,11 @@
 # 0002. Public Products page from a static, public only data file
 
-**Date**: 2026-10-05
-**Status**: Accepted
+**Date**: 2026-10-05 (updated 2026-10-05: standalone flag and the "not mapped yet" message)
+**Status**: In Progress
 
 ## Summary
 
-You get a new page at `/products` that shows your SMB product ecosystem: what is built, in progress, up next, and planned, and how the products feed each other. The page reads a small typed data file in the repo that holds only public fields (name, status, a rewritten public summary, and the connections). Nothing is fetched at runtime, so private notes, repo links, and client details can never leak, because they never enter the repo. When your systems map changes, you update the file by hand.
+You get a new page at `/products` that shows your SMB product ecosystem: what is built, in progress, up next, and planned, and how the products feed each other. The page reads a small typed data file in the repo that holds only public fields (name, status, a rewritten public summary, and the connections). Nothing is fetched at runtime, so private notes, repo links, and client details can never leak, because they never enter the repo. When your systems map changes, you update the file by hand. A product with no links says "Standalone, no connections by design" only when it is marked standalone; any other product without links says "Connections not mapped yet", so the page never calls the Shared Platform standalone.
 
 ## Requirements
 
@@ -17,8 +17,8 @@ You get a new page at `/products` that shows your SMB product ecosystem: what is
 - **AC-1**: `/products` exists as its own route, is prerendered as static HTML at build time, and is reachable from the header menu on both `/` and `/products`. From `/products`, the header's section links (About me, Certifications, Skills, Projects, FAQs) go back to the matching section on the home page.
 - **AC-2**: The page lists all 15 systems, grouped into 4 sections in this order: Built, In progress, Up next, Planned. Each section heading shows its count. Within a section, products keep the order of the data file. A section with no products is not rendered.
 - **AC-3**: Each product card shows its name, a status badge written in text (not color alone), and its public summary.
-- **AC-4**: Each card lists its connections in two groups, "Sends to" and "Receives from". Each entry shows the other product's name, the connection label, and a text marker `Live` or `Planned`. Each product name links to that product's card on the same page (`#product-<id>`). A product with no connections shows "Standalone, no connections by design".
-- **AC-5**: Only public fields exist in the data file and the built page: id, name, status, public summary, and connections. No notes, lessons, stack, repo URLs, ticket keys, or client references appear anywhere in the data file or the built output. RoomPOS is described generically, as a POS for karaoke and room rental venues.
+- **AC-4**: Each card lists its connections in two groups, "Sends to" and "Receives from". Each entry shows the other product's name, the connection label, and a text marker `Live` or `Planned`. Each product name links to that product's card on the same page (`#product-<id>`). A product with no connections shows "Standalone, no connections by design" when it has `standalone: true`, and "Connections not mapped yet" otherwise. A product that has connections shows its lists whatever its flag says.
+- **AC-5**: Only public fields exist in the data file and the built page: id, name, status, public summary, the optional standalone flag, and connections. No notes, lessons, stack, repo URLs, ticket keys, or client references appear anywhere in the data file or the built output. RoomPOS is described generically, as a POS for karaoke and room rental venues.
 - **AC-6**: The page works in light and dark themes and at a 375px wide phone viewport with no horizontal scroll. It uses one `h1`, an `h2` per status section, and an `h3` per product. All links show a visible keyboard focus.
 - **AC-7**: The page sets its own title (`Products | Erskine Duenas`) and meta description.
 - **AC-8**: The home page is otherwise unchanged, and its mobile menu still scrolls smoothly to sections on `/`.
@@ -43,12 +43,12 @@ Reasoning, context, and options considered: see [rationale.md](rationale.md).
 |---|---|---|
 | `ProductId` | string union of the 15 ids: `vital-stats`, `oms`, `roompos`, `platform`, `booking`, `inventory-sync`, `invoicing`, `hr-payroll`, `reporting`, `crm`, `procurement`, `ledger`, `helpdesk`, `marketing`, `jlpt` | ids match the artifact doc ids so a future export maps 1:1 |
 | `ProductStatus` | `"built" \| "in-progress" \| "next" \| "planned"` | mapped from artifact `built`, `ongoing`, `next`, `idea` |
-| `PublicProduct` | `id: ProductId` (req), `name: string` (req), `status: ProductStatus` (req), `summary: string` (req) | no other fields allowed; declare the array as `PublicProduct[]` so object literals with extra keys fail to compile |
+| `PublicProduct` | `id: ProductId` (req), `name: string` (req), `status: ProductStatus` (req), `summary: string` (req), `standalone?: true` (opt, set only for products whose map `group` is `standalone`; today only `jlpt`) | no other fields allowed; declare the array as `PublicProduct[]` so object literals with extra keys fail to compile |
 | `ProductLink` | `from: ProductId` (req), `to: ProductId` (req), `label: string` (req), `state: "live" \| "planned"` (req) | 1 product : N links in each direction |
 
 Exports: `products: PublicProduct[]` (display order below), `productLinks: ProductLink[]`, and `statusSections: { status: ProductStatus; title: string }[]` = Built, In progress, Up next, Planned.
 
-The products, in display order, with the public summaries (these exact texts, rewritten from the map; the map's `notes`, `lesson`, `stack`, `repo`, `group`, and `order` fields are left out):
+The products, in display order, with the public summaries (these exact texts, rewritten from the map; the map's `notes`, `lesson`, `stack`, `repo`, `group`, and `order` fields are left out; `group` only survives as the `standalone` flag on `jlpt`):
 
 | id | name | status | public summary |
 |---|---|---|---|
@@ -113,6 +113,7 @@ The 21 links, copied as is from the map (`from → to: label, state`):
 | Render card | "Receives from" entries | `productLinks.filter(l => l.to === id)`, other name looked up by `l.from` |
 | Render card | Live / Planned marker | `ProductLink.state` |
 | Render card | Card anchor id and link target | derived: `product-${id}` |
+| Render card | Message when a product has no links | derived: `PublicProduct.standalone === true` → "Standalone, no connections by design", else "Connections not mapped yet" (the flag comes from the map's `group` = `standalone`) |
 | Page metadata | Title and description | constants in `page.tsx`: title `Products | Erskine Duenas`; description `The products Erskine Duenas has built, is building, and plans for small and medium businesses, and how they connect.` |
 | Header click (mobile) | Scroll vs navigate | derived: compare the link's pathname with `window.location.pathname` |
 
@@ -121,6 +122,7 @@ The 21 links, copied as is from the map (`from → to: label, state`):
 - Every `ProductLink.from` and `.to` is a valid `ProductId` (enforced by the union type).
 - Every product id is unique; card anchors are unique.
 - No string containing a repo URL, ticket key, or client reference is in the data file.
+- `standalone` is either `true` or absent, never `false`; it changes only the empty message, never hides links that exist.
 
 **Security model**: The page is public and read only. There is no auth, input, or runtime data. The only sensitive concern is accidental disclosure, which is handled by keeping private fields out of the repo (AC-5). No compliance scope applies.
 
@@ -128,6 +130,7 @@ The 21 links, copied as is from the map (`from → to: label, state`):
 - Happy path: open `/products` from the home header menu; the 4 sections render with counts 1, 2, 2, 10, and OMS shows "Sends to" Vital Stats (Live), Reporting, Helpdesk, and Marketing Automation, and "Receives from" Vital Stats (Live), Inventory Sync, and CRM. Verifies **AC-1**, **AC-2**, **AC-3**, **AC-4**.
 - Failure case: from `/products`, tap "Projects" in the mobile menu; the browser goes to `/#projects` instead of doing nothing; on `/`, the same tap still smooth scrolls. Verifies **AC-1**, **AC-8**.
 - Privacy: after `npm run build`, a text search of `.next/` and `utils/data/products-data.ts` finds none of `github.com/laharl143`, `OMS-116`, `RP-2`, `VS-256`, `client's target architecture`, `Phases 0 to 2`, `Keycloak`, `Drizzle`, `Hono`, `Your plan says`. Verifies **AC-5**.
+- Empty connections: the Shared Platform card shows "Connections not mapped yet" and the JLPT Vocab SRS card shows "Standalone, no connections by design". Verifies **AC-4**.
 - Layout: at 375px wide in dark mode, there is no horizontal scroll and the badges stay readable. Verifies **AC-6**.
 
 ## Build plan
@@ -139,6 +142,7 @@ Ordered Tracer Bullet style: a thin working page through the real route and real
 3. Make the header route aware: `/#id` hrefs, the `Products` item, and the mobile handler scrolling only for links to the current page, satisfies **AC-1**, **AC-8**
 4. Add connections to each card ("Sends to", "Receives from", Live/Planned markers, in page anchors, the standalone message), satisfies **AC-4**
 5. Polish and privacy sweep: theme colors, 375px layout, heading levels, focus rings; run `npm run build` (confirm `/products` is static) and the privacy search, satisfies **AC-5**, **AC-6**, **AC-1**
+6. Add `standalone?: true` to `PublicProduct`, set it on `jlpt` only, and render "Connections not mapped yet" for any other product with no links (update 2026-10-05), satisfies **AC-4**, **AC-5**
 
 ## Consequences
 
@@ -159,5 +163,7 @@ Ordered Tracer Bullet style: a thin working page through the real route and real
 ## Follow-up
 
 - [ ] Feature 15 (SEO foundation): include `/products` in the sitemap and give it a social card.
-- [ ] Feature 24 (private systems map): replace the hand edited file with a generated public export that uses the same `PublicProduct` and `ProductLink` types.
+- [ ] Feature 24 (private systems map): replace the hand edited file with a generated public export that uses the same `PublicProduct` and `ProductLink` types, mapping `group: standalone` to `standalone: true`.
+- [ ] Draw the Shared Platform's links in the systems map when they are known; its card then shows real connections instead of "Connections not mapped yet".
+- [ ] `AGENTS.md` lists the products data public fields as id, name, status, summary, links; `/sync` should add the standalone flag.
 - [ ] When a system's status changes in the map, update `utils/data/products-data.ts` in the same week (until feature 24 lands).

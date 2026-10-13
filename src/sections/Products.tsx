@@ -95,7 +95,7 @@ function ConnectionList({
 function ProductCard({ product }: { product: PublicProduct }) {
   const sendsTo = productLinks.filter((l) => l.from === product.id);
   const receivesFrom = productLinks.filter((l) => l.to === product.id);
-  const standalone = sendsTo.length === 0 && receivesFrom.length === 0;
+  const noLinks = sendsTo.length === 0 && receivesFrom.length === 0;
 
   return (
     <li>
@@ -113,9 +113,11 @@ function ProductCard({ product }: { product: PublicProduct }) {
           {product.summary}
         </p>
         <div className="mt-6 space-y-5">
-          {standalone ? (
+          {noLinks ? (
             <p className="text-sm italic text-stone-600 dark:text-stone-400">
-              Standalone, no connections by design
+              {product.standalone
+                ? "Standalone, no connections by design"
+                : "Connections not mapped yet"}
             </p>
           ) : (
             <>

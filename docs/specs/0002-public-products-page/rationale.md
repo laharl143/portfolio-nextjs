@@ -60,3 +60,11 @@ Other calls made with this decision (the engineer asked for the recommended pick
 - **Header links become route aware**: section links change from `#id` to `/#id`, a `Products` item is added, and the mobile menu handler smooth scrolls only when the link targets the current page. Otherwise it closes the menu and lets the browser navigate. Runner up: a separate header for `/products`, which would duplicate the header.
 - **No outbound links**: no repo links and no live site links on this page. Vital Stats is already linked from the Projects section.
 - **Privacy check at verify time** (a text search of the built output for private strings) rather than a new build script: the type already blocks the fields, and a build hook adds tooling for a solo project at the Alpha tier.
+
+### Update 2026-10-05: the empty connections message
+
+Verification found that "Standalone, no connections by design" also showed on the Shared Platform card, because the map has no links drawn for it yet. That copy is wrong for the piece every product plugs into. The page needs to tell "standalone on purpose" apart from "links not drawn yet", and the map already records that difference in its `group` field.
+
+- **Chosen: an optional `standalone: true` flag**, set only where the map's `group` is `standalone` (today JLPT Vocab SRS). Every other product with no links says "Connections not mapped yet". It is one public boolean taken from an existing map field, so a future export from the studio can set it mechanically. Runner up: a free text `emptyMessage` per product, which is more flexible but adds unchecked public copy and drifts from the map.
+- **Rejected: publishing `group` itself**: it would expose the internal layering (core, layer2) that the page deliberately leaves out, for no visitor benefit.
+- **Rejected: special casing Shared Platform in the component**: it hides a data fact in code and breaks the next time another product lands without links.

@@ -30,3 +30,10 @@ _Steps derived from spec 0002 acceptance criteria. `/check verify` runs these; `
 
 ## Acceptance-criteria coverage
 - AC-1: header menu steps, footer step, build command · AC-2: section order, count check · AC-3: card content, badge source · AC-4: OMS lists, anchor click, JLPT, link checks · AC-5: RoomPOS copy, privacy search, typecheck · AC-6: 375px dark and light, keyboard and headings · AC-7: title, description · AC-8: home menu smooth scroll
+
+## Update 2026-10-05: standalone flag (build task 6)
+- [x] The Shared Platform card shows "Connections not mapped yet", not the standalone message → AC-4
+- [x] The JLPT Vocab SRS card still shows "Standalone, no connections by design" → AC-4
+- [x] Only JLPT has `standalone: true` in `utils/data/products-data.ts`; no product has `standalone: false` → AC-5
+- [x] Value source check: temporarily add one link to JLPT in the data file → its card shows the Sends to / Receives from lists, not the standalone message (flag never hides real links); revert after → AC-4
+- [x] `npm run build` passes, `/products` stays static, and the privacy search finds nothing in the products page output → AC-1, AC-5

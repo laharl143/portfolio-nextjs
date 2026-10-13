@@ -30,7 +30,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 15 | SEO foundation | Next slice | planned |
 | 16 | Skills marquee cleanup | Next slice | planned |
 | 17 | On-site engagement tracking | Next slice | planned |
-| 18 | Public Products page | Products | done |
+| 18 | Public Products page | Products | in-progress |
 | 19 | Studio placement & stack | Studio foundation | planned |
 | 20 | Studio data model | Studio foundation | planned |
 | 21 | Studio login | Studio foundation | planned |
@@ -122,7 +122,7 @@ Add Vercel Analytics custom events for the actions that actually signal recruite
 
 ## Products
 
-### 18. Public Products page · done
+### 18. Public Products page · in-progress
 A public page that shows your product ecosystem: what is built, in progress, next, and planned, and how the products connect. The source today is the private "SMB Systems Map" artifact (15 systems plus their links). Only safe fields go public: name, status, a public summary, and the connections. Never notes, private repo links, lessons, or client names; RoomPOS is described generically ("POS for karaoke and room rental venues"). `/architect` decides whether the page reads a static, hand checked export (simplest and safe) or a live source.
 **Done when:** the page lists every system grouped or filterable by status, shows how they connect, is reachable from the header, contains no private field or client name anywhere in the shipped bundle, and works in light and dark themes and on mobile.
 - [x] Design it (spec): `/architect public products page`
@@ -131,7 +131,8 @@ A public page that shows your product ecosystem: what is built, in progress, nex
    - [x] `/products` route with status sections and cards, plus route aware header links, satisfies AC-1, AC-2, AC-3, AC-7, AC-8
    - [x] Connections on each card (Sends to, Receives from, Live/Planned, in page anchors), satisfies AC-4
    - [x] Polish and privacy sweep: themes, 375px layout, headings, focus, static build check, satisfies AC-5, AC-6
-- [x] Verify it: `/check verify public products page` (PASS, 2026-10-05)
+   - [x] Standalone flag: "Connections not mapped yet" for products with no drawn links, standalone message for JLPT only (spec 0002 update), satisfies AC-4, AC-5
+- [x] Verify it: `/check verify public products page` (PASS 2026-10-05; second pass after the standalone flag PASS 2026-10-05)
 spec [0002](../specs/0002-public-products-page/index.md) · code in `src/app/products/`, `src/sections/Products.tsx`, `utils/data/products-data.ts`, `src/lib/section-nav.ts`
 
 ## Studio foundation

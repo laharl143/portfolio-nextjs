@@ -1,5 +1,5 @@
 // Public product ecosystem data for the /products page (spec 0002).
-// PUBLIC FIELDS ONLY: id, name, status, summary, and the links between products.
+// PUBLIC FIELDS ONLY: id, name, status, summary, the optional standalone flag, and the links between products.
 // Never add notes, lessons, stack, repo links, ticket keys, or client references here.
 // The private source of truth is the SMB Systems Map; summaries below are rewritten for the public.
 
@@ -27,6 +27,8 @@ export type PublicProduct = {
   name: string;
   status: ProductStatus;
   summary: string;
+  // Set only where the map's group is "standalone"; never false. Changes only the empty connections message.
+  standalone?: true;
 };
 
 export type ProductLink = {
@@ -147,6 +149,7 @@ export const products: PublicProduct[] = [
     id: "jlpt",
     name: "JLPT Vocab SRS",
     status: "planned",
+    standalone: true,
     summary:
       "Spaced repetition flashcards for Japanese vocabulary that learn from your own mistakes. Standalone by design, with no integrations.",
   },
