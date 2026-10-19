@@ -144,7 +144,7 @@ Decide where the private studio lives and what it runs on: a separate private de
 - [ ] Build it: `/develop studio placement & stack`
    - [x] Next 16 + React 19 upgrade on the public site alone (ESLint 9, Turbopack), no regression, satisfies AC-1
    - [x] Route groups, two root layouts, studio layout, proxy and guard with the flag off (404 first), satisfies AC-3, AC-4
-   - [ ] Neon (preview branches), Drizzle, `studio` schema migration, migrate on build, satisfies AC-6, AC-7
+   - [x] Neon (preview branches), Drizzle, `studio` schema migration, migrate on build, satisfies AC-6, AC-7
    - [ ] Private Blob stores, shell status lines, leak check, `.env.example`, satisfies AC-2, AC-5, AC-8
 - [ ] Verify it: `/check verify studio placement & stack`
 - [ ] Test it: `/test studio placement & stack`
