@@ -474,24 +474,29 @@ export async function readImportState(tx: Tx, workspaceId: string, lock: boolean
   };
 }
 
-// Writes a plan with no errors: systems, then links, notes, and resources.
+// Writes a plan with no errors: systems, then links, notes, and resources. Creates go in one multi row insert per
+// table, so a first import is a handful of statements, not one per row (Vercel kills the request at its time limit).
 export async function applyImportPlan(tx: Tx, workspaceId: string, plan: ImportPlan): Promise<void> {
+  const systemCreates = plan.systemOps.flatMap((op) => (op.kind === "create" ? [op] : []));
+  if (systemCreates.length > 0) {
+    await tx.insert(systems).values(systemCreates.map((op) => ({ id: op.id, workspaceId, ...op.values })));
+  }
   for (const op of plan.systemOps) {
-    if (op.kind === "create") {
-      await tx.insert(systems).values({ id: op.id, workspaceId, ...op.values });
-    } else {
+    if (op.kind === "update") {
       await tx
         .update(systems)
         .set(op.changes)
         .where(and(eq(systems.id, op.id), eq(systems.workspaceId, workspaceId)));
     }
   }
+  const linkCreates = plan.linkOps.flatMap((op) => (op.kind === "create" ? [op] : []));
+  if (linkCreates.length > 0) {
+    await tx.insert(systemLinks).values(
+      linkCreates.map((op) => ({ workspaceId, fromSystemId: op.from, toSystemId: op.to, label: op.label, state: op.state })),
+    );
+  }
   for (const op of plan.linkOps) {
-    if (op.kind === "create") {
-      await tx
-        .insert(systemLinks)
-        .values({ workspaceId, fromSystemId: op.from, toSystemId: op.to, label: op.label, state: op.state });
-    } else {
+    if (op.kind === "update") {
       await tx
         .update(systemLinks)
         .set({ label: op.label, state: op.state })

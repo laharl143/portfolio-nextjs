@@ -4,6 +4,9 @@ import { applySystemsImport, previewSystemsImport } from "@/studio/systems/actio
 import FormPage from "../../../_components/FormPage";
 import SystemImportForm from "../../../_components/SystemImportForm";
 
+// The import's server actions run under this page's limit (Vercel's default of 10 s killed the first real import).
+export const maxDuration = 60;
+
 export const metadata: Metadata = {
   title: "Import systems · Studio",
   robots: { index: false, follow: false },

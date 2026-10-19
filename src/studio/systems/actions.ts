@@ -1,6 +1,7 @@
 "use server";
 
 import "server-only";
+import { sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import "@/studio/marker";
 import type { ActionState } from "@/studio/clients/action-state";
@@ -265,7 +266,17 @@ function importFailure(actionName: string, err: unknown, json: string): ImportSt
       values: { json },
     };
   }
-  console.error(`[studio] ${actionName} failed`, pgErrorOf(err)?.code ?? (err instanceof Error ? err.constructor.name : typeof err));
+  const pgCode = pgErrorOf(err)?.code;
+  console.error(`[studio] ${actionName} failed`, pgCode ?? (err instanceof Error ? err.constructor.name : typeof err));
+  // 55P03 lock_not_available (lock_timeout), 57014 query_canceled (statement_timeout).
+  if (pgCode === "55P03" || pgCode === "57014") {
+    return {
+      ok: false,
+      code: "UNEXPECTED",
+      message: "An earlier import is still finishing in the database. Nothing was imported. Wait a minute, then try again.",
+      values: { json },
+    };
+  }
   return { ok: false, code: "UNEXPECTED", message: "Something went wrong. Nothing was imported. Try again.", values: { json } };
 }
 
@@ -292,6 +303,11 @@ export async function applySystemsImport(_prev: ImportState, formData: FormData)
     const input = parseImportJson(json);
     const workspaceId = await getWorkspaceId();
     const plan = await getDb().transaction(async (tx) => {
+      // Fail fast instead of hanging: a lock wait (for example on an earlier import Vercel killed mid transaction)
+      // errors after 5 s, and a transaction left open by a killed request is ended by Postgres after 15 s idle.
+      await tx.execute(sql`set local lock_timeout = '5s'`);
+      await tx.execute(sql`set local statement_timeout = '20s'`);
+      await tx.execute(sql`set local idle_in_transaction_session_timeout = '15s'`);
       const planned = planImport(input, await readImportState(tx, workspaceId, true), bundledSummaries());
       if (planned.errorCount > 0) {
         refused = planned;
