@@ -26,3 +26,27 @@ export type SystemLinkState = (typeof SYSTEM_LINK_STATES)[number];
 
 export const SYSTEM_RESOURCE_KINDS = ["repo", "live", "docs", "board", "other"] as const;
 export type SystemResourceKind = (typeof SYSTEM_RESOURCE_KINDS)[number];
+
+// Studio login (spec 0005).
+export const MEMBER_ROLES = ["owner"] as const;
+export type MemberRole = (typeof MEMBER_ROLES)[number];
+
+export const PASSKEY_DEVICE_TYPES = ["singleDevice", "multiDevice"] as const;
+export type PasskeyDeviceType = (typeof PASSKEY_DEVICE_TYPES)[number];
+
+export const CHALLENGE_PURPOSES = ["register", "authenticate"] as const;
+export type ChallengePurpose = (typeof CHALLENGE_PURPOSES)[number];
+
+// passkey_removed and passkey_renamed are unused until those features exist; listed now so they need no migration.
+export const AUTH_EVENT_KINDS = [
+  "sign_in",
+  "sign_in_failed",
+  "sign_out",
+  "sign_out_all",
+  "passkey_added",
+  "passkey_removed",
+  "passkey_renamed",
+  "setup_used",
+  "setup_rejected",
+] as const;
+export type AuthEventKind = (typeof AUTH_EVENT_KINDS)[number];

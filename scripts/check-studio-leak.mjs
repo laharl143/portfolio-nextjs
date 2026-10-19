@@ -31,6 +31,34 @@ const secretSources = [
   ["BLOB_READ_WRITE_TOKEN", process.env.BLOB_READ_WRITE_TOKEN ?? ""],
 ];
 
+// Set only for minutes at a time (spec 0005), so it is scanned when present and never required.
+const optionalSecretSources = [["STUDIO_SETUP_TOKEN", process.env.STUDIO_SETUP_TOKEN ?? ""]];
+
+// Spec 0005, AC-13: a production studio cannot sign anyone in without a valid passkey domain and origin.
+function checkLoginConfig() {
+  if (process.env.VERCEL_ENV !== "production" || process.env.STUDIO_ENABLED !== "true") {
+    return;
+  }
+  const rpID = process.env.STUDIO_RP_ID ?? "";
+  const origin = process.env.STUDIO_ORIGIN ?? "";
+  if (!rpID || !origin) {
+    throw new Error("STUDIO_RP_ID and STUDIO_ORIGIN must be set in Production while STUDIO_ENABLED is true");
+  }
+  let host;
+  try {
+    const url = new URL(origin);
+    if (url.protocol !== "https:") {
+      throw new Error("not https");
+    }
+    host = url.hostname;
+  } catch {
+    throw new Error("STUDIO_ORIGIN must be an https:// origin in Production");
+  }
+  if (host !== rpID && !host.endsWith(`.${rpID}`)) {
+    throw new Error("STUDIO_ORIGIN's host must equal STUDIO_RP_ID or be a subdomain of it");
+  }
+}
+
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true, recursive: true }).catch(() => []);
   return entries.filter((entry) => entry.isFile()).map((entry) => path.join(entry.parentPath, entry.name));
@@ -46,7 +74,13 @@ function isPublicRouteOutput(file) {
 }
 
 async function main() {
+  checkLoginConfig();
   const needles = [["studio server marker", STUDIO_SERVER_MARKER]];
+  for (const [label, value] of optionalSecretSources) {
+    if (value.length >= MIN_SECRET_LENGTH) {
+      needles.push([label, value]);
+    }
+  }
   const skipped = [];
   for (const [label, value] of secretSources) {
     if (value.length >= MIN_SECRET_LENGTH) {

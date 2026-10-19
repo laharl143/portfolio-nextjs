@@ -33,7 +33,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 18 | Public Products page | Products | done |
 | 19 | Studio placement & stack | Studio foundation | done |
 | 20 | Studio data model | Studio foundation | done |
-| 21 | Studio login | Studio foundation | planned |
+| 21 | Studio login | Studio foundation | done |
 | 22 | Client tracking | Studio slice 1 | planned |
 | 23 | Contracts & PDF export | Studio slice 2 | planned |
 | 24 | Private systems map | Studio slice 3 | planned |
@@ -163,10 +163,18 @@ Core records the studio builds on: clients, contacts, projects, contracts (with 
 - [ ] Test it: `/test studio data model` (skipped, marked done on 2026-10-19)
 spec [0004](../specs/0004-studio-data-model/index.md) · code in `src/studio/db/`, `src/studio/data/`, `drizzle/`, `scripts/seed-studio.ts`
 
-### 21. Studio login · needs a decision · Beta
+### 21. Studio login · done · Beta
 Single owner sign in (just you) that protects every studio page and every studio data request.
 **Done when:** every studio route and data request rejects a signed out visitor; you can sign in and out; no credentials or secrets live in the repo.
-- [ ] Design it (spec): `/architect studio login`
+- [x] Design it (spec): `/architect studio login`
+- [x] Build it: `/develop studio login`
+   - [x] Thin thread: five auth tables plus owner and membership rows, route groups, setup token enrollment, passkey sign in, session guard, satisfies AC-1, AC-3, AC-4, AC-5, AC-11
+   - [x] Session lifecycle: proxy cookie check and refresh, `safeNext`, sliding expiry, sign out and sign out everywhere, recovery transaction, satisfies AC-1, AC-2, AC-4, AC-5, AC-7, AC-8
+   - [x] Events, throttle, and screens: auth events and purge, setup throttle, login and setup in the vital-stats card look, security page with add another passkey, satisfies AC-6, AC-9, AC-10, AC-12, AC-14
+   - [x] Config and production: `.env.example`, leak check and RP config build check, satisfies AC-13 (production enrollment in Vercel is still yours to do, skipped at done on 2026-10-19)
+- [ ] Verify it: `/check verify studio login` (skipped, marked done on 2026-10-19)
+- [ ] Test it: `/test studio login` (skipped, marked done on 2026-10-19)
+spec [0005](../specs/0005-studio-login/index.md) · code in `src/studio/auth/`, `src/studio/guard.ts`, `src/proxy.ts`, `src/app/(studio)/`, `src/studio/data/workspace.ts`, `drizzle/`, `scripts/`
 
 ## Studio slice 1: Client tracking
 
@@ -196,6 +204,7 @@ Out of scope for this pass, kept so the plan stays honest.
 - **E-signature**: sign contracts inside the studio · needs a decision
 - **Archived contact data retention**: decide how long archived contacts' personal data is kept before real client data lands (Data Privacy Act), from spec 0004 · needs a decision
 - **Invoicing**: invoices from active contracts, the next step toward your Invoicing product · needs a decision
+- **Studio security extras**: rename and remove passkeys (never the last), an active sessions list, and a recent activity view over auth events; fits spec 0005's tables with no migration, from spec 0005
 
 ## Legend
 

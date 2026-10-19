@@ -172,113 +172,116 @@ async function main() {
   const { eq } = await import("drizzle-orm");
   const { getDb, closeDb } = await import("../src/studio/db/client");
   const schema = await import("../src/studio/db/schema");
-  const { getWorkspaceId } = await import("../src/studio/data/workspace");
+  const { STUDIO_WORKSPACE_ID, getWorkspaceId, runInWorkspace } = await import("../src/studio/data/workspace");
   const { createContract, changeContractStatus } = await import("../src/studio/data/contracts");
   const { products, productLinks } = await import("../utils/data/products-data");
 
-  try {
-    const db = getDb();
-    const workspaceId = await getWorkspaceId();
+  // The seed has no session, so it runs inside an explicit workspace scope (spec 0005, AC-11).
+  await runInWorkspace(STUDIO_WORKSPACE_ID, async () => {
+    try {
+      const db = getDb();
+      const workspaceId = await getWorkspaceId();
 
-    // Systems first, since projects link to them. Copied from the public data; private fields stay empty.
-    const systems = await db
-      .insert(schema.systems)
-      .values(
-        products.map((product, index) => ({
-          id: product.id,
-          workspaceId,
-          name: product.name,
-          status: product.status,
-          publicSummary: product.summary,
-          standalone: product.standalone === true,
-          sortOrder: index,
-        })),
-      )
-      .onConflictDoNothing({ target: schema.systems.id })
-      .returning({ id: schema.systems.id });
-    report("systems", systems.length, products.length);
+      // Systems first, since projects link to them. Copied from the public data; private fields stay empty.
+      const systems = await db
+        .insert(schema.systems)
+        .values(
+          products.map((product, index) => ({
+            id: product.id,
+            workspaceId,
+            name: product.name,
+            status: product.status,
+            publicSummary: product.summary,
+            standalone: product.standalone === true,
+            sortOrder: index,
+          })),
+        )
+        .onConflictDoNothing({ target: schema.systems.id })
+        .returning({ id: schema.systems.id });
+      report("systems", systems.length, products.length);
 
-    const links = await db
-      .insert(schema.systemLinks)
-      .values(
-        productLinks.map((link) => ({
-          workspaceId,
-          fromSystemId: link.from,
-          toSystemId: link.to,
-          label: link.label,
-          state: link.state,
-        })),
-      )
-      .onConflictDoNothing({ target: [schema.systemLinks.fromSystemId, schema.systemLinks.toSystemId] })
-      .returning({ id: schema.systemLinks.id });
-    report("system links", links.length, productLinks.length);
+      const links = await db
+        .insert(schema.systemLinks)
+        .values(
+          productLinks.map((link) => ({
+            workspaceId,
+            fromSystemId: link.from,
+            toSystemId: link.to,
+            label: link.label,
+            state: link.state,
+          })),
+        )
+        .onConflictDoNothing({ target: [schema.systemLinks.fromSystemId, schema.systemLinks.toSystemId] })
+        .returning({ id: schema.systemLinks.id });
+      report("system links", links.length, productLinks.length);
 
-    const clients = await db
-      .insert(schema.clients)
-      .values(CLIENTS.map((client) => ({ ...client, workspaceId })))
-      .onConflictDoNothing({ target: schema.clients.id })
-      .returning({ id: schema.clients.id });
-    report("clients", clients.length, CLIENTS.length);
+      const clients = await db
+        .insert(schema.clients)
+        .values(CLIENTS.map((client) => ({ ...client, workspaceId })))
+        .onConflictDoNothing({ target: schema.clients.id })
+        .returning({ id: schema.clients.id });
+      report("clients", clients.length, CLIENTS.length);
 
-    // Children carry their parent's workspace, which is this workspace for every seeded client.
-    const contacts = await db
-      .insert(schema.contacts)
-      .values(CONTACTS.map((contact) => ({ ...contact, workspaceId })))
-      .onConflictDoNothing({ target: schema.contacts.id })
-      .returning({ id: schema.contacts.id });
-    report("contacts", contacts.length, CONTACTS.length);
+      // Children carry their parent's workspace, which is this workspace for every seeded client.
+      const contacts = await db
+        .insert(schema.contacts)
+        .values(CONTACTS.map((contact) => ({ ...contact, workspaceId })))
+        .onConflictDoNothing({ target: schema.contacts.id })
+        .returning({ id: schema.contacts.id });
+      report("contacts", contacts.length, CONTACTS.length);
 
-    const projects = await db
-      .insert(schema.projects)
-      .values(PROJECTS.map((project) => ({ ...project, workspaceId })))
-      .onConflictDoNothing({ target: schema.projects.id })
-      .returning({ id: schema.projects.id });
-    report("projects", projects.length, PROJECTS.length);
+      const projects = await db
+        .insert(schema.projects)
+        .values(PROJECTS.map((project) => ({ ...project, workspaceId })))
+        .onConflictDoNothing({ target: schema.projects.id })
+        .returning({ id: schema.projects.id });
+      report("projects", projects.length, PROJECTS.length);
 
-    const projectSystems = await db
-      .insert(schema.projectSystems)
-      .values(PROJECT_SYSTEMS.map((link) => ({ ...link, workspaceId })))
-      .onConflictDoNothing()
-      .returning({ projectId: schema.projectSystems.projectId });
-    report("project systems", projectSystems.length, PROJECT_SYSTEMS.length);
+      const projectSystems = await db
+        .insert(schema.projectSystems)
+        .values(PROJECT_SYSTEMS.map((link) => ({ ...link, workspaceId })))
+        .onConflictDoNothing()
+        .returning({ projectId: schema.projectSystems.projectId });
+      report("project systems", projectSystems.length, PROJECT_SYSTEMS.length);
 
-    let contractsCreated = 0;
-    let steps = 0;
-    for (const seeded of CONTRACTS) {
-      const [existing] = await db
-        .select({ status: schema.contracts.status })
-        .from(schema.contracts)
-        .where(eq(schema.contracts.id, seeded.id));
-      let status = existing?.status;
-      if (!status) {
-        status = (await createContract(seeded.input, { id: seeded.id })).status;
-        contractsCreated += 1;
+      let contractsCreated = 0;
+      let steps = 0;
+      for (const seeded of CONTRACTS) {
+        const [existing] = await db
+          .select({ status: schema.contracts.status })
+          .from(schema.contracts)
+          .where(eq(schema.contracts.id, seeded.id));
+        let status = existing?.status;
+        if (!status) {
+          status = (await createContract(seeded.input, { id: seeded.id })).status;
+          contractsCreated += 1;
+        }
+
+        // Resume the walk from wherever the contract is, so a run that crashed partway finishes it.
+        const position = (seeded.path as readonly string[]).indexOf(status);
+        if (position === -1) {
+          console.warn(`[seed] contract ${seeded.id} is ${status}, off its seed path; left as is`);
+          continue;
+        }
+        for (const to of seeded.path.slice(position + 1)) {
+          await changeContractStatus({ contractId: seeded.id, to, note: "note" in seeded ? seeded.note : undefined });
+          steps += 1;
+        }
       }
+      report("contracts", contractsCreated, CONTRACTS.length);
+      console.log(`[seed] contract status steps applied: ${steps}`);
 
-      // Resume the walk from wherever the contract is, so a run that crashed partway finishes it.
-      const position = (seeded.path as readonly string[]).indexOf(status);
-      if (position === -1) {
-        console.warn(`[seed] contract ${seeded.id} is ${status}, off its seed path; left as is`);
-        continue;
-      }
-      for (const to of seeded.path.slice(position + 1)) {
-        await changeContractStatus({ contractId: seeded.id, to, note: "note" in seeded ? seeded.note : undefined });
-        steps += 1;
-      }
+      // Notes last, since one points at a contract.
+      const notes = await db
+        .insert(schema.notes)
+        .values(NOTES.map((note) => ({ ...note, workspaceId })))
+        .onConflictDoNothing({ target: schema.notes.id })
+        .returning({ id: schema.notes.id });
+      report("notes", notes.length, NOTES.length);
+    } finally {
+      await closeDb();
     }
-    report("contracts", contractsCreated, CONTRACTS.length);
-    console.log(`[seed] contract status steps applied: ${steps}`);
-
-    // Notes last, since one points at a contract.
-    const notes = await db
-      .insert(schema.notes)
-      .values(NOTES.map((note) => ({ ...note, workspaceId })))
-      .onConflictDoNothing({ target: schema.notes.id })
-      .returning({ id: schema.notes.id });
-    report("notes", notes.length, NOTES.length);
-  } finally {
-    await closeDb();
-  }
+  });
 }
 
 main().catch((error) => {

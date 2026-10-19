@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "../globals.css";
 import AppProviders from "@/components/AppProviders";
 import { archivo } from "@/lib/fonts";
-import { requireStudioAccess } from "@/studio/guard";
+import { requireStudioEnabled } from "@/studio/guard";
 
 // Studio root layout (spec 0003): no public Header or Footer, no Analytics, never indexed, never prerendered.
 export const dynamic = "force-dynamic";
@@ -17,7 +17,8 @@ export default async function StudioLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await requireStudioAccess();
+  // Flag only: the login and setup pages live under this layout. Signed in pages are guarded by (signed-in)/layout.tsx.
+  await requireStudioEnabled();
 
   return (
     <html lang="en" suppressHydrationWarning>

@@ -17,18 +17,26 @@ import {
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import {
+  AUTH_EVENT_KINDS,
   BILLING_CADENCES,
+  CHALLENGE_PURPOSES,
   CLIENT_STATUSES,
   CONTACT_CHANNELS,
   CONTRACT_STATUSES,
+  MEMBER_ROLES,
+  PASSKEY_DEVICE_TYPES,
   PROJECT_STATUSES,
   SYSTEM_LINK_STATES,
   SYSTEM_RESOURCE_KINDS,
   SYSTEM_STATUSES,
+  type AuthEventKind,
   type BillingCadence,
+  type ChallengePurpose,
   type ClientStatus,
   type ContactChannel,
   type ContractStatus,
+  type MemberRole,
+  type PasskeyDeviceType,
   type ProjectStatus,
   type SystemLinkState,
   type SystemResourceKind,
@@ -363,5 +371,126 @@ export const systemResources = studio.table(
     check("system_resources_url_check", sql`${t.url} ~ '^https?://'`),
     index("system_resources_workspace_idx").on(t.workspaceId),
     index("system_resources_system_idx").on(t.systemId),
+  ],
+);
+
+// Studio login (spec 0005). The owner row and its membership are inserted by migration 0005.
+
+export const owners = studio.table(
+  "owners",
+  {
+    // Also the WebAuthn user handle: random looking, no personal data.
+    id: uuid("id").primaryKey().defaultRandom(),
+    displayName: text("display_name").notNull(),
+    ...timestamps,
+  },
+  (t) => [check("owners_display_name_not_blank", notBlank(t.displayName))],
+);
+
+export const workspaceMembers = studio.table(
+  "workspace_members",
+  {
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "restrict" }),
+    ownerId: uuid("owner_id")
+      .notNull()
+      .references(() => owners.id, { onDelete: "cascade" }),
+    role: text("role").$type<MemberRole>().notNull().default("owner"),
+    createdAt,
+  },
+  (t) => [
+    primaryKey({ name: "workspace_members_pk", columns: [t.workspaceId, t.ownerId] }),
+    check("workspace_members_role_check", oneOf(t.role, MEMBER_ROLES)),
+    index("workspace_members_owner_idx").on(t.ownerId),
+  ],
+);
+
+export const passkeys = studio.table(
+  "passkeys",
+  {
+    // Credential id, base64url.
+    id: text("id").primaryKey(),
+    ownerId: uuid("owner_id")
+      .notNull()
+      .references(() => owners.id, { onDelete: "cascade" }),
+    // base64url of the COSE public key.
+    publicKey: text("public_key").notNull(),
+    counter: bigint("counter", { mode: "number" }).notNull().default(0),
+    transports: text("transports").array(),
+    deviceType: text("device_type").$type<PasskeyDeviceType>().notNull(),
+    backedUp: boolean("backed_up").notNull(),
+    nickname: text("nickname").notNull(),
+    createdAt,
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+  },
+  (t) => [
+    check("passkeys_counter_not_negative", sql`${t.counter} >= 0`),
+    check("passkeys_device_type_check", oneOf(t.deviceType, PASSKEY_DEVICE_TYPES)),
+    check("passkeys_nickname_not_blank", notBlank(t.nickname)),
+    index("passkeys_owner_idx").on(t.ownerId),
+  ],
+);
+
+// Only the SHA-256 hex of the cookie token is stored, never the token.
+export const sessions = studio.table(
+  "sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tokenHash: text("token_hash").notNull(),
+    ownerId: uuid("owner_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    deviceLabel: text("device_label"),
+    createdAt,
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [
+    // A session always belongs to a real membership.
+    foreignKey({
+      name: "sessions_membership_fk",
+      columns: [t.workspaceId, t.ownerId],
+      foreignColumns: [workspaceMembers.workspaceId, workspaceMembers.ownerId],
+    }).onDelete("cascade"),
+    uniqueIndex("sessions_token_hash_uq").on(t.tokenHash),
+    check("sessions_expires_after_created", sql`${t.expiresAt} > ${t.createdAt}`),
+    index("sessions_owner_idx").on(t.ownerId),
+    index("sessions_expires_idx").on(t.expiresAt),
+  ],
+);
+
+// One use each: a finish action deletes its row. Expired rows are deleted on every insert.
+export const authChallenges = studio.table(
+  "auth_challenges",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    challenge: text("challenge").notNull(),
+    purpose: text("purpose").$type<ChallengePurpose>().notNull(),
+    ownerId: uuid("owner_id").references(() => owners.id, { onDelete: "cascade" }),
+    createdAt,
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [
+    check("auth_challenges_purpose_check", oneOf(t.purpose, CHALLENGE_PURPOSES)),
+    index("auth_challenges_expires_idx").on(t.expiresAt),
+  ],
+);
+
+// Kept 90 days. Never holds an IP address, a token, or a challenge.
+export const authEvents = studio.table(
+  "auth_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    kind: text("kind").$type<AuthEventKind>().notNull(),
+    ownerId: uuid("owner_id").references(() => owners.id, { onDelete: "set null" }),
+    // No FK, so history survives a passkey removal.
+    passkeyId: text("passkey_id"),
+    deviceLabel: text("device_label"),
+    createdAt,
+  },
+  (t) => [
+    check("auth_events_kind_check", oneOf(t.kind, AUTH_EVENT_KINDS)),
+    index("auth_events_created_idx").on(t.createdAt),
+    index("auth_events_kind_created_idx").on(t.kind, t.createdAt),
   ],
 );
