@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useState, type JSX } from "react";
 import simon from "@/assets/images/simon-pic.jpg";
 import vitalstats from "@/assets/images/vitalstats.png";
 import drum from "@/assets/images/drum-kit.png";

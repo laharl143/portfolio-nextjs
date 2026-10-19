@@ -5,7 +5,7 @@ import React from "react";
 
 interface SocialLinkButtonProps {
   href: string;
-  icon: JSX.Element;
+  icon: React.JSX.Element;
   size?: number;
   bgColor?: string;
   delay?: number;

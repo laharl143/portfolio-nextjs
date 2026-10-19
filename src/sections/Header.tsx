@@ -5,8 +5,8 @@ import Button from "@/components/Button";
 import { motion, useAnimate } from "motion/react";
 import { ThemeToggleButton } from "@/components/ThemeToggleButton";
 import { scrollToSectionIfSamePage } from "@/lib/section-nav";
+import Link from "next/link";
 
-/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const navItems = [
   {
     label: "About me",
@@ -197,7 +197,7 @@ const Header: FC = () => {
         <div className="container !max-w-full">
           <div className="flex justify-between h-20 items-center">
             <div>
-              <a href="/">
+              <Link href="/">
                 <span className="text-xl font-bold uppercase text-white md:text-3xl lg:text-4xl">
                   Erskine Duenas
                   <span className="inline-flex items-center ml-2 text-sm font-bold px-2.5 py-0.5 rounded border border-white text-white normal-case tracking-widest align-middle">
@@ -205,7 +205,7 @@ const Header: FC = () => {
                   </span>
                   <TitleToggle />
                 </span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

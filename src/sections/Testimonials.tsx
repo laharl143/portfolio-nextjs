@@ -7,7 +7,6 @@ import image3 from "@/assets/images/testimonial-3.jpg";
 import { useScroll, motion, useTransform, AnimatePresence } from "motion/react";
 import Testimonial from "@/components/Testimonial";
 
-/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 const testimonials = [
   {
     name: "Sarah Chen",
