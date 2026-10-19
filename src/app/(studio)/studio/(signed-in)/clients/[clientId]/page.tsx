@@ -3,7 +3,8 @@ import Link from "next/link";
 import { archiveClientAction, createNoteAction, deleteNoteAction } from "@/studio/clients/actions";
 import { notFoundOr } from "@/studio/clients/page-errors";
 import { NOTE_LIMIT, getClientDetail, type ClientDetail } from "@/studio/data/clients";
-import { formatDate, formatDateTime, formatPlainDate, statusLabel } from "@/studio/format";
+import { listClientContracts, type ContractRow } from "@/studio/data/contracts";
+import { formatAmount, formatDate, formatDateTime, formatPlainDate, statusLabel } from "@/studio/format";
 import { requireStudioAccess } from "@/studio/guard";
 import ConfirmSubmit from "../../../_components/ConfirmSubmit";
 import NoteForm from "../../../_components/NoteForm";
@@ -167,6 +168,45 @@ function Projects({ detail, live }: { detail: ClientDetail; live: boolean }) {
   );
 }
 
+// Live contracts of this client, newest status change first (spec 0007, AC-9).
+function Contracts({ detail, contracts, live }: { detail: ClientDetail; contracts: ContractRow[]; live: boolean }) {
+  return (
+    <Section
+      title="Contracts"
+      action={
+        live && (
+          <Link href={`/studio/clients/${detail.client.id}/contracts/new`} className={secondaryButton}>
+            New contract
+          </Link>
+        )
+      }
+    >
+      {contracts.length === 0 ? (
+        <p className={empty}>No contracts yet.</p>
+      ) : (
+        <ul className="grid gap-3">
+          {contracts.map((contract) => (
+            <li key={contract.id} className={`${card} p-4`}>
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <Link href={`/studio/contracts/${contract.id}`} className={`${textLink} break-words`}>
+                  {contract.title}
+                </Link>
+                <StatusBadge status={contract.status} />
+              </div>
+              <p className={`mt-1 flex flex-wrap gap-x-4 text-sm ${muted}`}>
+                <span className="tabular-nums">
+                  {contract.amountMinor === null ? "No amount" : formatAmount(contract.amountMinor, contract.currency)}
+                </span>
+                <span>Last change {formatDate(contract.lastChangeAt)}</span>
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Section>
+  );
+}
+
 function Notes({ detail, live }: { detail: ClientDetail; live: boolean }) {
   const clientId = detail.client.id;
   return (
@@ -231,8 +271,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
   const { clientId } = await params;
 
   let detail: ClientDetail;
+  let contracts: ContractRow[];
   try {
-    detail = await getClientDetail(clientId);
+    [detail, contracts] = await Promise.all([getClientDetail(clientId), listClientContracts(clientId)]);
   } catch (err) {
     notFoundOr(err);
   }
@@ -295,6 +336,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
 
       <Contacts detail={detail} live={live} />
       <Projects detail={detail} live={live} />
+      <Contracts detail={detail} contracts={contracts} live={live} />
       <Notes detail={detail} live={live} />
     </main>
   );

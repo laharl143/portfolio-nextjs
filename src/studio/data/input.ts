@@ -1,9 +1,12 @@
 import "server-only";
 import "@/studio/marker";
+import { unknownPlaceholderError } from "@/studio/contracts/placeholders";
 import {
+  BILLING_CADENCES,
   CLIENT_STATUSES,
   CONTACT_CHANNELS,
   PROJECT_STATUSES,
+  type BillingCadence,
   type ClientStatus,
   type ContactChannel,
   type ProjectStatus,
@@ -221,4 +224,128 @@ export function parseNoteBody(raw: Raw): string {
   const body = c.required("body", raw, "Note", 10000);
   c.finish();
   return body;
+}
+
+// Contracts and templates (spec 0007).
+
+export const BODY_MAX = 50000;
+// Pesos with at most 2 decimals, commas already stripped: 0 to 9,999,999,999.99.
+const AMOUNT_PATTERN = /^\d{1,10}(\.\d{1,2})?$/;
+
+// A body keeps its text as typed (no trim, so Markdown spacing survives); only a blank one counts as empty.
+function body(c: Collector, field: string, raw: Raw, label: string, required: boolean): string {
+  const value = (raw ?? "").replace(/\r\n?/g, "\n");
+  if (!value.trim()) {
+    if (required) {
+      c.errors[field] = `${label} is required.`;
+    }
+    return "";
+  }
+  if (value.length > BODY_MAX) {
+    c.errors[field] = `${label} must be at most ${BODY_MAX.toLocaleString("en-US")} characters.`;
+    return value;
+  }
+  const unknown = unknownPlaceholderError(value);
+  if (unknown) {
+    c.errors[field] = unknown;
+  }
+  return value;
+}
+
+export type TemplateFormInput = { name?: Raw; description?: Raw; body?: Raw };
+export type TemplateValues = { name: string; description: string | null; body: string };
+
+export function parseTemplateInput(input: TemplateFormInput): TemplateValues {
+  const c = new Collector();
+  const values = {
+    name: c.required("name", input.name, "Name", 200),
+    description: c.optional("description", input.description, "Description", 500),
+    body: body(c, "body", input.body, "Template text", true),
+  };
+  c.finish();
+  return values;
+}
+
+export type ContractFormInput = {
+  title?: Raw;
+  projectId?: Raw;
+  amount?: Raw;
+  billingCadence?: Raw;
+  startDate?: Raw;
+  endDate?: Raw;
+  termsSummary?: Raw;
+  body?: Raw;
+};
+export type ContractValues = {
+  title: string;
+  projectId: string | null;
+  amountMinor: bigint | null;
+  billingCadence: BillingCadence | null;
+  startDate: string | null;
+  endDate: string | null;
+  termsSummary: string | null;
+};
+
+function parseAmount(c: Collector, raw: Raw): bigint | null {
+  const value = (raw ?? "").trim().replace(/,/g, "");
+  if (!value) {
+    return null;
+  }
+  if (!AMOUNT_PATTERN.test(value)) {
+    c.errors.amount = "Enter an amount in pesos, like 12,500.00 (at most 9,999,999,999.99).";
+    return null;
+  }
+  const [whole, fraction = ""] = value.split(".");
+  return BigInt(whole) * BigInt(100) + BigInt(fraction.padEnd(2, "0"));
+}
+
+// The AC-2 fields; the template choice only when `withTemplate` (the new form, `blank` becomes null),
+// the body only when `withBody` (the edit form).
+export function parseContractInput(
+  input: ContractFormInput & { templateId?: Raw },
+  opts: { withBody?: boolean; withTemplate?: boolean },
+): ContractValues & { body?: string; templateId?: string | null } {
+  const c = new Collector();
+  let templateId: string | null | undefined;
+  if (opts.withTemplate) {
+    const raw = (input.templateId ?? "").trim();
+    if (raw === "blank") {
+      templateId = null;
+    } else if (isUuid(raw)) {
+      templateId = raw;
+    } else {
+      c.errors.templateId = raw ? "Choose a valid template." : "Choose a template, or Blank.";
+    }
+  }
+  const projectId = (input.projectId ?? "").trim();
+  if (projectId && !isUuid(projectId)) {
+    c.errors.projectId = "Choose a valid project.";
+  }
+  const values: ContractValues & { body?: string; templateId?: string | null } = {
+    title: c.required("title", input.title, "Title", 200),
+    projectId: projectId && isUuid(projectId) ? projectId : null,
+    amountMinor: parseAmount(c, input.amount),
+    billingCadence: c.oneOf("billingCadence", input.billingCadence, BILLING_CADENCES, null, "billing cadence"),
+    startDate: c.date("startDate", input.startDate, "Start date"),
+    endDate: c.date("endDate", input.endDate, "End date"),
+    termsSummary: c.optional("termsSummary", input.termsSummary, "Terms summary", 2000),
+  };
+  if (values.startDate && values.endDate && values.endDate < values.startDate) {
+    c.errors.endDate = "End date cannot be before the start date.";
+  }
+  if (opts.withBody) {
+    values.body = body(c, "body", input.body, "Contract text", false);
+  }
+  if (opts.withTemplate) {
+    values.templateId = templateId ?? null;
+  }
+  c.finish();
+  return values;
+}
+
+export function parseStatusNote(raw: Raw): string | null {
+  const c = new Collector();
+  const note = c.optional("note", raw, "Note", 1000);
+  c.finish();
+  return note;
 }

@@ -18,6 +18,10 @@ export type SystemStatus = (typeof SYSTEM_STATUSES)[number];
 export const CONTRACT_STATUSES = ["draft", "sent", "signed", "active", "ended", "cancelled"] as const;
 export type ContractStatus = (typeof CONTRACT_STATUSES)[number];
 
+// Contract files (spec 0007): the PDF frozen at sent, and signed copies you upload.
+export const CONTRACT_FILE_KINDS = ["sent_pdf", "signed_copy"] as const;
+export type ContractFileKind = (typeof CONTRACT_FILE_KINDS)[number];
+
 export const BILLING_CADENCES = ["one_time", "monthly", "milestone"] as const;
 export type BillingCadence = (typeof BILLING_CADENCES)[number];
 

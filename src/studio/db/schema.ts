@@ -22,6 +22,7 @@ import {
   CHALLENGE_PURPOSES,
   CLIENT_STATUSES,
   CONTACT_CHANNELS,
+  CONTRACT_FILE_KINDS,
   CONTRACT_STATUSES,
   MEMBER_ROLES,
   PASSKEY_DEVICE_TYPES,
@@ -34,6 +35,7 @@ import {
   type ChallengePurpose,
   type ClientStatus,
   type ContactChannel,
+  type ContractFileKind,
   type ContractStatus,
   type MemberRole,
   type PasskeyDeviceType,
@@ -227,6 +229,28 @@ export const projectSystems = studio.table(
   ],
 );
 
+// Contract templates (spec 0007): a Markdown subset with {{placeholders}}, private to the workspace.
+export const contractTemplates = studio.table(
+  "contract_templates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: workspaceId(),
+    name: text("name").notNull(),
+    description: text("description"),
+    body: text("body").notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [
+    check("contract_templates_name_not_blank", notBlank(t.name)),
+    check("contract_templates_body_length", sql`char_length(${t.body}) <= 50000`),
+    uniqueIndex("contract_templates_workspace_name_uq")
+      .on(t.workspaceId, sql`lower(${t.name})`)
+      .where(sql`${t.archivedAt} is null`),
+    index("contract_templates_workspace_updated_idx").on(t.workspaceId, t.updatedAt.desc()),
+  ],
+);
+
 export const contracts = studio.table(
   "contracts",
   {
@@ -246,6 +270,9 @@ export const contracts = studio.table(
     startDate: date("start_date"),
     endDate: date("end_date"),
     termsSummary: text("terms_summary"),
+    // Provenance only (spec 0007): never read to render. The body is this contract's own copy.
+    templateId: uuid("template_id").references(() => contractTemplates.id, { onDelete: "restrict" }),
+    body: text("body").notNull().default(""),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     ...timestamps,
   },
@@ -262,6 +289,7 @@ export const contracts = studio.table(
     check("contracts_amount_not_negative", sql`${t.amountMinor} >= 0`),
     check("contracts_currency_check", sql`${t.currency} ~ '^[A-Z]{3}$'`),
     check("contracts_end_after_start", notBefore(t.endDate, t.startDate)),
+    check("contracts_body_length", sql`char_length(${t.body}) <= 50000`),
     index("contracts_workspace_status_idx").on(t.workspaceId, t.status),
     index("contracts_client_idx").on(t.clientId),
     index("contracts_project_idx").on(t.projectId),
@@ -293,6 +321,36 @@ export const contractStatusEvents = studio.table(
       .where(sql`${t.fromStatus} is null`),
     index("contract_status_events_contract_changed_idx").on(t.contractId, t.changedAt),
     index("contract_status_events_workspace_idx").on(t.workspaceId),
+  ],
+);
+
+// Append only (spec 0007): a trigger (custom migration) rejects any update or delete. The bytes live in private Blob.
+export const contractFiles = studio.table(
+  "contract_files",
+  {
+    id: uuid("id").primaryKey(),
+    workspaceId: workspaceId(),
+    contractId: uuid("contract_id")
+      .notNull()
+      .references(() => contracts.id, { onDelete: "restrict" }),
+    kind: text("kind").$type<ContractFileKind>().notNull(),
+    statusEventId: uuid("status_event_id").references(() => contractStatusEvents.id, { onDelete: "restrict" }),
+    blobPathname: text("blob_pathname").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    sha256: text("sha256").notNull(),
+    createdAt,
+  },
+  (t) => [
+    check("contract_files_kind_check", oneOf(t.kind, CONTRACT_FILE_KINDS)),
+    check("contract_files_size_positive", sql`${t.sizeBytes} > 0`),
+    check("contract_files_sha256_hex", sql`${t.sha256} ~ '^[0-9a-f]{64}$'`),
+    check("contract_files_sent_pdf_has_event", sql`${t.kind} <> 'sent_pdf' or ${t.statusEventId} is not null`),
+    uniqueIndex("contract_files_blob_pathname_uq").on(t.blobPathname),
+    uniqueIndex("contract_files_status_event_uq")
+      .on(t.statusEventId)
+      .where(sql`${t.statusEventId} is not null`),
+    index("contract_files_contract_kind_created_idx").on(t.contractId, t.kind, t.createdAt.desc()),
+    index("contract_files_workspace_idx").on(t.workspaceId),
   ],
 );
 

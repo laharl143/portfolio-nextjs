@@ -50,7 +50,52 @@ const ID = {
   bakeryContract: "5eed0000-0000-4000-8000-000000000401",
   clinicContract: "5eed0000-0000-4000-8000-000000000402",
   hardwareContract: "5eed0000-0000-4000-8000-000000000403",
+  exampleTemplate: "5eed0000-0000-4000-8000-000000000601",
 } as const;
+
+// A clearly fake template that uses every placeholder (spec 0007, AC-12). Seeded contracts keep an empty body.
+const TEMPLATE = {
+  id: ID.exampleTemplate,
+  name: "Example service agreement",
+  description: "Fake sample text for trying the editor and the PDF. Not real contract wording.",
+  body: [
+    "# Example service agreement",
+    "",
+    "**{{contract.title}}**",
+    "Dated {{today}}",
+    "",
+    "## Parties",
+    "",
+    "This example agreement is between Example Studio (the provider) and **{{client.name}}** (the client),",
+    "attention: {{client.contact_name}}, {{client.contact_email}}.",
+    "",
+    "## Scope",
+    "",
+    "The provider will deliver the project *{{project.name}}*.",
+    "",
+    "- Start date: {{contract.start_date}}",
+    "- End date: {{contract.end_date}}",
+    "- Billing: {{contract.billing_cadence}}",
+    "- Amount: {{contract.amount}}",
+    "",
+    "## Terms",
+    "",
+    "{{contract.terms_summary}}",
+    "",
+    "1. This is fake sample text.",
+    "2. Replace it with your own wording before you use it.",
+    "",
+    "---",
+    "",
+    "## Signatures",
+    "",
+    "Example Studio",
+    "Signature: ____________________",
+    "",
+    "{{client.name}}",
+    "Signature: ____________________",
+  ].join("\n"),
+};
 
 const CLIENTS = [
   { id: ID.bakery, name: "Example Bakery Co", status: "active", industry: "Food", website: "https://bakery.example.com" },
@@ -270,6 +315,13 @@ async function main() {
       }
       report("contracts", contractsCreated, CONTRACTS.length);
       console.log(`[seed] contract status steps applied: ${steps}`);
+
+      const templates = await db
+        .insert(schema.contractTemplates)
+        .values({ ...TEMPLATE, workspaceId })
+        .onConflictDoNothing({ target: schema.contractTemplates.id })
+        .returning({ id: schema.contractTemplates.id });
+      report("contract templates", templates.length, 1);
 
       // Notes last, since one points at a contract.
       const notes = await db

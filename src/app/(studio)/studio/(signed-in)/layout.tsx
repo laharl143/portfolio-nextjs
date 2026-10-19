@@ -22,12 +22,18 @@ export default async function SignedInLayout({ children }: { children: React.Rea
             <span className="mr-2 text-sm font-semibold uppercase tracking-widest text-stone-500">
               {displayName ?? "Studio"}
             </span>
-            <nav aria-label="Studio" className="flex gap-1">
+            <nav aria-label="Studio" className="flex flex-wrap gap-1">
               <Link href="/studio" className={navLink}>
                 Studio
               </Link>
               <Link href="/studio/clients" className={navLink}>
                 Clients
+              </Link>
+              <Link href="/studio/contracts" className={navLink}>
+                Contracts
+              </Link>
+              <Link href="/studio/templates" className={navLink}>
+                Templates
               </Link>
               <Link href="/studio/security" className={navLink}>
                 Security

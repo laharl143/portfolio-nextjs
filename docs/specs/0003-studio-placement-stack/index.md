@@ -168,7 +168,7 @@ Dependency rule for the upgrade: a package with no React 19 peer range gets an n
 
 - [ ] Feature 21 (login) fills `requireStudioAccess()` with the owner session check and turns `STUDIO_ENABLED` on in Preview (with Deployment Protection) and Production.
 - [ ] Feature 20 (data model) adds tables in the `studio` schema through `db:generate`, following the forward only, additive migration rule.
-- [ ] Feature 23 decides whether PDFs are stored as sent (Blob) or regenerated; this spec only provides the private store.
+- [x] Feature 23 decides whether PDFs are stored as sent (Blob) or regenerated; this spec only provides the private store. Decided in [spec 0007](../0007-contracts-pdf-export/index.md): stored as sent.
 - [ ] Revisit error tracking (a hosted error tracker) when real client data lands in the studio.
 - [ ] Revisit a separate studio deploy (rationale Option 2) if the studio starts holding many real client contracts.
 - [ ] The Vercel Blob skill you picked (`jezweb/claude-skills@vercel-blob`) is no longer published in that repo, so nothing was installed for Blob; follow the Vercel Blob docs for private stores, or add a Blob skill later if one appears.

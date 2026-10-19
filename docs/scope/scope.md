@@ -35,7 +35,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 20 | Studio data model | Studio foundation | done |
 | 21 | Studio login | Studio foundation | done |
 | 22 | Client tracking | Studio slice 1 | done |
-| 23 | Contracts & PDF export | Studio slice 2 | planned |
+| 23 | Contracts & PDF export | Studio slice 2 | done |
 | 24 | Private systems map | Studio slice 3 | planned |
 
 ## Existing
@@ -193,10 +193,18 @@ spec [0006](../specs/0006-client-tracking/index.md) · code in `src/app/(studio)
 
 ## Studio slice 2: Contracts
 
-### 23. Contracts & PDF export · needs a decision · Beta
+### 23. Contracts & PDF export · done · Beta
 Fill a contract template for a client, export it as a PDF, and track it through draft → sent → signed → active → ended. Signing happens outside the app for now (no e-signature). The state machine is kept clean so it grows into Invoicing.
 **Done when:** you can create a contract from a template for a client, export a correct PDF, move it only along allowed status steps with each change recorded, and see each client's contracts from the client view; PDFs are never publicly reachable.
-- [ ] Design it (spec): `/architect contracts & pdf export`
+- [x] Design it (spec): `/architect contracts & pdf export`
+- [x] Build it: `/develop contracts & pdf export`
+   - [x] Thin thread: migration (templates, contract body, contract files, append only trigger), placeholders and Markdown subset, react-pdf with bundled font, fake template seed, new template, new contract from a client, contract page with preview, draft PDF, mark sent freezing the PDF in private Blob, satisfies AC-1, AC-2, AC-3, AC-5, AC-6, AC-11, AC-12
+   - [x] Every step and the signed copy: all status steps with confirm and note, archived client refusal, back to draft and resend, signed copy upload, files list and files route, satisfies AC-7, AC-8, AC-10, AC-11
+   - [x] Edit, archive, and lists: template edit and archive, draft only contract edit, contract archive, client page Contracts section, `/studio/contracts` list, nav links, satisfies AC-1, AC-4, AC-9, AC-10
+   - [x] Hardening: loading, error, and not found states, error paths, logs free of contract text, mobile and both themes, lint, build, leak check, production build PDF check, satisfies AC-11, AC-13
+- [ ] Verify it: `/check verify contracts & pdf export` · skipped 2026-10-19 (marked done after the build)
+- [ ] Test it: `/test contracts & pdf export` · skipped 2026-10-19 (marked done after the build)
+spec [0007](../specs/0007-contracts-pdf-export/index.md) · code in `src/studio/contracts/`, `src/studio/data/contracts.ts`, `src/studio/data/contract-templates.ts`, `src/studio/data/contract-files.ts`, `src/app/(studio)/studio/(signed-in)/contracts/`, `src/app/(studio)/studio/(signed-in)/templates/`
 
 ## Studio slice 3: Private systems map
 
@@ -216,6 +224,8 @@ Out of scope for this pass, kept so the plan stays honest.
 - **Client search extras**: match contact names and emails in the client search, and a `pg_trgm` index once the list passes about 5,000 rows, from spec 0006 · needs a decision
 - **Archived contacts and projects view**: see archived contacts and projects of a client (hidden in feature 22), from spec 0006
 - **Notes on contacts and projects**: the notes table already supports them; feature 22 writes client notes only, from spec 0006
+- **Contract extras**: contract notes, unarchive, a richer PDF layout (logo, tables, two column signature block), and business details as workspace fields for Invoicing, from spec 0007 · needs a decision
+- **Blob orphan cleanup**: a manual script that deletes private contract files with no `contract_files` row, from spec 0007
 
 ## Legend
 

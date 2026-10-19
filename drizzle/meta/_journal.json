@@ -43,6 +43,20 @@
       "when": 1792398065584,
       "tag": "0005_studio_login",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792407207540,
+      "tag": "0006_contracts_templates_files",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792407214022,
+      "tag": "0007_contract_files_append_only",
+      "breakpoints": true
     }
   ]
 }

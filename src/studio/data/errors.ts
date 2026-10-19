@@ -139,3 +139,60 @@ export function isUniqueViolation(err: unknown, constraint: string): boolean {
   const pg = pgErrorOf(err);
   return pg?.code === "23505" && pg.constraint === constraint;
 }
+
+// Contracts and PDF export (spec 0007).
+
+export class TemplateNotFound extends StudioDataError {
+  constructor() {
+    super("TEMPLATE_NOT_FOUND", "Template not found");
+  }
+}
+
+export class DuplicateTemplateName extends StudioDataError {
+  constructor() {
+    super("DUPLICATE_TEMPLATE_NAME", "Another live template already has this name");
+  }
+}
+
+export class ContractNotEditable extends StudioDataError {
+  constructor() {
+    super("CONTRACT_NOT_EDITABLE", "Only a draft contract can be edited");
+  }
+}
+
+export class ContractEmpty extends StudioDataError {
+  constructor() {
+    super("CONTRACT_EMPTY", "The contract has no text");
+  }
+}
+
+// The labels are placeholder labels from the fixed list, never values.
+export class ContractHasMissingValues extends StudioDataError {
+  constructor(readonly labels: string[]) {
+    super("CONTRACT_HAS_MISSING_VALUES", "Some placeholders have no value");
+  }
+}
+
+export class ContractNotSigned extends StudioDataError {
+  constructor() {
+    super("CONTRACT_NOT_SIGNED", "A signed copy needs a signed, active, or ended contract");
+  }
+}
+
+export class PdfRenderFailed extends StudioDataError {
+  constructor() {
+    super("PDF_RENDER_FAILED", "The PDF could not be rendered");
+  }
+}
+
+export class FileStoreFailed extends StudioDataError {
+  constructor() {
+    super("FILE_STORE_FAILED", "The file could not be saved");
+  }
+}
+
+export class ContractFileNotFound extends StudioDataError {
+  constructor() {
+    super("CONTRACT_FILE_NOT_FOUND", "Contract file not found");
+  }
+}
