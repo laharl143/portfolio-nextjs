@@ -1,6 +1,7 @@
 import "server-only";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
+import "@/studio/marker";
 import * as schema from "./schema";
 
 // Neon over WebSocket (spec 0003): supports transactions, unlike the HTTP driver.

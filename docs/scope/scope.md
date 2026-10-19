@@ -31,7 +31,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 16 | Skills marquee cleanup | Next slice | planned |
 | 17 | On-site engagement tracking | Next slice | planned |
 | 18 | Public Products page | Products | done |
-| 19 | Studio placement & stack | Studio foundation | in-progress |
+| 19 | Studio placement & stack | Studio foundation | done |
 | 20 | Studio data model | Studio foundation | planned |
 | 21 | Studio login | Studio foundation | planned |
 | 22 | Client tracking | Studio slice 1 | planned |
@@ -137,18 +137,18 @@ spec [0002](../specs/0002-public-products-page/index.md) · code in `src/app/pro
 
 ## Studio foundation
 
-### 19. Studio placement & stack · in-progress · Beta
+### 19. Studio placement & stack · done · Beta
 Decide where the private studio lives and what it runs on: a separate private deploy (your current lean, so client data and contract PDFs never ship with the public site) or a login gated `/studio` area in this same app, plus the database and where PDFs are stored. This is load bearing: every studio feature builds on it. Stays inside this repo; the move from Next.js 14 to Next 16 was approved on 2026-10-14 (spec 0003).
 **Done when:** the placement, database, and file storage choice are recorded in a spec with the risks weighed honestly, and an empty studio shell boots locally next to the public site without leaking into the public build.
 - [x] Design it (spec): `/architect studio placement & stack`
-- [ ] Build it: `/develop studio placement & stack`
+- [x] Build it: `/develop studio placement & stack`
    - [x] Next 16 + React 19 upgrade on the public site alone (ESLint 9, Turbopack), no regression, satisfies AC-1
    - [x] Route groups, two root layouts, studio layout, proxy and guard with the flag off (404 first), satisfies AC-3, AC-4
    - [x] Neon (preview branches), Drizzle, `studio` schema migration, migrate on build, satisfies AC-6, AC-7
-   - [ ] Private Blob stores, shell status lines, leak check, `.env.example`, satisfies AC-2, AC-5, AC-8
-- [ ] Verify it: `/check verify studio placement & stack`
-- [ ] Test it: `/test studio placement & stack`
-spec [0003](../specs/0003-studio-placement-stack/index.md) · code in `src/app/(site)/`, `src/app/(studio)/`, `src/studio/`, `src/proxy.ts`
+   - [x] Private Blob stores, shell status lines, leak check, `.env.example`, satisfies AC-2, AC-5, AC-8
+- [ ] Verify it: `/check verify studio placement & stack` (skipped, marked done on 2026-10-19)
+- [ ] Test it: `/test studio placement & stack` (skipped, marked done on 2026-10-19)
+spec [0003](../specs/0003-studio-placement-stack/index.md) · code in `src/app/(site)/`, `src/app/(studio)/`, `src/studio/`, `src/proxy.ts`, `drizzle/`, `scripts/`
 
 ### 20. Studio data model · needs a decision · Beta
 Core records the studio builds on: clients, contacts, projects, contracts (with their status history), and systems with their links. Shaped so it can grow into your CRM and Invoicing products without a breaking migration.
