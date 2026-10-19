@@ -15,6 +15,18 @@ export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 export const SYSTEM_STATUSES = ["built", "in-progress", "next", "planned"] as const;
 export type SystemStatus = (typeof SYSTEM_STATUSES)[number];
 
+// The map's groups (spec 0008). Private: only `standalone` reaches the public file, as the derived flag.
+export const SYSTEM_LAYERS = ["current", "platform", "core", "layer2", "standalone"] as const;
+export type SystemLayer = (typeof SYSTEM_LAYERS)[number];
+
+export const SYSTEM_LAYER_LABELS: Record<SystemLayer, string> = {
+  current: "Shipped and in progress",
+  platform: "Shared platform",
+  core: "Core SMB apps",
+  layer2: "Layer 2 apps",
+  standalone: "Standalone",
+};
+
 export const CONTRACT_STATUSES = ["draft", "sent", "signed", "active", "ended", "cancelled"] as const;
 export type ContractStatus = (typeof CONTRACT_STATUSES)[number];
 

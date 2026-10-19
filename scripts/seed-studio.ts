@@ -238,6 +238,9 @@ async function main() {
             status: product.status,
             publicSummary: product.summary,
             standalone: product.standalone === true,
+            // Spec 0008: the check needs layer to match standalone; the real layers come in through the import.
+            layer: product.standalone === true ? ("standalone" as const) : ("core" as const),
+            published: true,
             sortOrder: index,
           })),
         )

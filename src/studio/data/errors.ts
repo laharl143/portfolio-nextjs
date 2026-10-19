@@ -196,3 +196,53 @@ export class ContractFileNotFound extends StudioDataError {
     super("CONTRACT_FILE_NOT_FOUND", "Contract file not found");
   }
 }
+
+// Systems map (spec 0008).
+
+export class SystemNotFound extends StudioDataError {
+  constructor() {
+    super("SYSTEM_NOT_FOUND", "System not found");
+  }
+}
+
+export class SystemArchived extends StudioDataError {
+  constructor() {
+    super("SYSTEM_ARCHIVED", "The system is archived");
+  }
+}
+
+export class DuplicateSystemSlug extends StudioDataError {
+  constructor() {
+    super("DUPLICATE_SYSTEM_SLUG", "Another system already uses this slug");
+  }
+}
+
+export class SelfLink extends StudioDataError {
+  constructor() {
+    super("SELF_LINK", "A system cannot link to itself");
+  }
+}
+
+export class DuplicateLink extends StudioDataError {
+  constructor() {
+    super("DUPLICATE_LINK", "This system already sends a link to that system");
+  }
+}
+
+export class SystemLinkNotFound extends StudioDataError {
+  constructor() {
+    super("SYSTEM_LINK_NOT_FOUND", "Link not found for this system");
+  }
+}
+
+export class SystemResourceNotFound extends StudioDataError {
+  constructor() {
+    super("SYSTEM_RESOURCE_NOT_FOUND", "Resource not found for this system");
+  }
+}
+
+export class ImportHasErrors extends StudioDataError {
+  constructor() {
+    super("IMPORT_HAS_ERRORS", "The import has errors");
+  }
+}

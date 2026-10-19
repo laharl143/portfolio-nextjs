@@ -27,6 +27,7 @@ import {
   MEMBER_ROLES,
   PASSKEY_DEVICE_TYPES,
   PROJECT_STATUSES,
+  SYSTEM_LAYERS,
   SYSTEM_LINK_STATES,
   SYSTEM_RESOURCE_KINDS,
   SYSTEM_STATUSES,
@@ -40,6 +41,7 @@ import {
   type MemberRole,
   type PasskeyDeviceType,
   type ProjectStatus,
+  type SystemLayer,
   type SystemLinkState,
   type SystemResourceKind,
   type SystemStatus,
@@ -197,6 +199,10 @@ export const systems = studio.table(
       .notNull()
       .default(sql`'{}'::text[]`),
     standalone: boolean("standalone").notNull().default(false),
+    // Spec 0008: private grouping; `standalone` is always equal to `layer = 'standalone'` (check below).
+    layer: text("layer").$type<SystemLayer>().notNull().default("core"),
+    // Spec 0008: only published live systems reach the public export. Off for new systems.
+    published: boolean("published").notNull().default(false),
     sortOrder: integer("sort_order").notNull().default(0),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     ...timestamps,
@@ -205,6 +211,8 @@ export const systems = studio.table(
     check("systems_id_slug_check", sql`${t.id} ~ '^[a-z0-9-]+$'`),
     check("systems_status_check", oneOf(t.status, SYSTEM_STATUSES)),
     check("systems_name_not_blank", notBlank(t.name)),
+    check("systems_layer_check", oneOf(t.layer, SYSTEM_LAYERS)),
+    check("systems_standalone_matches_layer", sql`${t.standalone} = (${t.layer} = 'standalone')`),
     index("systems_workspace_status_sort_idx").on(t.workspaceId, t.status, t.sortOrder),
   ],
 );

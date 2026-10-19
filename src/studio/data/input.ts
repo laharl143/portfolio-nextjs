@@ -6,10 +6,18 @@ import {
   CLIENT_STATUSES,
   CONTACT_CHANNELS,
   PROJECT_STATUSES,
+  SYSTEM_LAYERS,
+  SYSTEM_LINK_STATES,
+  SYSTEM_RESOURCE_KINDS,
+  SYSTEM_STATUSES,
   type BillingCadence,
   type ClientStatus,
   type ContactChannel,
   type ProjectStatus,
+  type SystemLayer,
+  type SystemLinkState,
+  type SystemResourceKind,
+  type SystemStatus,
 } from "@/studio/db/constants";
 import { InvalidInput } from "./errors";
 
@@ -348,4 +356,171 @@ export function parseStatusNote(raw: Raw): string | null {
   const note = c.optional("note", raw, "Note", 1000);
   c.finish();
   return note;
+}
+
+// Systems map (spec 0008, AC-3 and AC-6). One parser for the forms and the import, so the import can never write
+// a value the edit form would reject.
+
+export const SYSTEM_SLUG_PATTERN = /^[a-z0-9-]{1,40}$/;
+export const SYSTEM_LIMITS = {
+  name: 80,
+  publicSummary: 600,
+  text: 5000,
+  label: 120,
+  url: 2048,
+  stackItems: 30,
+  stackItem: 60,
+  sortOrder: 9999,
+} as const;
+
+export function isSystemSlug(value: unknown): value is string {
+  return typeof value === "string" && SYSTEM_SLUG_PATTERN.test(value);
+}
+
+// Stack typed one item per line: each trimmed, blanks dropped.
+export function stackLines(raw: Raw): string[] {
+  return (raw ?? "")
+    .split(/\r\n?|\n/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function requiredChoice<T extends string>(c: Collector, field: string, raw: Raw, allowed: readonly T[], label: string): T {
+  const value = (raw ?? "").trim();
+  if (!value) {
+    c.errors[field] = `${label} is required.`;
+  } else if (!(allowed as readonly string[]).includes(value)) {
+    c.errors[field] = `Choose a valid ${label.toLowerCase()}.`;
+  }
+  return value as T;
+}
+
+export type SystemFormInput = {
+  slug?: Raw;
+  name?: Raw;
+  status?: Raw;
+  layer?: Raw;
+  published?: boolean;
+  publicSummary?: Raw;
+  summary?: Raw;
+  lessons?: Raw;
+  stack?: string[];
+  sortOrder?: Raw;
+};
+
+export type SystemValues = {
+  name: string;
+  status: SystemStatus;
+  layer: SystemLayer;
+  // Derived, never typed (AC-3).
+  standalone: boolean;
+  published: boolean;
+  publicSummary: string;
+  summary: string | null;
+  lessons: string | null;
+  stack: string[];
+  sortOrder: number;
+};
+
+// `withSlug` on create only; the slug never changes afterwards. Errors are keyed by form field name.
+export function parseSystemInput(input: SystemFormInput, opts: { withSlug: boolean }): SystemValues & { id?: string } {
+  const c = new Collector();
+  let id: string | undefined;
+  if (opts.withSlug) {
+    id = (input.slug ?? "").trim();
+    if (!id) {
+      c.errors.slug = "Slug is required.";
+    } else if (!SYSTEM_SLUG_PATTERN.test(id)) {
+      c.errors.slug = "Use 1 to 40 lowercase letters, digits, or hyphens.";
+    }
+  }
+  const stack = (input.stack ?? []).map((item) => item.trim()).filter(Boolean);
+  if (stack.length > SYSTEM_LIMITS.stackItems) {
+    c.errors.stack = `Stack can have at most ${SYSTEM_LIMITS.stackItems} items.`;
+  } else if (stack.some((item) => item.length > SYSTEM_LIMITS.stackItem)) {
+    c.errors.stack = `Each stack item must be at most ${SYSTEM_LIMITS.stackItem} characters.`;
+  }
+  const rawOrder = (input.sortOrder ?? "").trim();
+  let sortOrder = 0;
+  if (rawOrder) {
+    if (!/^-?\d{1,4}$/.test(rawOrder)) {
+      c.errors.sortOrder = `Sort order must be a whole number from -${SYSTEM_LIMITS.sortOrder} to ${SYSTEM_LIMITS.sortOrder}.`;
+    } else {
+      sortOrder = Number(rawOrder);
+    }
+  }
+  const layer = requiredChoice(c, "layer", input.layer, SYSTEM_LAYERS, "Layer");
+  const values: SystemValues & { id?: string } = {
+    name: c.required("name", input.name, "Name", SYSTEM_LIMITS.name),
+    status: requiredChoice(c, "status", input.status, SYSTEM_STATUSES, "Status"),
+    layer,
+    standalone: layer === "standalone",
+    published: input.published === true,
+    publicSummary: c.required("publicSummary", input.publicSummary, "Public summary", SYSTEM_LIMITS.publicSummary),
+    summary: c.optional("summary", input.summary, "Summary", SYSTEM_LIMITS.text),
+    lessons: c.optional("lessons", input.lessons, "Lessons", SYSTEM_LIMITS.text),
+    stack,
+    sortOrder,
+  };
+  if (id !== undefined) {
+    values.id = id;
+  }
+  c.finish();
+  return values;
+}
+
+export type SystemLinkValues = { label: string; state: SystemLinkState };
+
+export function parseSystemLinkInput(input: { label?: Raw; state?: Raw }): SystemLinkValues {
+  const c = new Collector();
+  const values = {
+    label: c.required("label", input.label, "Label", SYSTEM_LIMITS.label),
+    state: requiredChoice(c, "state", input.state, SYSTEM_LINK_STATES, "State"),
+  };
+  c.finish();
+  return values;
+}
+
+// An http or https URL with a host (AC-6). Kept as typed, apart from the trim.
+function parseHttpUrl(c: Collector, field: string, raw: Raw): string {
+  const value = (raw ?? "").trim();
+  if (!value) {
+    c.errors[field] = "URL is required.";
+    return value;
+  }
+  if (value.length > SYSTEM_LIMITS.url) {
+    c.errors[field] = `URL must be at most ${SYSTEM_LIMITS.url.toLocaleString("en-US")} characters.`;
+    return value;
+  }
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    c.errors[field] = "Enter a full URL starting with http:// or https://.";
+    return value;
+  }
+  if ((url.protocol !== "http:" && url.protocol !== "https:") || !url.hostname) {
+    c.errors[field] = "Enter a full URL starting with http:// or https://.";
+  }
+  return value;
+}
+
+export type SystemResourceValues = { kind: SystemResourceKind; label: string; url: string };
+
+export function parseSystemResourceInput(input: { kind?: Raw; label?: Raw; url?: Raw }): SystemResourceValues {
+  const c = new Collector();
+  const values = {
+    kind: requiredChoice(c, "kind", input.kind, SYSTEM_RESOURCE_KINDS, "Kind"),
+    label: c.required("label", input.label, "Label", SYSTEM_LIMITS.label),
+    url: parseHttpUrl(c, "url", input.url),
+  };
+  c.finish();
+  return values;
+}
+
+export function parseSystemNoteBody(raw: Raw): string {
+  const c = new Collector();
+  const body = c.required("body", raw, "Note", SYSTEM_LIMITS.text);
+  c.finish();
+  return body;
 }

@@ -36,7 +36,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 21 | Studio login | Studio foundation | done |
 | 22 | Client tracking | Studio slice 1 | done |
 | 23 | Contracts & PDF export | Studio slice 2 | done |
-| 24 | Private systems map | Studio slice 3 | planned |
+| 24 | Private systems map | Studio slice 3 | in-progress |
 
 ## Existing
 
@@ -208,10 +208,18 @@ spec [0007](../specs/0007-contracts-pdf-export/index.md) · code in `src/studio/
 
 ## Studio slice 3: Private systems map
 
-### 24. Private systems map · needs a decision · Beta
+### 24. Private systems map · in-progress · Beta
 Move the full SMB Systems Map (every field, including private notes, lessons, and repo links) into the studio so it replaces the Claude artifact as your tracker. Decide how the public Products page (feature 18) stays in sync without ever exposing private fields.
 **Done when:** all 15 systems and their links are in the studio and editable; private fields show only when signed in; the public Products page still shows only the safe fields.
-- [ ] Design it (spec): `/architect private systems map`
+- [x] Design it (spec): `/architect private systems map`
+- [ ] Build it: `/develop private systems map`
+   - [x] Thin thread: `layer` and `published` migration, seed update, Systems nav, board, read only detail, public projection, drift banner, export of `products-data.ts`, satisfies AC-1, AC-2, AC-9, AC-10, AC-11
+   - [x] Import: paste JSON page, parser and planner with the artifact field mapping, preview with row errors, one transaction apply, rerun stays unchanged, satisfies AC-7, AC-8
+   - [x] Edit everything: create and edit systems, published flag, archive and restore, links, resources, system notes, satisfies AC-3, AC-4, AC-5, AC-6
+   - [ ] Hardening and the real move: states, logs, mobile and both themes, lint, build, leak check, production import, export, commit the public file, satisfies AC-10, AC-11, AC-12
+- [ ] Verify it: `/check verify private systems map`
+- [ ] Test it: `/test private systems map`
+spec [0008](../specs/0008-private-systems-map/index.md) · code in `src/studio/systems/`, `src/studio/data/systems.ts`, `src/app/(studio)/studio/(signed-in)/systems/`
 
 ## Deferred
 Out of scope for this pass, kept so the plan stays honest.
@@ -226,6 +234,8 @@ Out of scope for this pass, kept so the plan stays honest.
 - **Notes on contacts and projects**: the notes table already supports them; feature 22 writes client notes only, from spec 0006
 - **Contract extras**: contract notes, unarchive, a richer PDF layout (logo, tables, two column signature block), and business details as workspace fields for Invoicing, from spec 0007 · needs a decision
 - **Blob orphan cleanup**: a manual script that deletes private contract files with no `contract_files` row, from spec 0007
+- **Systems map diagram**: a drawn map of systems and links in the studio, like the old artifact's view, from spec 0008
+- **Export as a pull request**: the systems export opens a pull request with the new `products-data.ts` instead of a download, from spec 0008 · needs a decision
 
 ## Legend
 

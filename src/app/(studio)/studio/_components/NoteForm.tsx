@@ -20,6 +20,7 @@ export default function NoteForm({
   cancelHref,
   reloadHref,
   label = "Note",
+  maxLength = 10000,
 }: {
   action: Action;
   initial?: Record<string, string>;
@@ -28,6 +29,7 @@ export default function NoteForm({
   cancelHref?: string;
   reloadHref?: string;
   label?: string;
+  maxLength?: number;
 }) {
   const [state, formAction] = useActionState(action, INITIAL_ACTION_STATE);
 
@@ -41,7 +43,7 @@ export default function NoteForm({
         name="body"
         label={label}
         required
-        maxLength={10000}
+        maxLength={maxLength}
         rows={cancelHref ? 10 : 4}
         defaultValue={valueOf(state, initial, "body")}
         error={errorOf(state, "body")}
