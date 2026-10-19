@@ -1,7 +1,7 @@
 # 0008. Private systems map: studio screens over the spec 0004 tables, a paste in import, and a generated public file you commit
 
 **Date**: 2026-10-19
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
