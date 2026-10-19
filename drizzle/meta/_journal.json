@@ -8,6 +8,34 @@
       "when": 1792390293128,
       "tag": "0000_init_studio_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792394955993,
+      "tag": "0001_workspaces_clients",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792394976960,
+      "tag": "0002_studio_workspace_row",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792395176046,
+      "tag": "0003_studio_core_records",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792395202328,
+      "tag": "0004_contract_events_append_only",
+      "breakpoints": true
     }
   ]
 }

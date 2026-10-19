@@ -32,7 +32,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 17 | On-site engagement tracking | Next slice | planned |
 | 18 | Public Products page | Products | done |
 | 19 | Studio placement & stack | Studio foundation | done |
-| 20 | Studio data model | Studio foundation | planned |
+| 20 | Studio data model | Studio foundation | done |
 | 21 | Studio login | Studio foundation | planned |
 | 22 | Client tracking | Studio slice 1 | planned |
 | 23 | Contracts & PDF export | Studio slice 2 | planned |
@@ -150,10 +150,18 @@ Decide where the private studio lives and what it runs on: a separate private de
 - [ ] Test it: `/test studio placement & stack` (skipped, marked done on 2026-10-19)
 spec [0003](../specs/0003-studio-placement-stack/index.md) · code in `src/app/(site)/`, `src/app/(studio)/`, `src/studio/`, `src/proxy.ts`, `drizzle/`, `scripts/`
 
-### 20. Studio data model · needs a decision · Beta
+### 20. Studio data model · done · Beta
 Core records the studio builds on: clients, contacts, projects, contracts (with their status history), and systems with their links. Shaped so it can grow into your CRM and Invoicing products without a breaking migration.
 **Done when:** the entities and relationships support client tracking, the contract lifecycle (draft → sent → signed → active → ended), and the systems map; seed data is clearly fake (no real client data); no secrets in the repo.
-- [ ] Design it (spec): `/architect studio data model`
+- [x] Design it (spec): `/architect studio data model`
+- [x] Build it: `/develop studio data model`
+   - [x] Thin thread: workspaces and clients tables, fixed workspace row, client count on the shell, guarded seed with one fake client, satisfies AC-1, AC-2, AC-7, AC-8
+   - [x] The rest of the model: contacts, projects, systems, contracts, events, notes, links, resources with every constraint, append only trigger, all counts, satisfies AC-1, AC-2, AC-5, AC-8
+   - [x] Contract lifecycle and archive rules, satisfies AC-3, AC-4, AC-6
+   - [x] Full fake seed plus systems from public data, and the public boundary check, satisfies AC-3, AC-7, AC-9, AC-10
+- [ ] Verify it: `/check verify studio data model` (skipped, marked done on 2026-10-19)
+- [ ] Test it: `/test studio data model` (skipped, marked done on 2026-10-19)
+spec [0004](../specs/0004-studio-data-model/index.md) · code in `src/studio/db/`, `src/studio/data/`, `drizzle/`, `scripts/seed-studio.ts`
 
 ### 21. Studio login · needs a decision · Beta
 Single owner sign in (just you) that protects every studio page and every studio data request.
@@ -186,6 +194,7 @@ Out of scope for this pass, kept so the plan stays honest.
 - **ED Solutions rebrand**: rename the public site to ED Solutions with a brand pass (wordmark, palette, type), revisit copy, metadata, and favicon; SEO foundation (feature 15) should then point at the new name · needs a decision
 - **Lead intake form**: a public inquiry form that lands as a new lead in studio client tracking · needs a decision
 - **E-signature**: sign contracts inside the studio · needs a decision
+- **Archived contact data retention**: decide how long archived contacts' personal data is kept before real client data lands (Data Privacy Act), from spec 0004 · needs a decision
 - **Invoicing**: invoices from active contracts, the next step toward your Invoicing product · needs a decision
 
 ## Legend
