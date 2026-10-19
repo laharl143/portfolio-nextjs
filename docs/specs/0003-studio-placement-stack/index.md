@@ -16,7 +16,7 @@ Your private studio lives inside this same app at `/studio`, in its own route gr
 
 **Acceptance criteria**:
 - **AC-1**: The site runs on Next 16 (an exact version pinned in `package.json`) with React 19. `npm run build` and `npm run lint` succeed, `/` and `/products` are still marked `○` (static) in the `next build` route table, and every check in spec 0001's and spec 0002's `verify.md` still passes (no public regression).
-- **AC-2**: Locally, with `STUDIO_ENABLED=true` and the dev Neon branch and dev Blob token in `.env.local`, `npm run dev` serves `/studio` next to the public pages. The shell shows a heading, a database status line in one of three states (`Not connected` · `Connected, not migrated` · `Connected, N migrations applied`, N read from `studio.__drizzle_migrations`), and a file storage status line (`Private store reachable` or `Storage not reachable`).
+- **AC-2**: Locally, with `STUDIO_ENABLED=true` and the dev Blob token in `.env.local` and the dev Neon branch URLs in `.env.development.local`, `npm run dev` serves `/studio` next to the public pages. The shell shows a heading, a database status line in one of three states (`Not connected` · `Connected, not migrated` · `Connected, N migrations applied`, N read from `studio.__drizzle_migrations`), and a file storage status line (`Private store reachable` or `Storage not reachable`).
 - **AC-3**: When `STUDIO_ENABLED` is not exactly `true`, `/studio` and every `/studio/*` path return a 404. This holds through both layers on their own: the proxy (`src/proxy.ts`) and the `requireStudioAccess()` guard called by the studio layout, every studio page, and every studio server action.
 - **AC-4**: Studio pages use their own root layout: no public Header or Footer, no Vercel Analytics script, a `noindex, nofollow` robots meta tag, and dynamic rendering (never prerendered). Public pages keep their existing layout, Analytics, and theme exactly as before.
 - **AC-5**: The studio database client, storage client, and data layer import `server-only`, so importing any of them from a client component fails the build. After `next build`, a leak check script scans `.next/static/**` plus the `.html` and `.rsc` output of public routes under `.next/server/app/` (everything outside `studio`), and fails the build if it finds the studio server marker string, or the password or token part (16 characters or more) of any studio secret. On Vercel (`VERCEL=1`) the check fails if a studio secret it should scan for is missing; locally it logs which ones it skipped.
@@ -56,7 +56,7 @@ Reasoning and options: see [rationale.md](rationale.md).
 | Gate (until feature 21) | `STUDIO_ENABLED` env flag checked in `src/proxy.ts` (returns `new NextResponse(null, { status: 404 })`) and in `requireStudioAccess()` (calls `notFound()`) | Studio returns 404 in production until login ships; two independent layers. The proxy alone is never enough: layouts and pages render separately, and server actions can be POSTed to any route path. |
 | Auth | Deferred to feature 21; this spec only fixes the contract (`requireStudioAccess()` is the one place it plugs in) | Keeps the login choice its own decision. |
 | Hosting | Vercel, the existing project | The public site already runs there. |
-| Local dev DB | A `dev` branch of the Neon project, URL in `.env.local` | Same Postgres as production, no Docker, one click reset. |
+| Local dev DB | A `dev` branch of the Neon project, URLs in `.env.development.local` (never `.env.local`, so a local `next build`, which runs in production mode, never sees a database) | Same Postgres as production, no Docker, one click reset. |
 | Observability | Vercel runtime and build logs; the shell's status lines | No error tracking service yet for a single user tool; revisit when real client data arrives (Follow-up). |
 
 ### Code layout
@@ -72,10 +72,10 @@ Reasoning and options: see [rationale.md](rationale.md).
 | `src/app/(studio)/studio/page.tsx` | The shell: calls `requireStudioAccess()`, then shows the heading plus the database and storage status lines. |
 | `src/proxy.ts` | Next 16 proxy (Node runtime), matcher `["/studio", "/studio/:path*"]`, returns a bare 404 when the flag is off. |
 | `src/studio/guard.ts` | `requireStudioAccess()`: today calls `notFound()` unless `STUDIO_ENABLED === "true"`; feature 21 adds the owner session check here. |
-| `src/studio/db/client.ts`, `src/studio/db/schema.ts` | Drizzle client and schema (`pgSchema('studio')`), both `import "server-only"`. |
+| `src/studio/db/client.ts`, `src/studio/db/schema.ts` | Drizzle client and schema (`pgSchema('studio')`). `client.ts` imports `server-only`; `schema.ts` does not, on purpose, because drizzle-kit loads it outside Next. It holds table shapes only, never a connection or secret. |
 | `src/studio/storage/blob.ts` | Private Blob helpers, `import "server-only"`. |
 | `src/studio/marker.ts` | `export const STUDIO_SERVER_MARKER = "__ed_studio_server_only__"`, imported by the data layer; the leak check searches for this string. |
-| `drizzle.config.ts`, `drizzle/` | Drizzle Kit config: loads `.env.local` through `loadEnvConfig` from `@next/env` (drizzle-kit does not read it on its own), uses `DATABASE_URL_UNPOOLED`, `schemaFilter: ["studio"]`, `migrations: { schema: "studio", table: "__drizzle_migrations" }`; plus the committed SQL migrations. The migrate script passes the same `migrationsSchema` and `migrationsTable` so the CLI and the script never diverge. |
+| `drizzle.config.ts`, `drizzle/` | Drizzle Kit config: loads env files through `loadEnvConfig` from `@next/env` in dev mode, so `.env.development.local` (the Neon dev branch) wins as it does for `next dev` (drizzle-kit does not read these files on its own), uses `DATABASE_URL_UNPOOLED`, `schemaFilter: ["studio"]`, `migrations: { schema: "studio", table: "__drizzle_migrations" }`; plus the committed SQL migrations. The migrate script passes the same `migrationsSchema` and `migrationsTable` so the CLI and the script never diverge. |
 | `scripts/migrate-on-build.mjs` | Runs migrations only under the AC-6 conditions. |
 | `scripts/check-studio-leak.mjs` | The AC-5 leak check. |
 
@@ -120,11 +120,11 @@ One owner (you), no other roles. Until feature 21, nobody can reach the studio i
 ### Configuration required
 
 - `STUDIO_ENABLED`: `"true"` turns the studio on. Set in Development (local `.env.local`) only, until feature 21 ships; then also Preview (with Vercel Deployment Protection on) and Production.
-- `DATABASE_URL`: pooled Neon connection for runtime queries (injected by the Neon integration in every environment; locally the `dev` branch, via `vercel env pull` or pasted from Neon).
-- `DATABASE_URL_UNPOOLED`: direct Neon connection for migrations (injected by the integration).
+- `DATABASE_URL`: pooled Neon connection for runtime queries (injected by the Neon integration in every environment; locally the `dev` branch, pasted from Neon into `.env.development.local`; never pulled into `.env.local`).
+- `DATABASE_URL_UNPOOLED`: direct Neon connection for migrations (injected by the integration; locally the `dev` branch, in `.env.development.local`).
 - `STUDIO_PROD_DB_HOST`: the production branch's database host name (not a secret), set in Preview so a preview build can refuse to migrate production.
 - `BLOB_READ_WRITE_TOKEN`: private Blob store token (`studio-dev` in Development and Preview, `studio-prod` in Production; locally via `vercel env pull`).
-- `.env.example` lists all five names above with empty values. `vercel env pull` writes `.env.local`, which `.env*.local` already ignores.
+- `.env.example` lists all five names above with empty values. `vercel env pull` writes `.env.local` (`STUDIO_ENABLED`, `BLOB_READ_WRITE_TOKEN`); the dev branch URLs live in `.env.development.local`. `.env*.local` ignores both.
 
 ### Critical test scenarios
 
@@ -172,5 +172,5 @@ Dependency rule for the upgrade: a package with no React 19 peer range gets an n
 - [ ] Revisit error tracking (a hosted error tracker) when real client data lands in the studio.
 - [ ] Revisit a separate studio deploy (rationale Option 2) if the studio starts holding many real client contracts.
 - [ ] The Vercel Blob skill you picked (`jezweb/claude-skills@vercel-blob`) is no longer published in that repo, so nothing was installed for Blob; follow the Vercel Blob docs for private stores, or add a Blob skill later if one appears.
-- [ ] `/sync`: add the four new skills (`vercel-react-best-practices`, `neon-postgres`, `neon-postgres-branches`, `drizzle-orm`) to `AGENTS.md` `## Agent skills`, and record `Declined: Neon MCP, next-devtools-mcp` so they are not offered again.
-- [ ] `/sync`: record the studio conventions (route groups, `src/studio/` is `server-only`, `requireStudioAccess()` everywhere, no `NEXT_PUBLIC_` for studio vars, forward only migrations) in `AGENTS.md`, and update its stack line to Next 16 and React 19.
+- [x] `/sync`: add the four new skills (`vercel-react-best-practices`, `neon-postgres`, `neon-postgres-branches`, `drizzle-orm`) to `AGENTS.md` `## Agent skills`, and record `Declined: Neon MCP, next-devtools-mcp` so they are not offered again.
+- [x] `/sync`: record the studio conventions (route groups, `src/studio/` is `server-only`, `requireStudioAccess()` everywhere, no `NEXT_PUBLIC_` for studio vars, forward only migrations) in `AGENTS.md`, and update its stack line to Next 16 and React 19.

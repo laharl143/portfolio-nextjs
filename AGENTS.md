@@ -2,9 +2,9 @@
 
 ## Stack
 
-- **Language / Runtime**: TypeScript, Node 20+
-- **Framework**: Next.js 14.2 (App Router), React 18
-- **Key dependencies**: Tailwind CSS, shadcn/ui (Radix primitives), Framer Motion (`motion` package), react-icons, @vercel/analytics
+- **Language / Runtime**: TypeScript, Node 20.9+ (Next 16's minimum)
+- **Framework**: Next.js 16 (App Router, Turbopack, exact version pinned in `package.json`), React 19
+- **Key dependencies**: Tailwind CSS, shadcn/ui (Radix primitives), Framer Motion (`motion` package), react-icons, @vercel/analytics; studio only: Neon Postgres (`@neondatabase/serverless`), Drizzle ORM (`drizzle-orm`, `drizzle-kit`), private Vercel Blob (`@vercel/blob`), `server-only`
 - **Package manager**: npm
 
 ## Build approach
@@ -20,8 +20,15 @@ npm install
 # Dev server
 npm run dev
 
-# Build
+# Build (migrates on Vercel only, then next build, then the studio leak check)
 npm run build
+
+# Lint (ESLint 9 flat config, eslint.config.mjs; `next lint` is gone in Next 16)
+npm run lint
+
+# Studio database (Neon dev branch, run on purpose)
+npm run db:generate
+npm run db:migrate
 
 # Test
 # no test framework configured yet
@@ -38,10 +45,12 @@ Stored in `docs/specs/`. Format: `docs/specs/NNNN-title.md`, or a directory `doc
 ## Rules
 
 - When a feature in `docs/scope/scope.md` is marked `done` (by any skill, or directly by the engineer), commit that feature's changed files with a descriptive message and push to the tracking remote branch right after. No confirmation needed for this specific commit and push; other git operations still confirm as usual.
-- Page sections live in `src/sections/` (Hero, Header, Badges, Projects, Skills, FAQs, Testimonials, Footer, Intro) and are composed in `src/app/page.tsx`. Other routes live in `src/app/<route>/page.tsx` and reuse `Header` and `Footer` (e.g. `/products` composes `src/sections/Products.tsx`).
+- Page sections live in `src/sections/` (Hero, Header, Badges, Projects, Skills, FAQs, Testimonials, Footer, Intro) and are composed in `src/app/(site)/page.tsx`. Other public routes live in `src/app/(site)/<route>/page.tsx` and reuse `Header` and `Footer` (e.g. `/products` composes `src/sections/Products.tsx`).
 - Header and footer section links use `/#<section-id>` hrefs and call `scrollToSectionIfSamePage` from `src/lib/section-nav.ts`, so they smooth scroll on `/` and navigate home from any other route. Follow this for any new section link.
 - `utils/data/products-data.ts` feeds the public `/products` page and holds public fields only (id, name, status, summary, links, plus an optional `standalone: true` set only for products standalone by design). Never add notes, lessons, stack, repo links, ticket keys, or client names there; the `PublicProduct` type rejects extra fields (spec 0002).
 - Reusable UI primitives live in `src/components/ui/`, following shadcn/ui conventions (`components.json`: style "new-york", Radix-based, class merging via `cn()` in `src/lib/utils.ts`).
+- The app has two route groups with their own root layouts: `src/app/(site)/` (public, with Header, Footer, Analytics) and `src/app/(studio)/` (the private studio). Both share `src/components/AppProviders.tsx` and the font in `src/lib/fonts.ts`. Studio conventions live in [src/studio/AGENTS.md](src/studio/AGENTS.md) (spec 0003).
+- Public code (`src/app/(site)/`, `src/sections/`, `src/components/`) never imports from `src/studio/`, and no studio variable ever uses the `NEXT_PUBLIC_` prefix.
 - Path alias `@/*` maps to `src/*`.
 - Content/data lives in `utils/data/*.js` and `utils/data/*.ts` (badges, personal info, skills, products) and is imported into section components rather than hardcoded inline.
 - Interactive client sections are marked `"use client"` at the top of the file (e.g. `Hero.tsx`).
@@ -53,11 +62,18 @@ Stored in `docs/specs/`. Format: `docs/specs/NNNN-title.md`, or a directory `doc
 - [shadcn-ui](.claude/skills/shadcn-ui/): `jezweb/claude-skills`, component selection and install conventions matching this project's shadcn setup
 - [tailwindcss-advanced-layouts](.claude/skills/tailwindcss-advanced-layouts/): `josiahsiegel/claude-plugin-marketplace`, Tailwind Grid/Flexbox layout patterns
 - [framer-motion-animator](.claude/skills/framer-motion-animator/): `patricio0312rev/skills`, Framer Motion (`motion` package) animation conventions
+- [vercel-react-best-practices](.claude/skills/vercel-react-best-practices/): `vercel-labs/agent-skills`, Next 16 and React 19 patterns (Server Components, Server Actions, performance)
+- [neon-postgres](.claude/skills/neon-postgres/): `neondatabase/agent-skills`, pooled vs direct connections and the serverless driver
+- [neon-postgres-branches](.claude/skills/neon-postgres-branches/): `neondatabase/agent-skills`, the dev branch and per preview branches
+- [drizzle-orm](.claude/skills/drizzle-orm/): `oakoss/agent-skills`, the studio schema and drizzle-kit migrations
 
-Declined: Vercel deployment
+MCP servers: Vercel (recommended)
+
+Declined: Vercel deployment · Neon MCP · next-devtools-mcp · Vercel Blob skill
 
 ## Context files
 
 <!-- Nested AGENTS.md files are listed here as they are created -->
+- [src/studio/AGENTS.md](src/studio/AGENTS.md): the private studio (gate, server only data layer, Neon and Drizzle migrations, private Blob, leak check)
 
 _Drafted by /audit from the repo, worth a quick human pass. Edit freely: once a line stops matching this draft, later runs treat it as curated and will flag rather than overwrite it._
