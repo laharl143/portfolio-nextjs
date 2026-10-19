@@ -143,12 +143,12 @@ Decide where the private studio lives and what it runs on: a separate private de
 - [x] Design it (spec): `/architect studio placement & stack`
 - [ ] Build it: `/develop studio placement & stack`
    - [x] Next 16 + React 19 upgrade on the public site alone (ESLint 9, Turbopack), no regression, satisfies AC-1
-   - [ ] Route groups, two root layouts, studio layout, proxy and guard with the flag off (404 first), satisfies AC-3, AC-4
+   - [x] Route groups, two root layouts, studio layout, proxy and guard with the flag off (404 first), satisfies AC-3, AC-4
    - [ ] Neon (preview branches), Drizzle, `studio` schema migration, migrate on build, satisfies AC-6, AC-7
    - [ ] Private Blob stores, shell status lines, leak check, `.env.example`, satisfies AC-2, AC-5, AC-8
 - [ ] Verify it: `/check verify studio placement & stack`
 - [ ] Test it: `/test studio placement & stack`
-spec [0003](../specs/0003-studio-placement-stack/index.md)
+spec [0003](../specs/0003-studio-placement-stack/index.md) · code in `src/app/(site)/`, `src/app/(studio)/`, `src/studio/`, `src/proxy.ts`
 
 ### 20. Studio data model · needs a decision · Beta
 Core records the studio builds on: clients, contacts, projects, contracts (with their status history), and systems with their links. Shaped so it can grow into your CRM and Invoicing products without a breaking migration.
