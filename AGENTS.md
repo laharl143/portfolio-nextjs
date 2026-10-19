@@ -66,6 +66,7 @@ Stored in `docs/specs/`. Format: `docs/specs/NNNN-title.md`, or a directory `doc
 - [neon-postgres](.claude/skills/neon-postgres/): `neondatabase/agent-skills`, pooled vs direct connections and the serverless driver
 - [neon-postgres-branches](.claude/skills/neon-postgres-branches/): `neondatabase/agent-skills`, the dev branch and per preview branches
 - [drizzle-orm](.claude/skills/drizzle-orm/): `oakoss/agent-skills`, the studio schema and drizzle-kit migrations
+- [webauthn](.agents/skills/webauthn/): `claude-dev-suite/claude-dev-suite`, WebAuthn passkeys and SimpleWebAuthn for studio login (symlinked at `.claude/skills/webauthn/`)
 
 MCP servers: Vercel (recommended)
 

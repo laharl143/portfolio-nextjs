@@ -1,13 +1,15 @@
 # Studio (private back office)
 
-Governing spec: [0003 studio placement and stack](../../docs/specs/0003-studio-placement-stack/index.md). The studio is a gated `/studio` area inside this app, shipped in the same Vercel deploy as the public site.
+Governing specs: [0003 studio placement and stack](../../docs/specs/0003-studio-placement-stack/index.md), [0005 studio login](../../docs/specs/0005-studio-login/index.md). The studio is a gated `/studio` area inside this app, shipped in the same Vercel deploy as the public site.
 
 ## Where things live
 
-- `src/studio/guard.ts`: `requireStudioAccess()`, the one gate. Today it calls `notFound()` unless `STUDIO_ENABLED === "true"`; feature 21 (studio login) adds the owner session check here.
-- `src/proxy.ts`: Next 16 proxy, matcher `/studio` and `/studio/:path*`, returns a bare 404 when the flag is off. A first filter only, never the real gate.
+- `src/studio/guard.ts`: two gates. `requireStudioEnabled()` checks the flag only (`notFound()` unless `STUDIO_ENABLED === "true"`). `requireStudioAccess()` checks the flag plus the owner session, redirects to `/studio/login?next=` when signed out, and returns the `StudioSession`.
+- `src/proxy.ts`: Next 16 proxy, matcher `/studio` and `/studio/:path*`. Returns a bare 404 when the flag is off, redirects to the login page when the session cookie is missing (except on `/studio/login` and `/studio/setup`), sets the `x-studio-pathname` header, and refreshes the session cookie on GET requests only. It never touches the database. A first filter only, never the real gate.
+- `src/studio/auth/`: owner passkey login (SimpleWebAuthn v14) with opaque, hashed database sessions (30 days, sliding). `actions.ts` (server actions: sign in, setup, sign out, sign out everywhere, add passkey), `session.ts` (`getStudioSession()`), `config.ts` (constants and `getRpConfig()`), `challenge.ts`, `passkeys.ts`, `owner.ts`, `events.ts` (auth events, kept 90 days), `safe-next.ts`, `device-label.ts`, `cookie.ts` (cookie names, attributes, and the path header).
 - `src/app/(studio)/layout.tsx`: studio root layout (own `<html>`, no Header, Footer, or Analytics, robots `noindex, nofollow`, `force-dynamic`).
-- `src/app/(studio)/studio/page.tsx`: the shell with the database and file storage status lines.
+- `src/app/(studio)/studio/(auth)/`: the login and setup pages (flag gate only). `src/app/(studio)/studio/(signed-in)/`: everything behind the session, with its own layout calling `requireStudioAccess()`; `page.tsx` is the shell with the status lines, `security/` holds add another passkey. Shared client pieces live in `src/app/(studio)/studio/_components/`.
+- `src/studio/data/workspace.ts`: `getWorkspaceId()` reads the workspace from the session and throws `NoWorkspaceScope` when there is none (never a constant fallback). `runInWorkspace()` is for scripts only (the seed); request code never calls it.
 - `src/studio/db/client.ts`: Drizzle over the Neon WebSocket driver (`drizzle-orm/neon-serverless`), pool created lazily on first use from `DATABASE_URL`.
 - `src/studio/db/schema.ts`: tables in the Postgres schema `studio` (`pgSchema("studio")`).
 - `src/studio/db/status.ts`, `src/studio/storage/blob.ts`: the shell's status checks; `blob.ts` is the private Vercel Blob helper.
@@ -17,8 +19,9 @@ Governing spec: [0003 studio placement and stack](../../docs/specs/0003-studio-p
 
 ## Rules
 
-- Every studio layout, page, route handler, and server action calls `await requireStudioAccess()` before reading or writing anything. The proxy alone is never enough (server actions can be POSTed to any path).
-- Every module in `src/studio/` that touches a connection, a secret, or data starts with `import "server-only"` and imports `@/studio/marker`. The one exception is `db/schema.ts`: it skips `server-only` on purpose because drizzle-kit loads it outside Next; it holds table shapes only, never a connection.
+- Every signed in studio layout, page, route handler, and server action calls `await requireStudioAccess()` before reading or writing anything. Only the studio root layout, the login and setup pages, and their actions call `requireStudioEnabled()` instead. The proxy alone is never enough (server actions can be POSTed to any path).
+- Only the proxy refreshes the session cookie; only server actions create or clear it. `getStudioSession()` never writes cookies.
+- Every module in `src/studio/` that touches a connection, a secret, or data starts with `import "server-only"` and imports `@/studio/marker`. Two exceptions: `db/schema.ts` skips `server-only` because drizzle-kit loads it outside Next (table shapes only, never a connection), and `auth/cookie.ts` skips it because the proxy imports it (names and flags only, never a secret).
 - Studio may import shared UI from `src/components/`; public code never imports from `src/studio/`.
 - No studio variable uses the `NEXT_PUBLIC_` prefix. The variable names are listed, empty, in `.env.example`.
 - Never render a Blob URL to the browser; contract PDFs are read only through guarded server code.
@@ -28,6 +31,9 @@ Governing spec: [0003 studio placement and stack](../../docs/specs/0003-studio-p
 ## Local env
 
 - `.env.local` (from `vercel env pull`) holds `STUDIO_ENABLED` and `BLOB_READ_WRITE_TOKEN`.
+- `STUDIO_ENABLED` is on in Development and Production, never Preview (spec 0005).
+- Login needs `STUDIO_RP_ID` (the passkey domain) and `STUDIO_ORIGIN` (the exact browser origin): `localhost` and `http://localhost:3000` locally. In Production the leak check fails the build unless both are set, the origin is `https://`, and its host matches the RP ID. An `https://` origin switches the cookie to `__Host-studio_session`.
+- `STUDIO_SETUP_TOKEN` (at least 32 characters) is set only while enrolling or recovering a passkey at `/studio/setup`, then removed (redeploy both times). The leak check scans for it when present.
 - The Neon dev branch URLs (`DATABASE_URL`, `DATABASE_URL_UNPOOLED`) live in `.env.development.local` on purpose, so a local `next build` never sees a database. Never pull `DATABASE_*` into `.env.local`. `drizzle.config.ts` loads env in dev mode so drizzle-kit picks up this file.
 - A local `npm run build` never migrates. The leak check logs which secrets it skipped locally; on Vercel a missing studio secret fails the build.
 

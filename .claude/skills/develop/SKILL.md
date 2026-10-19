@@ -10,6 +10,27 @@ description: "Run /develop to build a feature, UI or backend, from an approved d
 Write everything this skill produces, files and messages alike, in plain simple language. Talk to the reader as `you`, warm and direct like a colleague, and present every step as a recommendation they may run or skip, never an order. Keep technical terms that carry real meaning; explain each in plain words. Never use a dash or a hyphen as punctuation: no em dash, no en dash, and no hyphenated compounds. Write `read only`, not `read-only`. Say it in simple words, or reword the sentence. Code, file paths, command flags, and values other skills match on keep their hyphens. Use short sentences, commas, or parentheses. Clear beats clever.
 <!-- OUTPUT-STYLE:END -->
 
+## Next step panel (clickable, no typing)
+
+<!-- NEXT-STEP:START (identical in every workflow skill: architect, audit, check, debug, develop, document, log, scope, sync, test; edit all or none) -->
+Whenever this skill ends a run by suggesting what to do next (any `Next:`, `What is next`, `Suggested next`, "advise `/clear`", or a recommended command in the report or summary), keep that line in the text, then make the **very last action of the turn** a clickable panel so the engineer can continue with the mouse alone. Never end on a typed command as the only way forward.
+
+- **Tool**: `AskUserQuestion` on Claude Code (on another agent, its own options picker; with no picker, the same options as a short numbered list).
+- **question**: "What do you want to do next?" · **header**: "Next step" · single select.
+- **options** (built from this run's real suggestions, never generic; 2 to 4 options, the picker adds Other):
+  1. The recommended next step, marked `(recommended)`. When the skill advises a fresh session first (`/clear` before the next unit), word it as a fresh session: `Fresh session: /<skill> <args>`.
+  2. The same step in this session: `Continue here: /<skill> <args>` (one line on the tradeoff: quicker, but this long conversation keeps costing tokens).
+  3. Up to one real alternative the run surfaced (e.g. `/architect <feature>: <the owed fix>`), only when it exists.
+  4. `Mark <feature> done`, whenever the run concerns a scope feature whose build has landed and that is not `done` yet (one line naming any unticked boxes it skips, e.g. "skips Verify and Test"). Otherwise (no such feature, or nothing built yet) `Stop here`: end the turn, nothing runs. The picker's own Skip button always stops too.
+- **Acting on the pick** (the click is the engineer's decision, so it overrides any "this skill does not run other skills, it points" line for this one step):
+  - `Fresh session: …` → on Claude Desktop, start a new session with `mcp__ccd_session__start_session` (`initiation: "user_asked"`, `context: "fresh"`, `prompt` = the exact command such as `/develop studio login`, `background` = one or two lines naming the feature, the spec path, and that the state lives in the scope and spec files), then end the turn with its link. With no such tool, say plainly that `/clear` can only be typed by you, and that the command to run after it is the one shown.
+  - `Continue here: …` → invoke that skill now with the `Skill` tool and its arguments.
+  - An alternative → do it if it is this skill's own job, else invoke the named skill with the `Skill` tool.
+  - `Mark <feature> done` → run the project's done flow, whichever skill this is: set the feature `done` in the scope (At a glance table and heading), record each skipped box as skipped with today's date, move the governing spec's `**Status**:` line `In Progress` → `Accepted` (an `Assumed` spec stays `Assumed`, flagged as owing ratification), mirror it to the tracker the project's `AGENTS.md` names (e.g. Jira), and follow the project's done rule (e.g. commit that feature's files and push). Then report what changed.
+  - `Stop here` → end the turn.
+- **Order**: show this panel after every other panel the run owns (confirm, save `verify.md`, and so on), never before them, and only once per run. When the run is blocked on something only the engineer can do outside the chat (a Vercel setting, a device step), say what to do first, and still show the panel with the step that follows once it is done, plus option 4 as above.
+<!-- NEXT-STEP:END -->
+
 ## What this skill does
 
 The builder: turns a spec plus project conventions into working code. Tracks: **UI** (components, pages, layouts; `ui-guide.md`), **Logical** (APIs, services, data layers, business logic, integrations; `logical-guide.md`), or both (e.g. "auth" = sign in pages plus session logic → run both). Step 0 gates on the spec so load bearing choices (an auth approach, a payment provider) are decided in `/architect`, not silently invented partway through the build.
