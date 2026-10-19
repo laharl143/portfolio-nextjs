@@ -70,7 +70,7 @@ Stored in `docs/specs/`. Format: `docs/specs/NNNN-title.md`, or a directory `doc
 
 MCP servers: Vercel (recommended)
 
-Declined: Vercel deployment · Neon MCP · next-devtools-mcp · Vercel Blob skill
+Declined: Vercel deployment · Neon MCP · next-devtools-mcp · Vercel Blob skill · `@react-pdf/renderer` skills (low adoption, spec 0007)
 
 ## Context files
 
