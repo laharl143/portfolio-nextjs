@@ -34,7 +34,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 19 | Studio placement & stack | Studio foundation | done |
 | 20 | Studio data model | Studio foundation | done |
 | 21 | Studio login | Studio foundation | done |
-| 22 | Client tracking | Studio slice 1 | planned |
+| 22 | Client tracking | Studio slice 1 | done |
 | 23 | Contracts & PDF export | Studio slice 2 | planned |
 | 24 | Private systems map | Studio slice 3 | planned |
 
@@ -178,10 +178,18 @@ spec [0005](../specs/0005-studio-login/index.md) · code in `src/studio/auth/`, 
 
 ## Studio slice 1: Client tracking
 
-### 22. Client tracking · needs a decision · Beta
+### 22. Client tracking · done · Beta
 The first real thread through the studio: sign in, add a client with contacts and projects, set a status, keep notes, find them again. This is the walking skeleton for the studio.
 **Done when:** signed in, you can create, edit, and list clients with their contacts, projects, status, and notes; empty and error states render; signed out, none of it is reachable.
-- [ ] Design it (spec): `/architect client tracking`
+- [x] Design it (spec): `/architect client tracking`
+- [x] Build it: `/develop client tracking`
+   - [x] Thin thread: Clients link, list with paging and last activity, create client, detail page, shared helpers (input parsing, error unwrapping, client lock, not found), loading, error, and not found states, satisfies AC-1, AC-2, AC-4, AC-10
+   - [x] Find, edit, archive: search, status filter, archived toggle, versioned client edit, archive dialog, read only archived client, satisfies AC-3, AC-5, AC-6
+   - [x] Contacts, projects, notes: each with add, edit, archive or delete, the primary contact move, project date rules, notes newest first, satisfies AC-6, AC-7, AC-8, AC-9
+   - [x] Hardening: error paths, logs free of personal data, mobile and both themes, lint, build, leak check, satisfies AC-10, AC-11, AC-12
+- [ ] Verify it: `/check verify client tracking` · skipped 2026-10-19 (marked done after the build)
+- [ ] Test it: `/test client tracking` · skipped 2026-10-19 (marked done after the build)
+spec [0006](../specs/0006-client-tracking/index.md) · code in `src/app/(studio)/studio/(signed-in)/clients/`, `src/studio/clients/`, `src/studio/data/`, `src/studio/format.ts`
 
 ## Studio slice 2: Contracts
 
@@ -205,6 +213,9 @@ Out of scope for this pass, kept so the plan stays honest.
 - **Archived contact data retention**: decide how long archived contacts' personal data is kept before real client data lands (Data Privacy Act), from spec 0004 · needs a decision
 - **Invoicing**: invoices from active contracts, the next step toward your Invoicing product · needs a decision
 - **Studio security extras**: rename and remove passkeys (never the last), an active sessions list, and a recent activity view over auth events; fits spec 0005's tables with no migration, from spec 0005
+- **Client search extras**: match contact names and emails in the client search, and a `pg_trgm` index once the list passes about 5,000 rows, from spec 0006 · needs a decision
+- **Archived contacts and projects view**: see archived contacts and projects of a client (hidden in feature 22), from spec 0006
+- **Notes on contacts and projects**: the notes table already supports them; feature 22 writes client notes only, from spec 0006
 
 ## Legend
 
