@@ -28,7 +28,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 13 | Certifications curation | Next slice | done |
 | 14 | Hero repositioning copy | Next slice | done |
 | 15 | SEO foundation | Next slice | planned |
-| 16 | Skills marquee cleanup | Next slice | planned |
+| 16 | Skills marquee cleanup | Next slice | done |
 | 17 | On-site engagement tracking | Next slice | planned |
 | 18 | Public Products page | Products | done |
 | 19 | Studio placement & stack | Studio foundation | done |
@@ -108,11 +108,11 @@ Meta tags, Open Graph and social share cards, sitemap, and structured data (Pers
 **Done when:** every page has correct title/description meta; sharing the URL renders a proper social card; `sitemap.xml` is generated; a Person JSON-LD block validates.
 - [ ] Design it (spec): `/architect seo foundation`
 
-### 16. Skills marquee cleanup · planned
-Fix the Skills section rendering its 16 item list 4 times in the DOM (identified during site review); confirm icons carry alt/aria labels for screen readers and the marquee doesn't trap keyboard focus.
+### 16. Skills marquee cleanup · done
+Fix the Skills section rendering its 16 item list 4 times in the DOM (identified during site review); confirm icons carry alt/aria labels for screen readers and the marquee doesn't trap keyboard focus. code in `src/sections/Skills.jsx`, `tailwind.config.ts` (marquee keyframes)
 **Done when:** the skill list renders without redundant DOM duplication (CSS driven looping instead), and passes a basic keyboard/screen reader pass.
-- [ ] Build it: `/develop skills marquee cleanup`
-- [ ] Verify it: `/check verify skills marquee cleanup`
+- [x] Build it: `/develop skills marquee cleanup`
+- [ ] Verify it: `/check verify skills marquee cleanup` (skipped, marked done on 2026-10-20)
 
 ### 17. On-site engagement tracking · planned
 Add Vercel Analytics custom events for the actions that actually signal recruiter interest: Contact Me clicks, CV downloads, and project/certification link clicks.

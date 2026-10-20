@@ -81,6 +81,15 @@ const config: Config = {
   				'5': 'hsl(var(--chart-5))'
   			}
   		},
+  		keyframes: {
+  			marquee: {
+  				from: { transform: 'translateX(0)' },
+  				to: { transform: 'translateX(-100%)' }
+  			}
+  		},
+  		animation: {
+  			marquee: 'marquee 35s linear infinite'
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
