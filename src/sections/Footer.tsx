@@ -5,6 +5,7 @@ import Button from "@/components/Button";
 import useTextRevealAnimation from "@/hooks/useTextRevealAnimation";
 import { useInView } from "motion/react";
 import { scrollToSectionIfSamePage } from "@/lib/section-nav";
+import { trackContactClick } from "@/lib/analytics";
 
 const navItems = [
   {
@@ -62,9 +63,10 @@ const Footer: FC = () => {
                 Let&apos;s Build the Future Together
               </h2>
               <Button
-                onClick={() =>
-                  (window.location.href = "mailto:erskine.duenas@gmail.com")
-                }
+                onClick={() => {
+                  trackContactClick("footer");
+                  window.location.href = "mailto:erskine.duenas@gmail.com";
+                }}
                 variant="secondary"
                 className="mt-8"
                 iconAfter={

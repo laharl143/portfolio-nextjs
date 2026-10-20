@@ -29,7 +29,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 14 | Hero repositioning copy | Next slice | done |
 | 15 | SEO foundation | Next slice | planned |
 | 16 | Skills marquee cleanup | Next slice | done |
-| 17 | On-site engagement tracking | Next slice | planned |
+| 17 | On-site engagement tracking | Next slice | done |
 | 18 | Public Products page | Products | done |
 | 19 | Studio placement & stack | Studio foundation | done |
 | 20 | Studio data model | Studio foundation | done |
@@ -114,11 +114,11 @@ Fix the Skills section rendering its 16 item list 4 times in the DOM (identified
 - [x] Build it: `/develop skills marquee cleanup`
 - [ ] Verify it: `/check verify skills marquee cleanup` (skipped, marked done on 2026-10-20)
 
-### 17. On-site engagement tracking · planned
-Add Vercel Analytics custom events for the actions that actually signal recruiter interest: Contact Me clicks, CV downloads, and project/certification link clicks.
+### 17. On-site engagement tracking · done
+Add Vercel Analytics custom events for the actions that actually signal recruiter interest: Contact Me clicks, CV downloads, and project/certification link clicks. code in `src/lib/analytics.ts` (events `contact_click`, `cv_download`, `link_click`), wired in `src/sections/Header.tsx`, `Footer.tsx`, `Hero.tsx`, `Projects.tsx`, `Badges.tsx`
 **Done when:** each of the 3 action types fires a distinct named event, visible in the Vercel Analytics dashboard.
-- [ ] Build it: `/develop on-site engagement tracking`
-- [ ] Verify it: `/check verify on-site engagement tracking`
+- [x] Build it: `/develop on-site engagement tracking`
+- [ ] Verify it: `/check verify on-site engagement tracking` (skipped, marked done on 2026-10-20)
 
 ## Products
 

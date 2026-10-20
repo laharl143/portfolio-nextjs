@@ -3,6 +3,7 @@
 import { badgesData } from "../../utils/data/badges-data";
 import Image from "next/image";
 import { useRef, MouseEvent, useState } from "react";
+import { trackLinkClick } from "@/lib/analytics";
 
 const issuerColors: Record<string, string> = {
   "IBM": "border-t-[#1F70C1]",
@@ -68,6 +69,7 @@ function BadgeCard({ badge }: { badge: typeof badgesData[0] }) {
               href={badge.url}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackLinkClick("certification", badge.name)}
               className="mt-2 text-xs border border-neon-500 text-neon-500 px-3 py-1 rounded-full hover:bg-neon-500 hover:text-white transition-all duration-300"
             >
               View Credential

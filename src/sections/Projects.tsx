@@ -1,6 +1,7 @@
 "use client";
 
 import { FC, useState, type JSX } from "react";
+import { trackLinkClick } from "@/lib/analytics";
 import simon from "@/assets/images/simon-pic.jpg";
 import vitalstats from "@/assets/images/vitalstats.png";
 import drum from "@/assets/images/drum-kit.png";
@@ -214,6 +215,7 @@ function ProjectRow({
       target={href ? "_blank" : undefined}
       rel={href ? "noopener noreferrer" : undefined}
       aria-disabled={!href}
+      onClick={href ? () => trackLinkClick("project", name) : undefined}
       className={`border-t last:border-b border-stone-400 border-dotted flex flex-col relative group/project ${
         flagship
           ? "py-10 md:py-14 lg:py-16"

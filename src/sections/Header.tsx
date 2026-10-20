@@ -5,6 +5,7 @@ import Button from "@/components/Button";
 import { motion, useAnimate } from "motion/react";
 import { ThemeToggleButton } from "@/components/ThemeToggleButton";
 import { scrollToSectionIfSamePage } from "@/lib/section-nav";
+import { trackContactClick } from "@/lib/analytics";
 import Link from "next/link";
 
 const navItems = [
@@ -151,6 +152,7 @@ const Header: FC = () => {
   ]);
 
   const handleClickMobileNavItem = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (e.currentTarget.hash === "#contact") trackContactClick("mobile_nav");
     setIsOpen(false);
     scrollToSectionIfSamePage(e);
   };
@@ -252,11 +254,12 @@ const Header: FC = () => {
               <Button
                 variant="primary"
                 className="hidden md:inline-flex items-center dark:hover:text-primary/90"
-                onClick={() =>
+                onClick={() => {
+                  trackContactClick("header");
                   document
                     .getElementById("contact")
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }}
               >
                 Contact Me
               </Button>

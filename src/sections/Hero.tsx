@@ -8,6 +8,7 @@ import SocialLinkButton from "@/components/SocialLinkButton";
 import { motion, useScroll, useTransform } from "framer-motion";
 import useTextRevealAnimation from "@/hooks/useTextRevealAnimation";
 import { personalData } from "../../utils/data/personal-data";
+import { trackCvDownload } from "@/lib/analytics";
 import { IoLogoGithub } from "react-icons/io";
 import { BiLogoLinkedin } from "react-icons/bi";
 import { FaFacebook } from "react-icons/fa";
@@ -211,6 +212,7 @@ const Hero: FC = () => {
                   >
                     <Button
                       pdfUrl="/erskine_duenas_cv.pdf"
+                      onClick={trackCvDownload}
                       variant="secondary"
                       iconAfter={
                         <div className="overflow-hidden size-5">
