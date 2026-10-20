@@ -8,6 +8,11 @@ const nextConfig = {
   outputFileTracingIncludes: {
     "/studio/**": ["./src/studio/contracts/pdf/fonts/**"],
   },
+  // Keeps every studio response out of search, including route handlers (PDF, export) that meta tags cannot cover.
+  // robots.txt must not disallow /studio, or crawlers would never see this (spec 0009, AC-10).
+  async headers() {
+    return [{ source: "/studio/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
+  },
   experimental: {
     // Signed copy uploads are capped at 4 MB, under Vercel's 4.5 MB request limit (spec 0007, AC-8).
     serverActions: { bodySizeLimit: "4.5mb" },

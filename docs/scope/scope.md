@@ -27,7 +27,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 12 | Projects restructuring & case study | Next slice | done |
 | 13 | Certifications curation | Next slice | done |
 | 14 | Hero repositioning copy | Next slice | done |
-| 15 | SEO foundation | Next slice | planned |
+| 15 | SEO foundation | Next slice | done |
 | 16 | Skills marquee cleanup | Next slice | done |
 | 17 | On-site engagement tracking | Next slice | done |
 | 18 | Public Products page | Products | done |
@@ -103,10 +103,17 @@ Swap the generic "back-end focused, full-stack capable" subhead for language tha
 - [x] Verify it: `/check verify hero repositioning copy` (PASS, 2026-09-18)
 code in `src/sections/Hero.tsx`
 
-### 15. SEO foundation · needs a decision
+### 15. SEO foundation · done
 Meta tags, Open Graph and social share cards, sitemap, and structured data (Person schema) so the site looks professional when linked or shared and is discoverable in search.
 **Done when:** every page has correct title/description meta; sharing the URL renders a proper social card; `sitemap.xml` is generated; a Person JSON-LD block validates.
-- [ ] Design it (spec): `/architect seo foundation`
+- [x] Design it (spec): `/architect seo foundation`
+- [x] Build it: `/develop seo foundation`
+   - [x] Site config and SEO copy, layout and home metadata with canonical and Open Graph, satisfies AC-1, AC-3, AC-4
+   - [x] Generated share cards (`next/og`) for `/` and `/products`, satisfies AC-4, AC-5
+   - [x] `sitemap.xml`, `robots.txt`, and the ProfilePage/Person JSON-LD on `/`, satisfies AC-6, AC-7, AC-8, AC-9
+   - [x] `/products` metadata, studio `X-Robots-Tag` header, lint, build, and live share and schema checks, satisfies AC-2, AC-10, AC-11
+- [ ] Verify it: `/check verify seo foundation` (skipped, marked done on 2026-10-20)
+spec [0009](../specs/0009-seo-foundation/index.md) · code in `src/app/(site)/layout.tsx`, `src/app/(site)/page.tsx`, `src/app/(site)/products/page.tsx`, `src/app/(site)/**/opengraph-image.tsx`, `src/app/sitemap.ts`, `src/app/robots.ts`, `src/lib/site.ts`, `src/lib/og-card.tsx`, `src/lib/json-ld.ts`, `utils/data/seo-data.ts`, `next.config.mjs`
 
 ### 16. Skills marquee cleanup · done
 Fix the Skills section rendering its 16 item list 4 times in the DOM (identified during site review); confirm icons carry alt/aria labels for screen readers and the marquee doesn't trap keyboard focus. code in `src/sections/Skills.jsx`, `tailwind.config.ts` (marquee keyframes)
@@ -236,6 +243,7 @@ Out of scope for this pass, kept so the plan stays honest.
 - **Blob orphan cleanup**: a manual script that deletes private contract files with no `contract_files` row, from spec 0007
 - **Systems map diagram**: a drawn map of systems and links in the studio, like the old artifact's view, from spec 0008
 - **Export as a pull request**: the systems export opens a pull request with the new `products-data.ts` instead of a download, from spec 0008 · needs a decision
+- **SEO extras**: a real headshot for the Person JSON-LD `image`, the Archivo font in the share cards, and Google Search Console sitemap submission, from spec 0009
 
 ## Legend
 

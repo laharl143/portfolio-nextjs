@@ -3,11 +3,19 @@ import Header from "@/sections/Header";
 import Products from "@/sections/Products";
 import Footer from "@/sections/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import { SITE_NAME, openGraphBase } from "@/lib/site";
+import { seo } from "../../../../utils/data/seo-data";
 
 export const metadata: Metadata = {
-  title: "Products | Erskine Duenas",
-  description:
-    "The products Erskine Duenas has built, is building, and plans for small and medium businesses, and how they connect.",
+  title: seo.products.title,
+  description: seo.products.description,
+  alternates: { canonical: "/products" },
+  openGraph: {
+    ...openGraphBase,
+    url: "/products",
+    title: `${seo.products.title} | ${SITE_NAME}`,
+    description: seo.products.description,
+  },
 };
 
 export default function ProductsPage() {
