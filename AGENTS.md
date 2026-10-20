@@ -72,6 +72,15 @@ MCP servers: Vercel (recommended)
 
 Declined: Vercel deployment · Neon MCP · next-devtools-mcp · Vercel Blob skill · `@react-pdf/renderer` skills (low adoption, spec 0007)
 
+## Code graph (graphify)
+
+`graphify-out/` holds a code only knowledge graph of this repo (built with `/graphify . --code-only`, structural parsing, no LLM cost). It is local and gitignored; each machine builds its own.
+
+- **Read it before reading code broadly.** Start with `graphify-out/GRAPH_REPORT.md` (god nodes, communities, surprising connections), then ask by symbol name: `graphify explain "applyImportPlan()"` (callers and imports, with file and line), `graphify path "<A>" "<B>"`, `graphify query "<symbolA> <symbolB>" --budget 1500`. Plain English questions match poorly; function, file, and component names match well. Open only the files the answer points to.
+- **The graph is a map, not the truth.** Edges marked `INFERRED` or `AMBIGUOUS` can be wrong (it matches some calls by name). Read the actual file before you edit or cite it.
+- **Keeping it fresh:** a post commit hook (`graphify hook install`, chained by the Vault Radar dispatcher) re-extracts changed code files after every commit. Rebuild by hand with `graphify update .` (add `--force` after deleting files). `.graphifyignore` keeps it code only (docs, specs, and `.claude/` skills are excluded); without it, an update parses markdown headings into a thousand noise nodes. No `graphify-out/` yet? Read the code directly, the graph is optional.
+- **Known gap:** the `drizzle/*.sql` migrations add nothing until the SQL parser is installed (`uv tool install "graphifyy[sql]"`); read `src/studio/db/schema.ts` for the schema.
+
 ## Context files
 
 <!-- Nested AGENTS.md files are listed here as they are created -->

@@ -1,0 +1,8 @@
+# Keep the graphify graph to code only (AGENTS.md, Code graph). Same syntax as .gitignore.
+# Docs, specs, and agent skills are prose; graphify would parse their headings into noise nodes.
+*.md
+docs/
+.claude/
+.agents/
+.vscode/
+public/
