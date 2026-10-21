@@ -12,6 +12,18 @@ description: |
   magic links - different flow; OAuth social login - use `oauth2`
 allowed-tools: Read, Grep, Glob, Write, Edit
 ---
+<!-- CODEX-COMPATIBILITY:START -->
+## Codex compatibility
+
+In Codex, these mappings override Claude-specific instructions in this skill and its supporting files:
+- Read SKILL.md and supporting files directly. To invoke another skill, read its installed SKILL.md; there is no Claude Skill tool.
+- Use request_user_input_async for questions, or request_user_input in Plan mode when available, instead of AskUserQuestion. Put next-step suggestions in the final answer when no suitable picker exists.
+- For an explicitly requested new chat, use create_thread if available. Never call mcp__ccd_session__start_session or assume /clear works. Otherwise continue in the current chat.
+- For explicitly prescribed subagent work, use collaboration tools. Scout and researcher describe tasks, not required agent types. Follow current model-inheritance rules. Never pass haiku, sonnet, opus, or fable as Codex model IDs. When overrides are supported and permitted, choose an available Luna for lightweight work or Sol/Astra for difficult work.
+- Cross-model review: confirm the actual author model with the user or reliable task metadata; Claude settings and ANTHROPIC_MODEL do not identify the Codex author. Use a different available strong model only if overrides are permitted. Otherwise use an available code-review tool or fresh-context reviewer and disclose that model independence is unverified. Never claim a different-model review without evidence.
+- Resolve personal skills under ~/.agents/skills and project skills under .agents/skills. Claude settings.local.json, skillOverrides, and plugin enable flags do not configure Codex; use supported Codex configuration and plugin tools.
+- Named dependent skills and plugins must actually be available. Report missing dependencies rather than inventing tools or claiming they ran.
+<!-- CODEX-COMPATIBILITY:END -->
 # WebAuthn / Passkeys
 
 ## Server Setup (SimpleWebAuthn)

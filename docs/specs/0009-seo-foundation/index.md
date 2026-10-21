@@ -23,7 +23,7 @@ The public site (`/` and `/products`) gets real search and sharing metadata: pro
 - **AC-6**: `/sitemap.xml` is valid XML listing exactly two absolute URLs, `https://erskine.vercel.app` and `https://erskine.vercel.app/products`, and no `/studio` URL.
 - **AC-7**: `/robots.txt` allows all crawlers, points to `https://erskine.vercel.app/sitemap.xml`, and does not mention `/studio`.
 - **AC-8**: `/` contains exactly one `<script type="application/ld+json">`: a `ProfilePage` whose `mainEntity` is a `Person` with `name`, `jobTitle`, `url`, `image`, and `sameAs` (GitHub and LinkedIn only); `image` is `https://erskine.vercel.app/profile-image` and that URL returns a PNG (not a 404). It passes validator.schema.org with zero errors, and Google's Rich Results Test detects a Profile page.
-- **AC-9**: The JSON-LD holds no email, phone, street address, or studio data, and its `<` characters are escaped (`<`) so the string cannot close the script tag.
+- **AC-9**: The JSON-LD holds no email, phone, street address, or studio data, and every `<` character in it is replaced by its JSON unicode escape (a backslash followed by `u003c`, six characters in all), so a value containing `</script>` cannot close the script tag. Check it in the HTML source: no raw `<` appears between the script's opening and closing tags.
 - **AC-10**: The studio is unchanged for crawlers: its pages keep `noindex, nofollow` meta, every `/studio/*` response (pages and route handlers such as the PDF and export routes) also carries the `X-Robots-Tag: noindex, nofollow` header, and studio pages get no share card or JSON-LD. `npm run build` (including the studio leak check) passes.
 - **AC-11**: `/` and `/products` look and behave as before (no visual change), and `npm run lint` passes.
 

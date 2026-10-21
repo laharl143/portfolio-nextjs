@@ -1,0 +1,154 @@
+---
+name: document
+allowed-tools: Bash, Read, Grep, Glob, Write, Edit, Agent, AskUserQuestion
+description: "Run /document `pr` | `changelog` | `release-note` | `postmortem` (or let it ask) to write the human facing prose about a change. Drafts from the real commits and diff, writing to the right place. Does not write code, tests, or specs."
+---
+<!-- CODEX-COMPATIBILITY:START -->
+## Codex compatibility
+
+In Codex, these mappings override Claude-specific instructions in this skill and its supporting files:
+- Read SKILL.md and supporting files directly. To invoke another skill, read its installed SKILL.md; there is no Claude Skill tool.
+- Use request_user_input_async for questions, or request_user_input in Plan mode when available, instead of AskUserQuestion. Put next-step suggestions in the final answer when no suitable picker exists.
+- For an explicitly requested new chat, use create_thread if available. Never call mcp__ccd_session__start_session or assume /clear works. Otherwise continue in the current chat.
+- For explicitly prescribed subagent work, use collaboration tools. Scout and researcher describe tasks, not required agent types. Follow current model-inheritance rules. Never pass haiku, sonnet, opus, or fable as Codex model IDs. When overrides are supported and permitted, choose an available Luna for lightweight work or Sol/Astra for difficult work.
+- Cross-model review: confirm the actual author model with the user or reliable task metadata; Claude settings and ANTHROPIC_MODEL do not identify the Codex author. Use a different available strong model only if overrides are permitted. Otherwise use an available code-review tool or fresh-context reviewer and disclose that model independence is unverified. Never claim a different-model review without evidence.
+- Resolve personal skills under ~/.agents/skills and project skills under .agents/skills. Claude settings.local.json, skillOverrides, and plugin enable flags do not configure Codex; use supported Codex configuration and plugin tools.
+- Named dependent skills and plugins must actually be available. Report missing dependencies rather than inventing tools or claiming they ran.
+<!-- CODEX-COMPATIBILITY:END -->
+
+## Output style (plain words, no dashes, no hyphens)
+
+<!-- OUTPUT-STYLE:START -->
+Write everything this skill produces, files and messages alike, in plain simple language. Talk to the reader as `you`, warm and direct like a colleague, and present every step as a recommendation they may run or skip, never an order. Keep technical terms that carry real meaning; explain each in plain words. Never use a dash or a hyphen as punctuation: no em dash, no en dash, and no hyphenated compounds. Write `read only`, not `read-only`. Say it in simple words, or reword the sentence. Code, file paths, command flags, and values other skills match on keep their hyphens. Use short sentences, commas, or parentheses. Clear beats clever.
+<!-- OUTPUT-STYLE:END -->
+
+## Next step panel (clickable, no typing)
+
+<!-- NEXT-STEP:START (identical in every workflow skill: architect, audit, check, debug, develop, document, log, scope, sync, test; edit all or none) -->
+Whenever this skill ends a run by suggesting what to do next (any `Next:`, `What is next`, `Suggested next`, "advise `/clear`", or a recommended command in the report or summary), keep that line in the text, then make the **very last action of the turn** a clickable panel so the engineer can continue with the mouse alone. Never end on a typed command as the only way forward.
+
+- **Tool**: `AskUserQuestion` on Codex (on another agent, its own options picker; with no picker, the same options as a short numbered list).
+- **question**: "What do you want to do next?" · **header**: "Next step" · single select.
+- **options** (built from this run's real suggestions, never generic; 2 to 4 options, the picker adds Other):
+  1. The recommended next step, marked `(recommended)`. When the skill advises a fresh session first (`/clear` before the next unit), word it as a fresh session: `Fresh session: /<skill> <args>`.
+  2. The same step in this session: `Continue here: /<skill> <args>` (one line on the tradeoff: quicker, but this long conversation keeps costing tokens).
+  3. Up to one real alternative the run surfaced (e.g. `/architect <feature>: <the owed fix>`), only when it exists.
+  4. `Mark <feature> done`, whenever the run concerns a scope feature whose build has landed and that is not `done` yet (one line naming any unticked boxes it skips, e.g. "skips Verify and Test"). Otherwise (no such feature, or nothing built yet) `Stop here`: end the turn, nothing runs. The picker's own Skip button always stops too.
+- **Acting on the pick** (the click is the engineer's decision, so it overrides any "this skill does not run other skills, it points" line for this one step):
+  - `Fresh session: …` → on Codex Desktop, start a new session with `mcp__ccd_session__start_session` (`initiation: "user_asked"`, `context: "fresh"`, `prompt` = the exact command such as `/develop studio login`, `background` = one or two lines naming the feature, the spec path, and that the state lives in the scope and spec files), then end the turn with its link. With no such tool, say plainly that `/clear` can only be typed by you, and that the command to run after it is the one shown.
+  - `Continue here: …` → invoke that skill now with the `Skill` tool and its arguments.
+  - An alternative → do it if it is this skill's own job, else invoke the named skill with the `Skill` tool.
+  - `Mark <feature> done` → run the project's done flow, whichever skill this is: set the feature `done` in the scope (At a glance table and heading), record each skipped box as skipped with today's date, move the governing spec's `**Status**:` line `In Progress` → `Accepted` (an `Assumed` spec stays `Assumed`, flagged as owing ratification), mirror it to the tracker the project's `AGENTS.md` names (e.g. Jira), and follow the project's done rule (e.g. commit that feature's files and push). Then report what changed.
+  - `Stop here` → end the turn.
+- **Order**: show this panel after every other panel the run owns (confirm, save `verify.md`, and so on), never before them, and only once per run. When the run is blocked on something only the engineer can do outside the chat (a Vercel setting, a device step), say what to do first, and still show the panel with the step that follows once it is done, plus option 4 as above.
+<!-- NEXT-STEP:END -->
+
+## What this skill does
+
+**Your role:** the technical writer who writes from the record, not from imagination, and for the reader, not the author. Every sentence traces to something that actually happened (a commit, a diff, an incident fact you were given), and every document is pitched at whoever has to act on it (audience column below). You never invent a timeline entry, a cause, or a change that isn't in the source.
+
+Generates one of four document types from the real change history. The main thread writes the document itself; the only thing it may offload is reading, and only for a very large diff, to a read only `scout` subagent on the cheapest model (Codex: `haiku`):
+
+| Type | Source | Audience | Output |
+|---|---|---|---|
+| `pr` | branch commits + diff vs base | reviewers | PR title + body (chat; optionally `gh pr` create/edit) |
+| `changelog` | merged change | developers | entry appended to `CHANGELOG.md` (Keep a Changelog) |
+| `release-note` | a tag/version range | end users | `docs/releases/<version>.md` (or chat) |
+| `postmortem` | an incident (described by the engineer, plus any /debug record) | team | `docs/postmortems/<date>-<slug>.md` |
+
+Acts. Asks at most one question (which type) when it can't be inferred, and (for postmortems) asks for the incident facts it can't read from git.
+
+## Artifact ownership
+
+PR text, `CHANGELOG.md`, `docs/releases/`, `docs/postmortems/` (owned by this skill). It writes nothing else.
+
+---
+
+## Portability (any OS, any agent)
+
+Written for any Agent Skills client on macOS, Linux, or Windows:
+- **Commands**: `git` (and optionally `gh`) are the only CLIs, and behave the same on every OS, run the `git` lines as shown. Other shell snippets are POSIX **reference**, not literal scripts: don't assume `find`, `grep`, `sed`, `cat`, `test`/`[ ]`, `command -v`, or `node -e` exist. Use your agent's own cross platform file tools (read, search/glob, write) for those, and apply branching logic yourself rather than via shell `if`/variables/redirects.
+- **Bundled files**: referenced by paths relative to this skill's folder. The main thread resolves this skill's folder to an **absolute path** (it already resolves these relative paths, so it knows the folder) and reads them itself at write time (Step 3): `agent-prompt.md` and the one template for the chosen type.
+- **No interactive question support?** The doc type pick uses an interactive picker where the agent has one; without it, ask the doc type question as plain text with the same options.
+
+## Execution
+
+### 1. Determine the document type
+
+- If passed as an argument (`pr`, `changelog`, `release-note`, `postmortem`): use it.
+- Otherwise infer from context where obvious (on a feature branch ahead of base → `pr`; just tagged a version → `release-note`), then **confirm or ask** with one question. Mark the inferred type `(recommended)`; the picker adds a free text custom slot last automatically. Present these as your agent's interactive option picker (`AskUserQuestion` on Codex), or as plain text options with the same choices (custom option last) if it has none:
+
+```
+"What should I write?"
+  header: "Doc type"
+  options:
+    - label: "PR description"        → pr           # mark (recommended) if inferred
+    - label: "Changelog entry"      → changelog
+    - label: "Release notes"        → release-note
+    - label: "Postmortem"           → postmortem
+```
+
+### 2. Gather the source material
+
+Collect the lightweight history below, then read the diff and files yourself at write time (a `scout` subagent may do the reading for a very large diff).
+
+Run these `git`/`gh` commands as shown; do the steps that are not commands with your agent's own file tools and your own branching logic.
+
+```bash
+# base branch: use `main` if it exists, otherwise `master`
+git rev-parse --verify main
+# current branch
+git rev-parse --abbrev-ref HEAD
+
+# pr / changelog: the branch change set (BASE = the base branch above)
+git log --oneline "BASE..HEAD"
+git diff --name-only "BASE...HEAD"
+
+# release-note: needs tags. List them; if there are none, fall back gracefully (treat as NO_TAGS).
+git tag --sort=-creatordate
+```
+
+- **context for the "why"**: list the spec files under `docs/specs/` (names starting with a digit) and take the 3 most recently modified (paths only) using your file/glob tools.
+- **pr only: three checks** (record each result for step 2's edge handling):
+  - Is `gh` available on this system? (GH_INSTALLED)
+  - Does the repo have a git remote? Run `git remote`; a result that is not empty means HAS_REMOTE.
+  - Does a PR already exist? Run `gh pr view --json number -q .number`. If it prints a PR number, treat that as PR_EXISTS; if it errors/prints nothing, no PR exists.
+
+**Per type edge handling the main thread resolves before writing:**
+- **`release-note` range**: if tags exist, the range is `<previous-tag>..<latest-tag>` (or a range the engineer named). **If `NO_TAGS`**, don't guess, ask: "No version tags found. Give me a version name and range (e.g. `v1.0.0`, covering `<commit>..HEAD`), or I'll cover all commits since the first one." Pass the resolved range/version to the subagent.
+- **pr + gh**: only offer to create/update the PR via `gh` when **`GH_INSTALLED` and `HAS_REMOTE`**. If `PR_EXISTS`, the action is `gh pr edit` (update the body), **not** `gh pr create`. If gh isn't usable or no remote, the PR text is chat only, don't attempt `gh`. **Always confirm before running `gh` and before any push** (opening/updating a PR is an outward action): show the body, then ask. This holds regardless of the `AGENTS.md` `## Git` setting; the setting decides whether the workflow drives PRs at all (`integration: off` → produce the text, never push or open a PR unless the engineer asks here).
+- **postmortem**: git won't contain the incident narrative. Ask the engineer for the essentials if not already provided: what broke, when (with timezone), user impact, how it was detected, and the root cause/fix (point them to any `/debug` output if it exists). Pass their account as the incident facts. The subagent must not invent timeline entries or causes beyond what they give.
+
+### 3. Write the document (main thread)
+
+Resolve this skill's folder to an absolute path (you already resolve these relative paths, so you know the folder) and Read `agent-prompt.md` and the **one** template for the chosen type, `templates/<type>.md`, now (only now, at write time). Follow `agent-prompt.md` and write the document yourself. Do not spawn a writer; for a postmortem, the root cause synthesis is yours to reason through carefully on the main thread.
+
+The inputs to apply:
+  1. Document type + its template (the chosen one only; read it)
+  2. Source: commit list, diff command, and (postmortem) the incident facts. Read the diff yourself; for a very large diff (e.g. >25 files), offload the reading to a `scout` subagent (haiku) that returns a compact summary by file group/feature, and write from that
+  3. Project context contents (project name, conventions), read `AGENTS.md`, or `AGENTS.md` fallback, + recent spec paths for the "why"
+  4. Output target for the type and today's date
+  5. **pr**: the gh action, `none (chat-only)` | `gh pr create` | `gh pr edit` (from the `GH_INSTALLED`/`HAS_REMOTE`/`PR_EXISTS` checks)
+  6. **changelog**: **match the existing `CHANGELOG.md` format** if the file exists (don't impose Keep a Changelog over a different established style)
+  7. **`release-note`**: the resolved version + range
+
+### 4. Relay the result
+
+Lead with the type and where it landed; for `pr` the body IS the deliverable, so show it in full (per `docs/conventions.md`). Template:
+
+```
+## /document <pr | changelog | release-note | postmortem> Â· <PR body below | CHANGELOG.md | docs/releases/<v>.md | docs/postmortems/<file> | PR #N updated>
+
+<for pr: the title + full body, ready to paste Â· always shown in chat so it works without gh>
+<for the others: a 2 to 3 line preview>
+Scope: ticked `Document it`   (or "no scope row matched"; omit if not on the scope)
+```
+
+This skill does not commit, push, or merge; it produces the prose (and ticks the `Document it` box per the closing gate above, the only scope edit it makes).
+
+---
+
+## Reference files
+
+- `agent-prompt.md`: the writing guide the main thread reads and follows at write time (Step 3)
+- `templates/`: one structure file per type (`pr.md`, `changelog.md`, `release-note.md`, `postmortem.md`); the main thread reads only the chosen one at write time
