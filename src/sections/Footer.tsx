@@ -6,6 +6,7 @@ import useTextRevealAnimation from "@/hooks/useTextRevealAnimation";
 import { useInView } from "motion/react";
 import { scrollToSectionIfSamePage } from "@/lib/section-nav";
 import { trackContactClick } from "@/lib/analytics";
+import { useRouter } from "next/navigation";
 
 const navItems = [
   {
@@ -27,6 +28,7 @@ const navItems = [
 ];
 
 const Footer: FC = () => {
+  const router = useRouter();
   const { scope, entranceAnimation } = useTextRevealAnimation();
   const inView = useInView(scope);
 
@@ -65,7 +67,7 @@ const Footer: FC = () => {
               <Button
                 onClick={() => {
                   trackContactClick("footer");
-                  window.location.href = "mailto:erskine.duenas@gmail.com";
+                  router.push("/contact");
                 }}
                 variant="secondary"
                 className="mt-8"
@@ -104,8 +106,9 @@ const Footer: FC = () => {
                   </div>
                 }
               >
-                erskine.duenas@gmail.com
+                Contact Me
               </Button>
+              <a className="mt-4 block underline" href="mailto:erskine.duenas@gmail.com">erskine.duenas@gmail.com</a>
             </div>
             <div>
               <nav className="flex flex-col md:items-end gap-8 mt-16 md:mt-0">

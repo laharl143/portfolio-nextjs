@@ -33,6 +33,13 @@ const secretSources = [
 
 // Set only for minutes at a time (spec 0005), so it is scanned when present and never required.
 const optionalSecretSources = [["STUDIO_SETUP_TOKEN", process.env.STUDIO_SETUP_TOKEN ?? ""]];
+const intakeSecrets = ["TURNSTILE_SECRET_KEY", "RESEND_API_KEY", "INQUIRY_ALERT_FROM", "INQUIRY_ALERT_TO", "INQUIRY_RATE_SECRET", "CRON_SECRET", "LEAD_INTAKE_WORKSPACE_ID"];
+for (const key of intakeSecrets) optionalSecretSources.push([key, process.env[key] ?? ""]);
+if (process.env.VERCEL_ENV === "production" && process.env.LEAD_INTAKE_ENABLED === "true") {
+  const required = [...intakeSecrets, "LEAD_INTAKE_ORIGIN", "TURNSTILE_SITE_KEY"];
+  if (required.some(key => !process.env[key])) throw new Error("Enabled production intake requires all intake configuration");
+  if (Buffer.byteLength(process.env.INQUIRY_RATE_SECRET) < 32 || Buffer.byteLength(process.env.CRON_SECRET) < 32) throw new Error("Invalid production intake configuration");
+}
 
 // Spec 0005, AC-13: a production studio cannot sign anyone in without a valid passkey domain and origin.
 function checkLoginConfig() {
@@ -77,7 +84,7 @@ async function main() {
   checkLoginConfig();
   const needles = [["studio server marker", STUDIO_SERVER_MARKER]];
   for (const [label, value] of optionalSecretSources) {
-    if (value.length >= MIN_SECRET_LENGTH) {
+    if (value.length >= MIN_SECRET_LENGTH || (intakeSecrets.includes(label) && value.length > 0)) {
       needles.push([label, value]);
     }
   }

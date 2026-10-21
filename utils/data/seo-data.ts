@@ -6,6 +6,11 @@ export type PageSeo = {
 };
 
 export const seo = {
+  contact: {
+    title: "Contact",
+    description: "Tell Erskine Duenas about your freelance software project.",
+    cardHeadline: "Tell me about your project",
+  },
   home: {
     title: "Erskine Duenas | Software Engineer and Aspiring Architect",
     description:

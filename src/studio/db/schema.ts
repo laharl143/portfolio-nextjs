@@ -52,9 +52,181 @@ import {
 // the connection lives in ./client.ts, which is server-only.
 export const studio = pgSchema("studio");
 
+// Spec 0010: immutable visitor fields, private owner workflow, separate alert activity.
+export const inquiries = studio.table(
+  "inquiries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id),
+    submissionKey: uuid("submission_key").notNull(),
+    payloadHash: text("payload_hash").notNull(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    description: text("description").notNull(),
+    company: text("company"),
+    budget: text("budget"),
+    privacyNoticeVersion: text("privacy_notice_version").notNull(),
+    status: text("status").notNull().default("new"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    lastActivityAt: timestamp("last_activity_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    convertedAt: timestamp("converted_at", { withTimezone: true }),
+    conversionKey: uuid("conversion_key"),
+    conversionHash: text("conversion_hash"),
+    convertedClientId: uuid("converted_client_id").references(
+      (): AnyPgColumn => clients.id,
+    ),
+    convertedContactId: uuid("converted_contact_id").references(
+      (): AnyPgColumn => contacts.id,
+    ),
+    convertedNoteId: uuid("converted_note_id").references(
+      (): AnyPgColumn => notes.id,
+      { onDelete: "set null" },
+    ),
+  },
+  (t) => [
+    unique("inquiries_workspace_submission_uq").on(
+      t.workspaceId,
+      t.submissionKey,
+    ),
+    index("inquiries_inbox_idx").on(t.workspaceId, t.status, t.createdAt, t.id),
+    index("inquiries_activity_idx").on(t.workspaceId, t.lastActivityAt),
+    index("inquiries_converted_idx").on(t.workspaceId, t.convertedAt),
+    check(
+      "inquiries_status_check",
+      sql`${t.status} in ('new','reviewing','converted','closed')`,
+    ),
+    check(
+      "inquiries_fields_check",
+      sql`length(trim(${t.name})) between 1 and 200 and length(${t.email}) between 1 and 320 and ${t.email}=lower(${t.email}) and length(trim(${t.description})) between 20 and 5000 and (${t.company} is null or length(${t.company}) <= 200) and (${t.budget} is null or length(${t.budget}) <= 200)`,
+    ),
+    check(
+      "inquiries_conversion_check",
+      sql`(${t.status}='converted' and num_nonnulls(${t.convertedAt},${t.conversionKey},${t.conversionHash},${t.convertedClientId},${t.convertedContactId})=5) or (${t.status}<>'converted' and num_nonnulls(${t.convertedAt},${t.conversionKey},${t.conversionHash},${t.convertedClientId},${t.convertedContactId},${t.convertedNoteId})=0)`,
+    ),
+  ],
+);
+
+export const inquiryAlerts = studio.table(
+  "inquiry_alerts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    inquiryId: uuid("inquiry_id")
+      .notNull()
+      .references(() => inquiries.id, { onDelete: "cascade" }),
+    state: text("state").notNull().default("pending"),
+    generation: integer("generation").notNull().default(1),
+    attemptCount: integer("attempt_count").notNull().default(0),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    leaseId: uuid("lease_id"),
+    leaseExpiresAt: timestamp("lease_expires_at", { withTimezone: true }),
+    firstAttemptedAt: timestamp("first_attempted_at", { withTimezone: true }),
+    lastAttemptedAt: timestamp("last_attempted_at", { withTimezone: true }),
+    providerMessageId: text("provider_message_id"),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true }),
+    errorCode: text("error_code"),
+    sender: text("sender"),
+    recipient: text("recipient"),
+    subject: text("subject"),
+    body: text("body"),
+    providerKey: text("provider_key"),
+  },
+  (t) => [
+    unique("inquiry_alerts_inquiry_uq").on(t.inquiryId),
+    check(
+      "inquiry_alerts_state_check",
+      sql`${t.state} in ('pending','sending','accepted','failed','unknown')`,
+    ),
+    check(
+      "inquiry_alerts_attempt_check",
+      sql`${t.generation}>0 and ${t.attemptCount}>=0`,
+    ),
+  ],
+);
+
+export const inquiryEvents = studio.table(
+  "inquiry_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id),
+    inquiryId: uuid("inquiry_id")
+      .notNull()
+      .references(() => inquiries.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(),
+    actorUserId: uuid("actor_user_id").references(() => owners.id),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("inquiry_events_inquiry_idx").on(t.inquiryId),
+    check(
+      "inquiry_events_kind_check",
+      sql`${t.kind} in ('submitted','reviewing','closed','reopened','converted','alert_retry')`,
+    ),
+  ],
+);
+
+export const inquiryRateWindows = studio.table(
+  "inquiry_rate_windows",
+  {
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id),
+    keyHash: text("key_hash").notNull(),
+    windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+    count: integer("count").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.workspaceId, t.keyHash, t.windowStart] }),
+    check("inquiry_rate_count_check", sql`${t.count}>0`),
+  ],
+);
+
+export const inquiryMaintenance = studio.table(
+  "inquiry_maintenance",
+  {
+    workspaceId: uuid("workspace_id")
+      .primaryKey()
+      .references(() => workspaces.id),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    lastSuccessAt: timestamp("last_success_at", { withTimezone: true }),
+    deletedInquiries: integer("deleted_inquiries").notNull().default(0),
+    deletedRateWindows: integer("deleted_rate_windows").notNull().default(0),
+    errorCode: text("error_code"),
+    outcome: text("outcome").notNull().default("never"),
+  },
+  (t) => [
+    check(
+      "inquiry_maintenance_counts_check",
+      sql`${t.deletedInquiries}>=0 and ${t.deletedRateWindows}>=0`,
+    ),
+    check(
+      "inquiry_maintenance_outcome_check",
+      sql`${t.outcome} in ('never','complete','incomplete','failed')`,
+    ),
+  ],
+);
+
 // `('a', 'b')` written literally into the DDL. Check constraints cannot take bound parameters.
 function inList(values: readonly string[]): SQL {
-  return sql.raw(`(${values.map((value) => `'${value.replace(/'/g, "''")}'`).join(", ")})`);
+  return sql.raw(
+    `(${values.map((value) => `'${value.replace(/'/g, "''")}'`).join(", ")})`,
+  );
 }
 
 function oneOf(column: AnyPgColumn, values: readonly string[]): SQL {
@@ -70,7 +242,9 @@ function notBefore(later: AnyPgColumn, earlier: AnyPgColumn): SQL {
   return sql`${later} is null or ${earlier} is null or ${later} >= ${earlier}`;
 }
 
-const createdAt = timestamp("created_at", { withTimezone: true }).notNull().defaultNow();
+const createdAt = timestamp("created_at", { withTimezone: true })
+  .notNull()
+  .defaultNow();
 
 const timestamps = {
   createdAt,
@@ -136,7 +310,10 @@ export const contacts = studio.table(
     ...timestamps,
   },
   (t) => [
-    check("contacts_preferred_channel_check", oneOf(t.preferredChannel, CONTACT_CHANNELS)),
+    check(
+      "contacts_preferred_channel_check",
+      oneOf(t.preferredChannel, CONTACT_CHANNELS),
+    ),
     check("contacts_full_name_not_blank", notBlank(t.fullName)),
     uniqueIndex("contacts_one_primary_uq")
       .on(t.clientId)
@@ -169,8 +346,14 @@ export const projects = studio.table(
   (t) => [
     check("projects_status_check", oneOf(t.status, PROJECT_STATUSES)),
     check("projects_name_not_blank", notBlank(t.name)),
-    check("projects_target_end_after_start", notBefore(t.targetEndDate, t.startDate)),
-    check("projects_actual_end_after_start", notBefore(t.actualEndDate, t.startDate)),
+    check(
+      "projects_target_end_after_start",
+      notBefore(t.targetEndDate, t.startDate),
+    ),
+    check(
+      "projects_actual_end_after_start",
+      notBefore(t.actualEndDate, t.startDate),
+    ),
     check(
       "projects_actual_end_when_finished",
       sql`${t.actualEndDate} is null or ${t.status} in ${inList(["done", "cancelled"])}`,
@@ -212,8 +395,15 @@ export const systems = studio.table(
     check("systems_status_check", oneOf(t.status, SYSTEM_STATUSES)),
     check("systems_name_not_blank", notBlank(t.name)),
     check("systems_layer_check", oneOf(t.layer, SYSTEM_LAYERS)),
-    check("systems_standalone_matches_layer", sql`${t.standalone} = (${t.layer} = 'standalone')`),
-    index("systems_workspace_status_sort_idx").on(t.workspaceId, t.status, t.sortOrder),
+    check(
+      "systems_standalone_matches_layer",
+      sql`${t.standalone} = (${t.layer} = 'standalone')`,
+    ),
+    index("systems_workspace_status_sort_idx").on(
+      t.workspaceId,
+      t.status,
+      t.sortOrder,
+    ),
   ],
 );
 
@@ -231,7 +421,10 @@ export const projectSystems = studio.table(
     createdAt,
   },
   (t) => [
-    primaryKey({ name: "project_systems_pk", columns: [t.projectId, t.systemId] }),
+    primaryKey({
+      name: "project_systems_pk",
+      columns: [t.projectId, t.systemId],
+    }),
     index("project_systems_workspace_idx").on(t.workspaceId),
     index("project_systems_system_idx").on(t.systemId),
   ],
@@ -251,11 +444,17 @@ export const contractTemplates = studio.table(
   },
   (t) => [
     check("contract_templates_name_not_blank", notBlank(t.name)),
-    check("contract_templates_body_length", sql`char_length(${t.body}) <= 50000`),
+    check(
+      "contract_templates_body_length",
+      sql`char_length(${t.body}) <= 50000`,
+    ),
     uniqueIndex("contract_templates_workspace_name_uq")
       .on(t.workspaceId, sql`lower(${t.name})`)
       .where(sql`${t.archivedAt} is null`),
-    index("contract_templates_workspace_updated_idx").on(t.workspaceId, t.updatedAt.desc()),
+    index("contract_templates_workspace_updated_idx").on(
+      t.workspaceId,
+      t.updatedAt.desc(),
+    ),
   ],
 );
 
@@ -279,7 +478,9 @@ export const contracts = studio.table(
     endDate: date("end_date"),
     termsSummary: text("terms_summary"),
     // Provenance only (spec 0007): never read to render. The body is this contract's own copy.
-    templateId: uuid("template_id").references(() => contractTemplates.id, { onDelete: "restrict" }),
+    templateId: uuid("template_id").references(() => contractTemplates.id, {
+      onDelete: "restrict",
+    }),
     body: text("body").notNull().default(""),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     ...timestamps,
@@ -292,7 +493,10 @@ export const contracts = studio.table(
       foreignColumns: [projects.id, projects.clientId],
     }).onDelete("restrict"),
     check("contracts_status_check", oneOf(t.status, CONTRACT_STATUSES)),
-    check("contracts_billing_cadence_check", oneOf(t.billingCadence, BILLING_CADENCES)),
+    check(
+      "contracts_billing_cadence_check",
+      oneOf(t.billingCadence, BILLING_CADENCES),
+    ),
     check("contracts_title_not_blank", notBlank(t.title)),
     check("contracts_amount_not_negative", sql`${t.amountMinor} >= 0`),
     check("contracts_currency_check", sql`${t.currency} ~ '^[A-Z]{3}$'`),
@@ -315,19 +519,36 @@ export const contractStatusEvents = studio.table(
       .references(() => contracts.id, { onDelete: "restrict" }),
     fromStatus: text("from_status").$type<ContractStatus>(),
     toStatus: text("to_status").$type<ContractStatus>().notNull(),
-    changedAt: timestamp("changed_at", { withTimezone: true }).notNull().defaultNow(),
+    changedAt: timestamp("changed_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     note: text("note"),
     createdAt,
   },
   (t) => [
-    check("contract_status_events_from_status_check", oneOf(t.fromStatus, CONTRACT_STATUSES)),
-    check("contract_status_events_to_status_check", oneOf(t.toStatus, CONTRACT_STATUSES)),
-    check("contract_status_events_opening_is_draft", sql`${t.fromStatus} is not null or ${t.toStatus} = 'draft'`),
-    check("contract_status_events_from_to_differ", sql`${t.fromStatus} is distinct from ${t.toStatus}`),
+    check(
+      "contract_status_events_from_status_check",
+      oneOf(t.fromStatus, CONTRACT_STATUSES),
+    ),
+    check(
+      "contract_status_events_to_status_check",
+      oneOf(t.toStatus, CONTRACT_STATUSES),
+    ),
+    check(
+      "contract_status_events_opening_is_draft",
+      sql`${t.fromStatus} is not null or ${t.toStatus} = 'draft'`,
+    ),
+    check(
+      "contract_status_events_from_to_differ",
+      sql`${t.fromStatus} is distinct from ${t.toStatus}`,
+    ),
     uniqueIndex("contract_status_events_one_opening_uq")
       .on(t.contractId)
       .where(sql`${t.fromStatus} is null`),
-    index("contract_status_events_contract_changed_idx").on(t.contractId, t.changedAt),
+    index("contract_status_events_contract_changed_idx").on(
+      t.contractId,
+      t.changedAt,
+    ),
     index("contract_status_events_workspace_idx").on(t.workspaceId),
   ],
 );
@@ -342,7 +563,10 @@ export const contractFiles = studio.table(
       .notNull()
       .references(() => contracts.id, { onDelete: "restrict" }),
     kind: text("kind").$type<ContractFileKind>().notNull(),
-    statusEventId: uuid("status_event_id").references(() => contractStatusEvents.id, { onDelete: "restrict" }),
+    statusEventId: uuid("status_event_id").references(
+      () => contractStatusEvents.id,
+      { onDelete: "restrict" },
+    ),
     blobPathname: text("blob_pathname").notNull(),
     sizeBytes: integer("size_bytes").notNull(),
     sha256: text("sha256").notNull(),
@@ -352,12 +576,19 @@ export const contractFiles = studio.table(
     check("contract_files_kind_check", oneOf(t.kind, CONTRACT_FILE_KINDS)),
     check("contract_files_size_positive", sql`${t.sizeBytes} > 0`),
     check("contract_files_sha256_hex", sql`${t.sha256} ~ '^[0-9a-f]{64}$'`),
-    check("contract_files_sent_pdf_has_event", sql`${t.kind} <> 'sent_pdf' or ${t.statusEventId} is not null`),
+    check(
+      "contract_files_sent_pdf_has_event",
+      sql`${t.kind} <> 'sent_pdf' or ${t.statusEventId} is not null`,
+    ),
     uniqueIndex("contract_files_blob_pathname_uq").on(t.blobPathname),
     uniqueIndex("contract_files_status_event_uq")
       .on(t.statusEventId)
       .where(sql`${t.statusEventId} is not null`),
-    index("contract_files_contract_kind_created_idx").on(t.contractId, t.kind, t.createdAt.desc()),
+    index("contract_files_contract_kind_created_idx").on(
+      t.contractId,
+      t.kind,
+      t.createdAt.desc(),
+    ),
     index("contract_files_workspace_idx").on(t.workspaceId),
   ],
 );
@@ -369,11 +600,21 @@ export const notes = studio.table(
     id: uuid("id").primaryKey().defaultRandom(),
     workspaceId: workspaceId(),
     body: text("body").notNull(),
-    clientId: uuid("client_id").references(() => clients.id, { onDelete: "restrict" }),
-    contactId: uuid("contact_id").references(() => contacts.id, { onDelete: "restrict" }),
-    projectId: uuid("project_id").references(() => projects.id, { onDelete: "restrict" }),
-    contractId: uuid("contract_id").references(() => contracts.id, { onDelete: "restrict" }),
-    systemId: text("system_id").references(() => systems.id, { onDelete: "restrict" }),
+    clientId: uuid("client_id").references(() => clients.id, {
+      onDelete: "restrict",
+    }),
+    contactId: uuid("contact_id").references(() => contacts.id, {
+      onDelete: "restrict",
+    }),
+    projectId: uuid("project_id").references(() => projects.id, {
+      onDelete: "restrict",
+    }),
+    contractId: uuid("contract_id").references(() => contracts.id, {
+      onDelete: "restrict",
+    }),
+    systemId: text("system_id").references(() => systems.id, {
+      onDelete: "restrict",
+    }),
     ...timestamps,
   },
   (t) => [
@@ -466,7 +707,10 @@ export const workspaceMembers = studio.table(
     createdAt,
   },
   (t) => [
-    primaryKey({ name: "workspace_members_pk", columns: [t.workspaceId, t.ownerId] }),
+    primaryKey({
+      name: "workspace_members_pk",
+      columns: [t.workspaceId, t.ownerId],
+    }),
     check("workspace_members_role_check", oneOf(t.role, MEMBER_ROLES)),
     index("workspace_members_owner_idx").on(t.ownerId),
   ],
@@ -492,7 +736,10 @@ export const passkeys = studio.table(
   },
   (t) => [
     check("passkeys_counter_not_negative", sql`${t.counter} >= 0`),
-    check("passkeys_device_type_check", oneOf(t.deviceType, PASSKEY_DEVICE_TYPES)),
+    check(
+      "passkeys_device_type_check",
+      oneOf(t.deviceType, PASSKEY_DEVICE_TYPES),
+    ),
     check("passkeys_nickname_not_blank", notBlank(t.nickname)),
     index("passkeys_owner_idx").on(t.ownerId),
   ],
@@ -508,7 +755,9 @@ export const sessions = studio.table(
     workspaceId: uuid("workspace_id").notNull(),
     deviceLabel: text("device_label"),
     createdAt,
-    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).notNull().defaultNow(),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   },
   (t) => [
@@ -519,7 +768,10 @@ export const sessions = studio.table(
       foreignColumns: [workspaceMembers.workspaceId, workspaceMembers.ownerId],
     }).onDelete("cascade"),
     uniqueIndex("sessions_token_hash_uq").on(t.tokenHash),
-    check("sessions_expires_after_created", sql`${t.expiresAt} > ${t.createdAt}`),
+    check(
+      "sessions_expires_after_created",
+      sql`${t.expiresAt} > ${t.createdAt}`,
+    ),
     index("sessions_owner_idx").on(t.ownerId),
     index("sessions_expires_idx").on(t.expiresAt),
   ],
@@ -532,12 +784,17 @@ export const authChallenges = studio.table(
     id: uuid("id").primaryKey().defaultRandom(),
     challenge: text("challenge").notNull(),
     purpose: text("purpose").$type<ChallengePurpose>().notNull(),
-    ownerId: uuid("owner_id").references(() => owners.id, { onDelete: "cascade" }),
+    ownerId: uuid("owner_id").references(() => owners.id, {
+      onDelete: "cascade",
+    }),
     createdAt,
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   },
   (t) => [
-    check("auth_challenges_purpose_check", oneOf(t.purpose, CHALLENGE_PURPOSES)),
+    check(
+      "auth_challenges_purpose_check",
+      oneOf(t.purpose, CHALLENGE_PURPOSES),
+    ),
     index("auth_challenges_expires_idx").on(t.expiresAt),
   ],
 );
@@ -548,7 +805,9 @@ export const authEvents = studio.table(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     kind: text("kind").$type<AuthEventKind>().notNull(),
-    ownerId: uuid("owner_id").references(() => owners.id, { onDelete: "set null" }),
+    ownerId: uuid("owner_id").references(() => owners.id, {
+      onDelete: "set null",
+    }),
     // No FK, so history survives a passkey removal.
     passkeyId: text("passkey_id"),
     deviceLabel: text("device_label"),

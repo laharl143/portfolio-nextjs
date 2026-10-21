@@ -37,6 +37,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 22 | Client tracking | Studio slice 1 | done |
 | 23 | Contracts & PDF export | Studio slice 2 | done |
 | 24 | Private systems map | Studio slice 3 | done |
+| 25 | Lead intake form | Studio slice 4 | in-progress |
 
 ## Existing
 
@@ -228,10 +229,26 @@ Move the full SMB Systems Map (every field, including private notes, lessons, an
 - [ ] Test it: `/test private systems map` · skipped 2026-10-20 (marked done after the build)
 spec [0008](../specs/0008-private-systems-map/index.md) · code in `src/studio/systems/`, `src/studio/data/systems.ts`, `src/app/(studio)/studio/(signed-in)/systems/`
 
+## Studio slice 4: Lead intake
+
+### 25. Lead intake form · in-progress · Beta
+Let prospective freelance clients submit their name, email, and project description from the public portfolio, with company and budget optional. Keep submissions in a separate private studio inquiry inbox, notify you by email, and let you explicitly convert a suitable inquiry into a client with Lead status.
+**Done when:** a visitor can submit a valid inquiry and see an on screen confirmation; the inquiry is saved privately and you receive an email notification; you can review it in the signed in studio and deliberately convert it into a client lead without losing the original inquiry or creating duplicate clients on a repeated conversion; signed out visitors cannot read inquiries, and validation, submission errors, and notification failures have defined behavior.
+- [x] Design it (spec): `/architect lead intake form` (recommended decisions and design confirmation delegated on 2026-10-21)
+- [x] Build it: `/develop lead intake form` (2026-10-21, fake development data only; production intake remains disabled)
+   - [x] Thin intake thread: data model, `/contact`, validation, challenge, rate limits, submission retries, and private inbox read, satisfies AC-1 through AC-5, AC-10, AC-11
+   - [x] Inbox and conversion: filters, paging, status history, version checks, and atomic client/contact/note linking, satisfies AC-5 through AC-7, AC-10
+   - [x] Alerts and retention: owner email, safe retries, daily cleanup, and configuration checks, satisfies AC-4, AC-8 through AC-11
+   - [x] Polish: themes, keyboard access, SEO, privacy, concurrency and failure checks, lint, build, and leak check, satisfies AC-1 through AC-12
+- [ ] Verify it: `/check verify lead intake form`
+- [ ] Test it: `/test lead intake form`
+spec [0010](../specs/0010-lead-intake/index.md) · Jira [DP-72](https://vital-stats.atlassian.net/browse/DP-72) · code in `src/inquiries/`, `src/studio/data/inquiries.ts`, `src/studio/inquiries/`, `src/app/(studio)/studio/(signed-in)/inquiries/`, `src/app/(site)/contact/`
+
+Product choices confirmed on 2026-10-21: dedicated `/contact`; required name, email, and project description; optional company and free text budget; New, Reviewing, Converted, and Closed inbox states; deliberate linking to an existing client or creating a Lead; owner email alerts with visible manual retry after failure; visitor on screen confirmation; 12 month inquiry retention. Visitor receipts are outside this slice. Tracer Bullet follows the project default. Beta covers public submissions and stored contact details. Spec 0010 settles the remaining design under the engineer's delegated recommended choices. Production setup still needs sender domain verification, owner recipient, bot challenge configuration, and deployment secrets. Jira mirrored on 2026-10-21: DP-72, Design DP-73 (done), Build DP-74, Verify DP-75, Test DP-76. Converted client record retention remains a separate deferred decision.
+
 ## Deferred
 Out of scope for this pass, kept so the plan stays honest.
 - **ED Solutions rebrand**: rename the public site to ED Solutions with a brand pass (wordmark, palette, type), revisit copy, metadata, and favicon; SEO foundation (feature 15) should then point at the new name · needs a decision
-- **Lead intake form**: a public inquiry form that lands as a new lead in studio client tracking · needs a decision
 - **E-signature**: sign contracts inside the studio · needs a decision
 - **Archived contact data retention**: decide how long archived contacts' personal data is kept before real client data lands (Data Privacy Act), from spec 0004 · needs a decision
 - **Invoicing**: invoices from active contracts, the next step toward your Invoicing product · needs a decision
@@ -244,6 +261,11 @@ Out of scope for this pass, kept so the plan stays honest.
 - **Systems map diagram**: a drawn map of systems and links in the studio, like the old artifact's view, from spec 0008
 - **Export as a pull request**: the systems export opens a pull request with the new `products-data.ts` instead of a download, from spec 0008 · needs a decision
 - **SEO extras**: a real headshot for the Person JSON-LD `image`, the Archivo font in the share cards, and Google Search Console sitemap submission, from spec 0009
+
+- **Studio error visibility**: revisit how you detect and investigate studio failures when real client data lands, from spec 0003. Needs a decision.
+- **Studio separation review**: revisit whether the studio should run separately if it grows to hold many real client contracts, from spec 0003. Needs a decision.
+- **Shared Platform connections**: record the platform's real system links once they are known, then regenerate the public export, from spec 0002.
+- **Retire the old systems artifact**: after verifying the production import, decide whether to leave the old SMB Systems Map artifact read only or retire it, from spec 0008. This is an owner action outside the repo.
 
 ## Legend
 

@@ -32,6 +32,9 @@ export default async function SignedInLayout({ children }: { children: React.Rea
               <Link href="/studio/contracts" className={navLink}>
                 Contracts
               </Link>
+              <Link href="/studio/inquiries" className={navLink}>
+                Inquiries
+              </Link>
               <Link href="/studio/templates" className={navLink}>
                 Templates
               </Link>

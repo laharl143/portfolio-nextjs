@@ -7,6 +7,7 @@ import { ThemeToggleButton } from "@/components/ThemeToggleButton";
 import { scrollToSectionIfSamePage } from "@/lib/section-nav";
 import { trackContactClick } from "@/lib/analytics";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const navItems = [
   {
@@ -70,6 +71,7 @@ const TitleToggle: FC = () => {
 };
 
 const Header: FC = () => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [topLineScope, topLineAnimate] = useAnimate();
   const [bottomLineScope, bottomLineAnimate] = useAnimate();
@@ -256,9 +258,7 @@ const Header: FC = () => {
                 className="hidden md:inline-flex items-center dark:hover:text-primary/90"
                 onClick={() => {
                   trackContactClick("header");
-                  document
-                    .getElementById("contact")
-                    ?.scrollIntoView({ behavior: "smooth" });
+                  router.push("/contact");
                 }}
               >
                 Contact Me

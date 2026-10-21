@@ -5,7 +5,7 @@ export const SITE_NAME = "Erskine Duenas";
 export const SITE_LOCALE = "en_US";
 
 // The only source for the sitemap. A /studio path never goes here.
-export const PUBLIC_ROUTES = ["/", "/products"] as const;
+export const PUBLIC_ROUTES = ["/", "/products", "/contact"] as const;
 
 // Shared Open Graph fields. A page level openGraph replaces the layout's whole object, so pages spread this first.
 export const openGraphBase = {
