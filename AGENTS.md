@@ -30,8 +30,12 @@ npm run lint
 npm run db:generate
 npm run db:migrate
 
-# Test
-# no test framework configured yet
+# Test (Vitest + Testing Library, files beside the source as *.test.ts(x); see test-preferences.json)
+npm test
+# Database tests (*.db.test.ts, Neon dev branch, fake data only)
+npm run test:db
+# Browser tests (Playwright, e2e/); behind a proxy set NO_PROXY=localhost
+npm run test:e2e
 ```
 
 ## Specs
@@ -53,6 +57,7 @@ Stored in `docs/specs/`. Format: `docs/specs/NNNN-title.md`, or a directory `doc
 - Reusable UI primitives live in `src/components/ui/`, following shadcn/ui conventions (`components.json`: style "new-york", Radix-based, class merging via `cn()` in `src/lib/utils.ts`).
 - The app has two route groups with their own root layouts: `src/app/(site)/` (public, with Header, Footer, Analytics) and `src/app/(studio)/` (the private studio). Both share `src/components/AppProviders.tsx` and the font in `src/lib/fonts.ts`. Studio conventions live in [src/studio/AGENTS.md](src/studio/AGENTS.md) (spec 0003).
 - Public code (`src/app/(site)/`, `src/sections/`, `src/components/`) never imports from `src/studio/`, and no studio variable ever uses the `NEXT_PUBLIC_` prefix.
+- Lead intake (spec 0010): the public `/contact` page imports only `@/inquiries/public-config` from `src/inquiries/`; submissions go through `POST /api/inquiries`. Header and footer Contact Me links point to `/contact`. Details in [src/inquiries/AGENTS.md](src/inquiries/AGENTS.md).
 - Path alias `@/*` maps to `src/*`.
 - Content/data lives in `utils/data/*.js` and `utils/data/*.ts` (badges, personal info, skills, products) and is imported into section components rather than hardcoded inline.
 - Interactive client sections are marked `"use client"` at the top of the file (e.g. `Hero.tsx`).
@@ -70,9 +75,13 @@ Stored in `docs/specs/`. Format: `docs/specs/NNNN-title.md`, or a directory `doc
 - [drizzle-orm](.claude/skills/drizzle-orm/): `oakoss/agent-skills`, the studio schema and drizzle-kit migrations
 - [webauthn](.agents/skills/webauthn/): `claude-dev-suite/claude-dev-suite`, WebAuthn passkeys and SimpleWebAuthn for studio login (symlinked at `.claude/skills/webauthn/`)
 
-MCP servers: Vercel (recommended)
+- [vitest](.claude/skills/vitest/): `antfu/skills`, Vitest unit tests, mocking, and config (`npm test`)
+- [playwright-best-practices](.claude/skills/playwright-best-practices/): `currents-dev/playwright-best-practices-skill`, Playwright test conventions for `e2e/`
+- [resend](.claude/skills/resend/): `resend/resend-skills`, Resend email API conventions (idempotency keys, retries) for the lead intake owner alerts
 
-Declined: Vercel deployment · Neon MCP · next-devtools-mcp · Vercel Blob skill · `@react-pdf/renderer` skills (low adoption, spec 0007)
+MCP servers: Vercel (recommended) · Resend `resend-mcp` (recommended, needs `RESEND_API_KEY`) · Playwright `@playwright/mcp` (recommended)
+
+Declined: Vercel deployment · Neon MCP · next-devtools-mcp · Vercel Blob skill · `@react-pdf/renderer` skills (low adoption, spec 0007) · Cloudflare Turnstile skills (low adoption, spec 0010)
 
 ## Code graph (graphify)
 
@@ -87,6 +96,7 @@ Declined: Vercel deployment · Neon MCP · next-devtools-mcp · Vercel Blob skil
 
 <!-- Nested AGENTS.md files are listed here as they are created -->
 - [src/studio/AGENTS.md](src/studio/AGENTS.md): the private studio (gate, server only data layer, Neon and Drizzle migrations, private Blob, leak check)
+- [src/inquiries/AGENTS.md](src/inquiries/AGENTS.md): lead intake, the narrow public write path into the studio (validation, Turnstile, rate limits, owner email alerts, retention cleanup)
 
 _Drafted by /audit from the repo, worth a quick human pass. Edit freely: once a line stops matching this draft, later runs treat it as curated and will flag rather than overwrite it._
 
