@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { requireStudioAccess } from "@/studio/guard";
 import { listInquiries } from "@/studio/data/inquiries";
+import { INQUIRY_SEARCH_COOKIE } from "@/studio/auth/cookie";
+import { searchInquiriesAction } from "@/studio/inquiries/actions";
 import { formatDateTime } from "@/studio/format";
 import { card, input, primaryButton, textLink } from "../../_components/ui";
 export default async function InquiriesPage({
@@ -9,9 +12,12 @@ export default async function InquiriesPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   await requireStudioAccess();
-  const result = await listInquiries(await searchParams);
+  // AC-10: the search term comes from the cookie the search action sets, never from the URL.
+  const { status, alert, page } = await searchParams;
+  const q = (await cookies()).get(INQUIRY_SEARCH_COOKIE)?.value;
+  const result = await listInquiries({ q, status, alert, page });
   const href = (page: number) =>
-    `/studio/inquiries?${new URLSearchParams({ q: result.q, status: result.status, alert: result.alert, page: String(page) })}`;
+    `/studio/inquiries?${new URLSearchParams({ status: result.status, alert: result.alert, page: String(page) })}`;
   return (
     <main className="container space-y-6 py-10">
       <h1 className="text-3xl font-semibold">Inquiries</h1>
@@ -21,7 +27,7 @@ export default async function InquiriesPage({
           job. Last outcome: {result.health.outcome}.
         </p>
       )}
-      <form className="grid gap-4 md:grid-cols-4">
+      <form action={searchInquiriesAction} className="grid gap-4 md:grid-cols-4">
         <label>
           Search name, email, company
           <input

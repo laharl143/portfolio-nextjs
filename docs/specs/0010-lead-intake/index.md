@@ -1,7 +1,7 @@
 # 0010. Lead intake: public contact form, private inquiry inbox, and deliberate client conversion
 
 **Date**: 2026-10-21
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
@@ -88,7 +88,7 @@ Lock order for new mutations: workspace advisory transaction lock for inquiry ow
 
 The target workspace comes only from private `LEAD_INTAKE_WORKSPACE_ID`, checked against an existing workspace and owner membership. Never accept workspace or recipient from request fields. Public modules never call `getWorkspaceId()` because no owner session exists. Studio reads use the existing session workspace in every query. API responses are noncached and generic.
 
-Enforce a 64 KiB body limit while reading, JSON only, and exact Origin equal to configured `LEAD_INTAKE_ORIGIN` (localhost in local development). The byte limit accommodates the allowed Unicode text and token with JSON overhead. Field lengths on client and server use JavaScript UTF-16 `value.length`, matching existing studio validators and HTML maxlength; emoji can count as two units. This keeps the generated note and proposed client/contact names within existing conversion limits without changing studio rules. Reject absent or malformed origins. Do not enable cross origin access. Turnstile uses action `lead_intake`; verify server side with a 5 second timeout, require success, expected action and hostname from `LEAD_INTAKE_ORIGIN`, and reject timeout or uncertainty. Tokens are single use and expire after five minutes. Browser challenge tokens are never saved or logged. Turnstile is bot protection, not the rate limiter.
+Enforce a 64 KiB body limit while reading, JSON only, and exact Origin equal to configured `LEAD_INTAKE_ORIGIN` (localhost in local development). The byte limit accommodates the allowed Unicode text and token with JSON overhead. Field lengths on client and server use JavaScript UTF-16 `value.length`, matching existing studio validators and HTML maxlength; emoji can count as two units. This keeps the generated note and proposed client/contact names within existing conversion limits without changing studio rules. Reject absent or malformed origins. Do not enable cross origin access. Turnstile uses action `lead_intake`; verify server side with a 5 second timeout, require success, expected action and hostname from `LEAD_INTAKE_ORIGIN`, and reject timeout or uncertainty. Cloudflare test keys (amended 2026-10-21): Cloudflare answers its test secret with `success: true`, hostname `example.com`, `metadata.result_with_testing_key: true`, and no action, so the strict check can never pass locally. Outside production only (`config.production` false, which `getIntakeConfig` already allows only with the `1x0000000000000000000000000000000AA` secret and a localhost origin), `verifyChallenge` accepts a reply without checking action or hostname only when all of these hold: `response.ok`, `body.success === true`, `body.metadata?.result_with_testing_key === true` (read defensively, so a missing `metadata` simply fails this branch), and `config.turnstileSecret === "1x0000000000000000000000000000000AA"`. Any other reply outside production still takes the strict check. In production the strict check is unchanged, and a reply carrying `result_with_testing_key: true` is rejected even if every other field matches (defense in depth beside the existing test secret rejection in config). The branch lives inside `verifyChallenge`; no new environment flag is added. Tokens are single use and expire after five minutes. Browser challenge tokens are never saved or logged. Turnstile is bot protection, not the rate limiter.
 
 Use only the Vercel supplied `x-vercel-forwarded-for` address on the Vercel production origin, not arbitrary forwarded headers. Require a single valid normalized IPv4 or IPv6 address; fail closed for a missing, multiple, or invalid value. Do not place another proxy in front without revisiting this trust rule. Hash it with HMAC SHA256 and `INQUIRY_RATE_SECRET`, with distinct `ip:` and `email:` input prefixes. Local tests use an explicitly injected test address. Before external validation, atomically count requests in fixed 10 minute windows, maximum 10 per address. After valid challenge, atomically permit at most 3 saved submissions per normalized email per UTC day, with no disclosure that an email has submitted before. Limits use database time and locks, not process memory. All configured limits are constants in one server module. No raw address is retained.
 
@@ -108,7 +108,8 @@ Explicit provider rejection becomes `failed`; transport timeout or interruption 
 |---|---|---|---|
 | `GET /contact` | none | Public form, metadata, challenge site key, safe enabled flag | Public, no database read or secrets |
 | `POST /api/inquiries` | submission UUID, fields, acknowledgement and notice version, challenge token | 200 generic success for saved/replayed submission; 422 field errors; 403 invalid origin/challenge; 409 key conflict; 413 body too large; 415 wrong type; 429 rate limit; 503 unavailable | No studio session; fixed configured workspace; response never includes submitted fields |
-| `GET /studio/inquiries` | `q`, `status`, `alert`, `page` | Rows, total, paging, unread status labels, safe alert state | Owner session; q trimmed to 100; invalid filters ignored; 50 rows per page, newest then id; no cache |
+| `GET /studio/inquiries` | `status`, `alert`, `page` in the URL; search term from the `studio_inquiry_q` cookie | Rows, total, paging, unread status labels, safe alert state | Owner session; a `q` query parameter is ignored; invalid filters ignored; 50 rows per page, newest then id; paging links carry no term; no cache |
+| `searchInquiriesAction` | form `q`, `status`, `alert` | Sets or clears the `studio_inquiry_q` cookie, then redirects to `/studio/inquiries` with only `status` and `alert` | Owner session checked before anything is stored; q trimmed to 100; an empty term clears the cookie |
 | `GET /studio/inquiries/[id]` | UUID | Full inquiry, event timeline, alert state, client link if converted, version | Owner session; unknown or other workspace is 404 |
 | `changeInquiryStatusAction` | id, version, target | Redirect detail or field error | Owner session; `STALE_RECORD`, `INVALID_TRANSITION`, not found |
 | `GET /studio/inquiries/[id]/convert` | UUID, optional client search and page | Confirmable conversion form and paged existing client choices | Owner session; closed must reopen first; converted shows existing result |
@@ -116,7 +117,7 @@ Explicit provider rejection becomes `failed`; transport timeout or interruption 
 | `retryInquiryAlertAction` | id, alert version, alert generation, confirmation of possible duplicate when required | Updated alert status on detail | Owner session; sending lease, cooldown, already accepted, generation/version conflict |
 | `GET /api/internal/inquiries/cleanup` | Bearer `CRON_SECRET`, no workspace/body inputs | Count of deleted inquiries and expired rate windows, no ids | Production job only; missing or bad secret 401; no public caching |
 
-Use the existing ActionState, coded errors, pending buttons, guarded redirects, loading/error/not found screens, and full precision edit version pattern. Inbox search matches literal case insensitive name, company, and email, not description; escape wildcard characters. Status defaults to all. Alert filter is all, needs attention (`pending`, `failed`, `unknown`, expired sending), or accepted. Empty inbox, empty filtered result, and invalid page have distinct messages. Inquiries link sits beside Clients in studio navigation. Visitor fields never enter query strings.
+Use the existing ActionState, coded errors, pending buttons, guarded redirects, loading/error/not found screens, and full precision edit version pattern. Inbox search matches literal case insensitive name, company, and email, not description; escape wildcard characters. Status defaults to all. Alert filter is all, needs attention (`pending`, `failed`, `unknown`, expired sending), or accepted. Empty inbox, empty filtered result, and invalid page have distinct messages. Inquiries link sits beside Clients in studio navigation. Visitor fields never enter query strings. Inbox search (amended 2026-10-21, AC-10): the search form posts to `searchInquiriesAction`, which keeps the term in the `studio_inquiry_q` cookie (`httpOnly`, `secure` on a secure origin, `sameSite: strict`, `path=/studio/inquiries`, 30 minutes, cleared by an empty search; see `inquirySearchCookieOptions` in `src/studio/auth/cookie.ts`). The list page reads the term only from that cookie, so a name or email typed into search never reaches the URL or the request log.
 
 ### Value sourcing
 
@@ -133,6 +134,7 @@ Use the existing ActionState, coded errors, pending buttons, guarded redirects, 
 | Alert recipient, sender, private link | Private configured recipient/sender and `SITE_URL` plus inquiry id |
 | Alert state, version, cooldown, and message id | Frozen attempt record, alert `updated_at` and `last_attempted_at`, lease result, and sanitized provider response |
 | Retention cutoff | Database current time minus interval `12 months`, compared with unconverted activity or conversion time |
+| Challenge acceptance | Cloudflare siteverify reply: production requires `success`, action `lead_intake`, hostname of `LEAD_INTAKE_ORIGIN`, and no testing flag; outside production a `result_with_testing_key` reply with `success` is enough |
 | Rate windows and expiration | Database UTC clock; HMAC of trusted address or normalized email |
 | Public SEO | `SITE_URL`, new SEO data entry, and `PUBLIC_ROUTES` with `/contact` |
 
@@ -152,7 +154,7 @@ Public writes require `LEAD_INTAKE_ENABLED=true` independently of `STUDIO_ENABLE
 - `LEAD_INTAKE_WORKSPACE_ID`: existing workspace UUID, validated at server startup/use; no public override.
 - `LEAD_INTAKE_ORIGIN`: exact accepted origin, production `SITE_URL`, local localhost origin.
 - `TURNSTILE_SITE_KEY`: intentionally public site key passed by the page, no secret prefix.
-- `TURNSTILE_SECRET_KEY`: private verification secret; local uses Cloudflare test keys, production uses hostname restricted real keys.
+- `TURNSTILE_SECRET_KEY`: private verification secret; local uses Cloudflare test keys (always pass, accepted through the testing reply rule above), production uses hostname restricted real keys and the strict action and hostname check.
 - `RESEND_API_KEY`: private sending credential.
 - `INQUIRY_ALERT_FROM`: verified sender mailbox. `INQUIRY_ALERT_TO`: owner's recipient mailbox. These actual values are configured by the owner, never guessed or committed.
 - `INQUIRY_RATE_SECRET`: at least 32 random bytes for rate key hashing; distinct from session and cron secrets.
@@ -162,7 +164,8 @@ Owner setup before enabling production: verify an owned sending domain in Resend
 
 ### Critical test scenarios
 
-- Valid submission, field errors, body cap, exact origin, expired/wrong hostname challenge, and retry with the same/changed payload, covering AC-1 through AC-4.
+- Valid submission, field errors, body cap, exact origin, expired/wrong hostname challenge, and retry with the same/changed payload, covering AC-1 through AC-4. Wrong action and wrong hostname are proven with a stubbed siteverify reply (unit level), since local Cloudflare test keys never return them; a live local UI submit proves the testing reply path end to end.
+- Challenge reply matrix through `verifyChallenge` with a stub fetcher: testing reply accepted outside production and rejected in production; strict reply with wrong action or hostname rejected in both; `success: false`, non 200, malformed JSON, and timeout rejected in both, covering AC-3 and AC-11.
 - Concurrent submit and contact conversion, duplicate client name, existing contact, archived client, target mismatch, and rollback after any write failure, covering AC-3, AC-6, AC-7.
 - Email rejection, timeout, expired lease, accepted result, identical payload retry, and uncertainty beyond the 23 hour safe window, covering AC-4 and AC-8.
 - Wrong workspace, signed out POST to every action, direct detail reads, disabled flags, preview bypass attempts, HTML injection, and sensitive log/bundle scan, covering AC-10 and AC-11.
@@ -175,6 +178,9 @@ Owner setup before enabling production: verify an owned sending domain in Resend
 2. Complete the inbox and conversion: filters, paging, state/version handling, event view, conversion preview and atomic client/contact/note creation or linking. Covers AC-5 through AC-7, AC-10.
 3. Owner alerts and operations: Resend adapter, frozen attempt keys and leases, visible failed/unknown states, guarded manual retry, daily retention job and health status, configuration and secret checks. Covers AC-4, AC-8 through AC-11.
 4. Polish and verify: themes, keyboard/error states, SEO and contact navigation, adversarial privacy checks, concurrency and failure tests, lint/build/leak check, fake local acceptance pass and owner production setup checklist. Covers AC-1 through AC-12. No real data or provider credentials in fixtures.
+5. Verify fixes (from `/check verify` on 2026-10-21):
+   - Challenge testing reply: in `src/inquiries/ingest.ts`, branch `verifyChallenge` on `config.production` as described under Public ingestion: outside production accept the testing reply only with `response.ok`, `success === true`, `metadata?.result_with_testing_key === true`, and the `1x…AA` test secret in config; in production keep the strict check and reject any testing reply. Add the challenge reply matrix tests to `src/inquiries/ingest.test.ts` (vitest, `npm test`, stub fetcher passed to `verifyChallenge`, both `production` values, plus a non test secret outside production taking the strict path). Then confirm a real local UI submit through `/contact` reaches the success confirmation, saves the fake inquiry, and creates the pending alert. Covers AC-2, AC-3, AC-4, AC-11.
+   - Browser test timing: in `e2e/lead-intake.spec.ts`, the `toHaveURL(/\/studio\/clients\/[0-9a-f-]+$/)` expectation after Confirm conversion takes `{ timeout: 30_000 }`, because the first dev compile of `/studio/clients/[id]` takes about 10 s. Change only that expectation, not the global timeout, and rerun the browser suite to 4 of 4. Covers AC-12.
 
 ## Consequences
 

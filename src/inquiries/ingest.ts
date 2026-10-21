@@ -6,6 +6,7 @@ import { getIntakeConfig, trustedAddress, type IntakeConfig } from "./config";
 import { getDb, rows, validateWorkspace } from "./db";
 import { IntakeError, parseSubmission, payloadHash } from "./rules";
 
+const TEST_SECRET = "1x0000000000000000000000000000000AA";
 export const LIMITS = { bytes: 65536, address: 10, email: 3 } as const;
 export async function readBody(request: Request): Promise<unknown> {
   if (
@@ -75,9 +76,21 @@ export async function verifyChallenge(
       },
     );
     const body = await response.json();
+    const testing = body?.metadata?.result_with_testing_key === true;
+    // Cloudflare's test secret replies with no action and hostname example.com,
+    // so outside production a testing reply with success is enough (spec 0010).
+    if (
+      !config.production &&
+      testing &&
+      response.ok &&
+      body.success === true &&
+      config.turnstileSecret === TEST_SECRET
+    )
+      return;
     if (
       !response.ok ||
       body.success !== true ||
+      (config.production && testing) ||
       body.action !== "lead_intake" ||
       body.hostname !== new URL(config.origin).hostname
     )

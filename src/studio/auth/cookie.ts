@@ -36,3 +36,17 @@ export function challengeCookieOptions(maxAge: number) {
     maxAge,
   };
 }
+
+// The inbox search term (spec 0010, AC-10). A visitor name or email never goes in the URL, where request logs keep it,
+// so the search form posts it to a server action that keeps it here for the inbox pages only.
+export const INQUIRY_SEARCH_COOKIE = "studio_inquiry_q";
+
+export function inquirySearchCookieOptions(maxAge: number = 30 * 60) {
+  return {
+    httpOnly: true,
+    secure: isSecureOrigin(),
+    sameSite: "strict" as const,
+    path: "/studio/inquiries",
+    maxAge,
+  };
+}

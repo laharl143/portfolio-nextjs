@@ -1,9 +1,14 @@
 "use server";
 import "server-only";
 import "@/studio/marker";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireStudioAccess } from "@/studio/guard";
+import {
+  INQUIRY_SEARCH_COOKIE,
+  inquirySearchCookieOptions,
+} from "@/studio/auth/cookie";
 import type { ActionState } from "@/studio/clients/action-state";
 import {
   changeInquiryStatus,
@@ -103,4 +108,18 @@ export async function retryInquiryAlertAction(
   }
   revalidatePath(`/studio/inquiries/${id}`);
   return { ok: true };
+}
+// AC-10: the search term goes in a cookie, never the URL; only status and alert stay in the query string.
+export async function searchInquiriesAction(data: FormData) {
+  await requireStudioAccess();
+  const q = str(data, "q").trim().slice(0, 100);
+  const jar = await cookies();
+  if (q) jar.set(INQUIRY_SEARCH_COOKIE, q, inquirySearchCookieOptions());
+  else jar.set(INQUIRY_SEARCH_COOKIE, "", inquirySearchCookieOptions(0));
+  const params = new URLSearchParams();
+  for (const key of ["status", "alert"]) {
+    const value = str(data, key);
+    if (value) params.set(key, value);
+  }
+  redirect(`/studio/inquiries${params.size ? `?${params}` : ""}`);
 }
