@@ -41,3 +41,6 @@ graphify-out/
 # Browser test output can contain temporary fake owner sessions.
 test-results/
 playwright-report/
+
+# Playwright MCP session logs and snapshots
+.playwright-mcp/
