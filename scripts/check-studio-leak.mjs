@@ -4,6 +4,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import nextEnv from "@next/env";
+import { personalData } from "../utils/data/personal-data.js";
 
 // Load env files the way `next build` does (production mode), so we scan for exactly what the build could see.
 nextEnv.loadEnvConfig(process.cwd(), false, { info() {}, error: console.error });
@@ -84,6 +85,9 @@ async function main() {
   checkLoginConfig();
   const needles = [["studio server marker", STUDIO_SERVER_MARKER]];
   for (const [label, value] of optionalSecretSources) {
+    // The owner may receive alerts at the email already published on the site.
+    // Exempt only that exact recipient, never credentials or private mailboxes.
+    if (label === "INQUIRY_ALERT_TO" && value === personalData.email) continue;
     if (value.length >= MIN_SECRET_LENGTH || (intakeSecrets.includes(label) && value.length > 0)) {
       needles.push([label, value]);
     }
