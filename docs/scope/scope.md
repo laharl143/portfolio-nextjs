@@ -39,6 +39,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 24 | Private systems map | Studio slice 3 | done |
 | 25 | Lead intake form | Studio slice 4 | done |
 | 26 | Client data retention | Studio slice 5 | done |
+| 28 | Studio home dashboard | Studio slice 7 | done |
 
 ## Existing
 
@@ -269,6 +270,29 @@ spec [0011](../specs/0011-client-data-retention/index.md) · Jira [DP-77](https:
 Tracer Bullet follows the project default. Beta covers the risk of removing stored personal data. Spec 0011 defines owner reviewed removal after 12 calendar months archived, with holds, relationship blockers, a fresh preview, and atomic confirmation. The existing inquiry policy remains separate. Fresh context critique completed and recommended fixes applied under the engineer's delegation; model independence is unverified.
 
 Build checks on 2026-10-21: 69 unit and DOM tests, 23 database tests, and 10 browser tests passed; TypeScript, application lint, production build, and studio leak check passed. Development migrations 0010 and 0011 are applied, with schema introspection confirming 24 retention columns and their constraints. The retention preview was inspected in desktop light and mobile dark themes. Vitest uses one VM worker for unit and DOM tests after ordinary worker startup stalled on this machine; database tests retain the thread pool. Verify and Test subsequently passed as recorded above. No production migration or removal was run during local verification.
+
+## Studio slice 7: Studio home dashboard
+
+### 28. Studio home dashboard · done
+Turn `/studio` from a list of status lines into a dashboard that shows what needs you today: open inquiries and failed alerts, contracts out for signature and drafts, retention reviews due, and public export drift, each with its oldest items, then status bars for clients, contracts, and projects, and a quiet health footer.
+**Done when:** the four attention signals, the all clear card, the three status bars, and the health footer render from live data with each failure contained to its own section, on desktop and at 375px in both themes, and `npm run build` ends with `[leak-check] clean`.
+- [x] Design it (spec): `/architect studio home dashboard`
+- [x] Build it: `/develop studio home dashboard`
+   - [x] Thin thread: database check, health card and footer, the inquiries signal end to end, per signal failure state, satisfies AC-1, AC-3, AC-9, AC-10, AC-11
+   - [x] The other three signals: contracts, retention, public export, satisfies AC-4, AC-5, AC-6
+   - [x] Complete strip and overview: fixed order, dimmed zeros, all clear card, three status bars with links, satisfies AC-2, AC-7, AC-8
+   - [x] Checks: DOM, database, and browser tests, lint, build and leak check, satisfies AC-12, AC-13
+   - [x] Outage screen (after verify): `studio/error.tsx` above the signed in layout, so a failed session lookup shows `Studio is unavailable`, satisfies AC-10 (first case), keeps AC-1
+- [x] Verify it: `/check verify studio home dashboard`
+spec [0012](../specs/0012-studio-home-dashboard/index.md) · code in `src/app/(studio)/studio/error.tsx`, `src/app/(studio)/studio/(signed-in)/page.tsx`, `src/app/(studio)/studio/(signed-in)/_home/`, `src/studio/data/home.ts`, `src/studio/retention/service.ts`
+
+Tracer Bullet follows the project default; Alpha follows the project workflow default. Designed on 2026-10-22 with every interview round answered on visual boards. Design references come from Refero research mode on the free plan (Aboard, Linear inbox, Wrike); no Refero MCP is needed to build.
+
+Built on 2026-10-22: `src/studio/data/home.ts`, `getRetentionAttention()` in `retention/service.ts` (sharing the list's classification), the page and `_home/` components. Lint, 91 unit tests, the home and retention database tests, the 4 Playwright runs (desktop and 375px, both themes), and `npm run build` (`[leak-check] clean`) all pass. A zero tile links to its full list, since its section is omitted.
+
+Outage screen built on 2026-10-22 after verify flagged AC-10: `src/app/(studio)/studio/error.tsx` with fixed text and a full reload (through `_components/reload-page.ts`, so the DOM test can mock it), plus `error.test.tsx`. With `DATABASE_URL` unreachable on a dev server, a forged cookie on `/studio` showed `Studio is unavailable` at desktop and 375px, and no cookie still redirected to `/studio/login?next=%2Fstudio`. The same held on a production build (`next start`), whose response carries only an error digest (no query, table, or error text). Guard, session, and layout unchanged. 93 unit and DOM tests, lint, typecheck, and `npm run build` (`[leak-check] clean`) pass.
+
+Verified on 2026-10-22: all 13 acceptance criteria met with runtime evidence ([verify report](../reviews/0012-studio-home-dashboard-verify.md)). The outage screen held on an unreachable and an unmigrated database, and `In sync` and `All clear` were reached on a throwaway dev branch database seeded from the bundled products file, then dropped. Marked done the same day; no `Test it` box at Alpha.
 
 ## Deferred
 Out of scope for this pass, kept so the plan stays honest.

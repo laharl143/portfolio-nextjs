@@ -1,0 +1,209 @@
+<title>Spec 0012: Studio home dashboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column, spec header on top, then summary, page outline, options, architecture, footer. Studio stone neutrals with its red orange accent. */
+:root {
+  --bg: #fafaf9; --surface: #f5f5f4; --line: #d6d3d1; --fg: #1c1917; --muted: #57534e;
+  --accent: #e2531d; --accent-soft: #fdeee6; --warn: #fef3c7; --warn-fg: #92400e;
+  --ok: #16a34a; --bad: #dc2626; --bad-soft: #fee2e2;
+  --sans: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1c1917; --surface: #292524; --line: #44403c; --fg: #f5f5f4; --muted: #a8a29e;
+  --accent: #f07a4a; --accent-soft: #3b2418; --warn: #3a2e12; --warn-fg: #fcd34d;
+  --ok: #4ade80; --bad: #f87171; --bad-soft: #3f1d1d; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #1c1917; --surface: #292524; --line: #44403c; --fg: #f5f5f4; --muted: #a8a29e;
+  --accent: #f07a4a; --accent-soft: #3b2418; --warn: #3a2e12; --warn-fg: #fcd34d;
+  --ok: #4ade80; --bad: #f87171; --bad-soft: #3f1d1d; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font: 15px/1.6 var(--sans); }
+main { max-width: 860px; margin: 0 auto; padding-block: 40px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 40px; }
+h1 { font-size: 30px; line-height: 1.2; margin: 6px 0 12px; font-weight: 600; text-wrap: balance; }
+h2 { font-size: 19px; margin: 0 0 12px; font-weight: 600; }
+p { margin: 0 0 10px; max-width: 68ch; }
+.eyebrow { font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; font: 13px var(--mono); }
+.meta span { border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; color: var(--muted); }
+.meta .status { border-color: var(--accent); color: var(--accent); }
+.callout { border: 1px solid var(--accent); background: var(--accent-soft); border-radius: 10px; padding: 14px 16px; }
+.callout strong { display: block; font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.callout p { margin: 0; }
+figure { margin: 0; }
+.fig { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 16px; overflow-x: auto; }
+.fig svg { display: block; width: 100%; height: auto; min-width: 560px; color: var(--fg); }
+figcaption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+.options { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.opt { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.opt.chosen { border: 2px solid var(--accent); }
+.opt h3 { font-size: 15px; margin: 0; font-weight: 600; }
+.tag { justify-self: start; font: 500 11px var(--mono); padding: 1px 8px; border-radius: 6px; background: var(--surface); color: var(--muted); }
+.chosen .tag { background: var(--accent); color: var(--bg); }
+.opt ul { margin: 0; padding-left: 18px; font-size: 14px; }
+.opt .why { font-size: 13px; color: var(--muted); margin: 0; }
+.pro::marker { content: "+  "; color: var(--ok); } .con::marker { content: "−  "; color: var(--bad); }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 560px; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 500; color: var(--muted); background: var(--surface); }
+tr:last-child td { border-bottom: 0; }
+td.hl { color: var(--accent); font-weight: 500; }
+.refs { display: flex; flex-wrap: wrap; gap: 8px; }
+.refs span { font-size: 13px; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; }
+.refs b { font-weight: 600; }
+footer { border-top: 1px solid var(--line); padding-top: 16px; font-size: 13px; color: var(--muted); }
+footer a { color: var(--accent); font-family: var(--mono); word-break: break-all; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow">Spec 0012 · enhancement</div>
+    <h1>Studio home dashboard: what needs you today, then a compact status overview</h1>
+    <div class="meta">
+      <span class="status">Proposed</span>
+      <span>2026-10-22</span>
+      <span>Scope feature 28 · Studio slice 7</span>
+      <span>Tracer Bullet · Alpha</span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Summary</h2>
+    <p>The studio home page at <code>/studio</code> changes from a plain list of status lines into a dashboard that answers "what needs me today" first. A row of four counts (inquiries, contracts, retention, public export) sits on top, each with its three oldest items, then three small status bars for clients, contracts, and projects, then a quiet footer for database and storage health.</p>
+    <p>It reads only tables and helpers that already exist, so there is no migration, no new environment variable, and no new library.</p>
+    <div class="callout">
+      <strong>Decision</strong>
+      <p>Rebuild the signed in <code>page.tsx</code> as a server component that runs one guarded read per signal plus the overview and health checks in parallel, contains each failure to its own section, and draws the bars with plain Tailwind elements.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>The page, top to bottom</h2>
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 640 300" role="img" aria-label="Page outline: optional red health card, a strip of four counts, the oldest three items per signal, three status bars, and a health footer">
+          <rect x="0" y="0" width="640" height="26" rx="5" fill="var(--bad-soft)" stroke="var(--bad)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="12" y="17" font-size="12" fill="var(--bad)">Health card, only when the database or storage is broken</text>
+          <g font-size="12" fill="var(--warn-fg)">
+            <rect x="0" y="38" width="152" height="46" rx="6" fill="var(--warn)"/><text x="12" y="57">Inquiries</text><text x="12" y="74" font-family="IBM Plex Mono, monospace">3 open · 1 alert</text>
+            <rect x="162" y="38" width="152" height="46" rx="6" fill="var(--warn)"/><text x="174" y="57">Contracts</text><text x="174" y="74" font-family="IBM Plex Mono, monospace">2 sent · 1 draft</text>
+            <rect x="324" y="38" width="152" height="46" rx="6" fill="var(--warn)"/><text x="336" y="57">Retention</text><text x="336" y="74" font-family="IBM Plex Mono, monospace">2 eligible</text>
+          </g>
+          <rect x="486" y="38" width="154" height="46" rx="6" fill="var(--surface)" stroke="var(--line)"/><text x="498" y="57" font-size="12" fill="var(--muted)">Public export</text><text x="498" y="74" font-size="12" fill="var(--muted)" font-family="IBM Plex Mono, monospace">In sync (dimmed)</text>
+          <g fill="none" stroke="var(--line)"><rect x="0" y="96" width="640" height="22" rx="4"/><rect x="0" y="122" width="640" height="22" rx="4"/><rect x="0" y="148" width="640" height="22" rx="4"/></g>
+          <g font-size="12" fill="currentColor"><text x="12" y="111">Ana Cruz · Acme</text><text x="12" y="137">Lim Studio</text><text x="12" y="163">Ramos Bakery</text></g>
+          <g font-size="12" fill="var(--muted)" text-anchor="end"><text x="628" y="111">4d</text><text x="628" y="137">2d</text><text x="628" y="163">5h</text></g>
+          <text x="0" y="190" font-size="12" fill="var(--muted)">Clients</text>
+          <rect x="70" y="180" width="120" height="12" fill="var(--accent)" opacity=".45"/><rect x="190" y="180" width="300" height="12" fill="var(--accent)"/><rect x="490" y="180" width="150" height="12" fill="var(--line)"/>
+          <text x="0" y="214" font-size="12" fill="var(--muted)">Contracts</text>
+          <rect x="70" y="204" width="60" height="12" fill="var(--line)"/><rect x="130" y="204" width="90" height="12" fill="var(--accent)" opacity=".45"/><rect x="220" y="204" width="260" height="12" fill="var(--accent)"/><rect x="480" y="204" width="160" height="12" fill="var(--line)"/>
+          <text x="0" y="238" font-size="12" fill="var(--muted)">Projects</text>
+          <rect x="70" y="228" width="140" height="12" fill="var(--line)"/><rect x="210" y="228" width="280" height="12" fill="var(--accent)"/><rect x="490" y="228" width="150" height="12" fill="var(--accent)" opacity=".45"/>
+          <line x1="0" y1="262" x2="640" y2="262" stroke="var(--line)"/>
+          <circle cx="6" cy="282" r="4" fill="var(--ok)"/><text x="16" y="286" font-size="12" fill="var(--muted)">Connected, 12 migrations applied</text>
+          <circle cx="246" cy="282" r="4" fill="var(--ok)"/><text x="256" y="286" font-size="12" fill="var(--muted)">Private store reachable · 7 record counts</text>
+        </svg>
+      </div>
+      <figcaption>Attention first: four signals in a fixed order, the oldest three items for each, then status bars and a quiet footer. When every count is 0, one All clear card replaces the strip and lists. Example names and numbers are made up.</figcaption>
+    </figure>
+    <div class="refs" style="margin-top:12px">
+      <span><b>Aboard</b> page structure</span>
+      <span><b>Linear</b> inbox rows</span>
+      <span><b>Wrike</b> overview area</span>
+      <span>Found with Refero research mode, free plan</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Options compared</h2>
+    <div class="options">
+      <article class="opt">
+        <span class="tag">Option 1</span>
+        <h3>Fix in place</h3>
+        <ul><li class="pro">Smallest change</li><li class="con">Still a wall of equal weight text</li><li class="con">Every item two clicks away</li></ul>
+        <p class="why">Not chosen: it fails the brief, nothing visual and no next action.</p>
+      </article>
+      <article class="opt chosen">
+        <span class="tag">Chosen · Option 2</span>
+        <h3>Attention first, server rendered</h3>
+        <ul><li class="pro">Answers what needs you first</li><li class="pro">Reuses retention and drift logic, never disagrees with those pages</li><li class="pro">No migration, one commit to revert</li><li class="con">About ten queries per load</li></ul>
+        <p class="why">Chosen: useful at a glance and keeps one guarded server render.</p>
+      </article>
+      <article class="opt">
+        <span class="tag">Option 3</span>
+        <h3>Client side with API routes</h3>
+        <ul><li class="pro">Widgets refresh on their own</li><li class="con">New guarded routes for the leak check</li><li class="con">Chart library and spinners for three bars</li></ul>
+        <p class="why">Not chosen: more surface and code for data that changes a few times a day.</p>
+      </article>
+      <article class="opt">
+        <span class="tag">Option 4</span>
+        <h3>Precomputed summary table</h3>
+        <ul><li class="pro">One query per load</li><li class="con">Every write path must update it</li><li class="con">Migration and backfill for no measured problem</li></ul>
+        <p class="why">Not chosen: premature optimization with a fragile duty.</p>
+      </article>
+    </div>
+    <div class="tablewrap" style="margin-top:12px">
+      <table>
+        <thead><tr><th>Criterion</th><th>1 Fix in place</th><th>2 Attention first</th><th>3 Client side</th><th>4 Summary table</th></tr></thead>
+        <tbody>
+          <tr><td>Shows what to do next</td><td>Counts only</td><td class="hl">Counts and oldest 3</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td>New attack surface</td><td>None</td><td class="hl">None</td><td>New route handlers</td><td>None</td></tr>
+          <tr><td>Schema change</td><td>None</td><td class="hl">None</td><td>None</td><td>Table plus backfill</td></tr>
+          <tr><td>New dependency</td><td>None</td><td class="hl">None</td><td>Chart library</td><td>None</td></tr>
+          <tr><td>Rollback</td><td>Revert commit</td><td class="hl">Revert commit</td><td>Revert commit</td><td>Revert plus migration</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Architecture and data flow</h2>
+    <figure>
+      <div class="fig">
+        <svg viewBox="0 0 760 400" role="img" aria-label="The browser requests the guarded studio page, which runs four reads in parallel; signals and overview read Neon, health checks Neon and pings private Blob, export drift compares published systems with the bundled products file">
+          <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9z" fill="currentColor"/></marker></defs>
+          <g font-family="IBM Plex Sans, sans-serif" font-size="13" fill="currentColor" text-anchor="middle">
+            <rect x="40" y="20" width="160" height="54" rx="8" fill="none" stroke="currentColor"/>
+            <text x="120" y="43" font-weight="600">Browser</text><text x="120" y="62" font-size="12" fill="var(--muted)">signed in owner</text>
+            <rect x="300" y="20" width="200" height="54" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="400" y="43" font-weight="600">/studio page</text><text x="400" y="62" font-size="12" fill="var(--muted)" font-family="IBM Plex Mono, monospace">requireStudioAccess()</text>
+            <rect x="20" y="150" width="160" height="60" rx="8" fill="none" stroke="currentColor"/><text x="100" y="175" font-weight="600">Signals</text><text x="100" y="194" font-size="12" fill="var(--muted)">inquiries, contracts, retention</text>
+            <rect x="200" y="150" width="160" height="60" rx="8" fill="none" stroke="currentColor"/><text x="280" y="175" font-weight="600">Overview</text><text x="280" y="194" font-size="12" fill="var(--muted)">3 status bars</text>
+            <rect x="380" y="150" width="160" height="60" rx="8" fill="none" stroke="currentColor"/><text x="460" y="175" font-weight="600">Health</text><text x="460" y="194" font-size="12" fill="var(--muted)">db, storage, counts</text>
+            <rect x="560" y="150" width="160" height="60" rx="8" fill="none" stroke="currentColor"/><text x="640" y="175" font-weight="600">Export drift</text><text x="640" y="194" font-size="12" fill="var(--muted)">published systems</text>
+            <rect x="20" y="300" width="340" height="70" rx="8" fill="var(--surface)" stroke="currentColor"/><text x="190" y="330" font-weight="600">Neon Postgres</text><text x="190" y="350" font-size="12" fill="var(--muted)">studio schema, current workspace</text>
+            <rect x="380" y="300" width="160" height="70" rx="8" fill="var(--surface)" stroke="currentColor"/><text x="460" y="330" font-weight="600">Private Blob</text><text x="460" y="350" font-size="12" fill="var(--muted)">reachability only</text>
+            <rect x="560" y="300" width="160" height="70" rx="8" fill="var(--surface)" stroke="currentColor"/><text x="640" y="330" font-weight="600">Bundled file</text><text x="640" y="350" font-size="12" fill="var(--muted)" font-family="IBM Plex Mono, monospace">products-data.ts</text>
+          </g>
+          <g stroke="currentColor" stroke-width="1.2" fill="none">
+            <line x1="200" y1="47" x2="296" y2="47" marker-end="url(#arrow)"/>
+            <line x1="400" y1="74" x2="102" y2="147" marker-end="url(#arrow)"/>
+            <line x1="400" y1="74" x2="282" y2="147" marker-end="url(#arrow)"/>
+            <line x1="400" y1="74" x2="458" y2="147" marker-end="url(#arrow)"/>
+            <line x1="400" y1="74" x2="638" y2="147" marker-end="url(#arrow)"/>
+            <line x1="100" y1="210" x2="100" y2="296" marker-end="url(#arrow)"/>
+            <line x1="280" y1="210" x2="280" y2="296" marker-end="url(#arrow)"/>
+            <line x1="490" y1="210" x2="490" y2="296" marker-end="url(#arrow)"/>
+            <path d="M420 210 V235 H340 V296" marker-end="url(#arrow)"/>
+            <line x1="640" y1="210" x2="640" y2="296" marker-end="url(#arrow)"/>
+          </g>
+          <g font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--muted)">
+            <text x="248" y="40" text-anchor="middle">GET /studio</text>
+            <text x="512" y="104">Promise.allSettled</text>
+            <text x="108" y="262">counts, oldest 3</text>
+            <text x="288" y="270">group by status</text>
+            <text x="358" y="228">db status, counts</text>
+            <text x="498" y="270">ping</text>
+            <text x="648" y="262" font-family="IBM Plex Mono, monospace">diffPublic()</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>Every read runs after the owner guard and is scoped to the session workspace. The page checks the database first; when it is not connected or not migrated, only the red card and footer render and no other read runs. Each of the four reads settles on its own, so one failure shows "Could not load" in its section only. Export drift also reads the published systems from Neon through <code>getPublicProjection()</code>.</figcaption>
+    </figure>
+  </section>
+
+  <footer>
+    Source of truth: <a href="https://github.com/laharl143/portfolio-nextjs/blob/main/docs/specs/0012-studio-home-dashboard/index.md">docs/specs/0012-studio-home-dashboard/index.md</a>. This page illustrates the spec and adds no decision of its own.
+  </footer>
+</main>

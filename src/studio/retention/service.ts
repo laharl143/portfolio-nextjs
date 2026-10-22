@@ -71,11 +71,15 @@ function candidates(workspace:string) {
       case when exists(select 1 from studio.inquiries x where x.workspace_id=${workspace}::uuid and x.converted_contact_id=c.id) then 'Source inquiry' end
     ],null) from studio.contacts c join studio.clients p on p.id=c.client_id and p.workspace_id=${workspace}::uuid where c.workspace_id=${workspace}::uuid`;
 }
+// The list's classification, shared with the home dashboard so the two never disagree (spec 0012, AC-5).
+function classified(workspace:string) {
+  return sql`with candidates as (${candidates(workspace)}), classified as (select *,case when cardinality(blockers)>0 then 'blocked' when is_due then 'eligible' else 'waiting' end as state from candidates c where archived_at is not null and (kind='client' or not exists(select 1 from studio.clients p where p.workspace_id=${workspace}::uuid and p.id=c.client_id and p.archived_at is not null)))`;
+}
 export async function listRetention(params:Record<string,string|undefined>) {
   const workspace=await getWorkspaceId(); await cleanupMetadata(); const filters=parseFilters(params);
   return getDb().transaction(async tx=>{
     await tx.execute(sql`set transaction isolation level repeatable read`);await limits(tx);
-    const base=sql`with candidates as (${candidates(workspace)}), classified as (select *,case when cardinality(blockers)>0 then 'blocked' when is_due then 'eligible' else 'waiting' end as state from candidates c where archived_at is not null and (kind='client' or not exists(select 1 from studio.clients p where p.workspace_id=${workspace}::uuid and p.id=c.client_id and p.archived_at is not null)))`;
+    const base=classified(workspace);
     const filter=sql`(${filters.kind}='all' or kind=${filters.kind}) and (${filters.state}='all' or state=${filters.state})`;
     const [count]=await rows<{total:number}>(tx,sql`${base} select count(*)::int as total from classified where ${filter}`);
     const pages=Math.max(1,Math.ceil(count.total/50)),page=Math.min(filters.page,pages);
@@ -174,5 +178,16 @@ export async function setHold(kindInput:string,id:string,version:string,hold:boo
     if(target.version!==version) throw new RetentionError('STALE_RECORD');
     await tx.execute(sql`update ${table(kind)} set retention_hold=${hold},retention_hold_reason=${hold?reason:null},updated_at=clock_timestamp() where workspace_id=${workspace}::uuid and id=${id}::uuid`);
     await tx.execute(sql`insert into studio.retention_events(workspace_id,actor_user_id,kind,target_id,action,policy_version,reason,counts) values(${workspace}::uuid,${actor}::uuid,${kind},${id}::uuid,${hold?'hold_set':'hold_release'},${POLICY_VERSION},${hold?reason:target.retention_hold_reason},'{"clients":0,"contacts":0,"notes":0}'::jsonb)`);
+  });
+}
+// Home dashboard signal (spec 0012, AC-5): eligible records, earliest due first. Read only, no metadata cleanup.
+export async function getRetentionAttention(limit:number) {
+  const workspace=await getWorkspaceId();
+  return getDb().transaction(async tx=>{
+    await tx.execute(sql`set transaction isolation level repeatable read`);await limits(tx);
+    const base=classified(workspace);
+    const [count]=await rows<{total:number}>(tx,sql`${base} select count(*)::int as total from classified where state='eligible'`);
+    const items=await rows<{kind:Kind;id:string;name:string;due_at:string}>(tx,sql`${base} select kind,id,name,due_at from classified where state='eligible' order by due_at::timestamptz,id limit ${limit}`);
+    return {eligible:count.total,rows:items.map(({kind,id,name,due_at})=>({kind,id,name,dueAt:due_at}))};
   });
 }
