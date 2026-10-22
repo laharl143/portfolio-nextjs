@@ -29,6 +29,8 @@ npm run lint
 # Studio database (Neon dev branch, run on purpose)
 npm run db:generate
 npm run db:migrate
+# Inspect retention columns and constraints on the development database
+node scripts/check-retention-schema.mjs
 
 # Test (Vitest + Testing Library, files beside the source as *.test.ts(x); see test-preferences.json)
 npm test
@@ -37,6 +39,8 @@ npm run test:db
 # Browser tests (Playwright, e2e/); behind a proxy set NO_PROXY=localhost
 npm run test:e2e
 ```
+
+Vitest unit and DOM tests use one `vmThreads` worker; database tests retain the `threads` pool. Playwright uses two workers and runs desktop and 375px mobile projects. These choices live in the existing runner configs.
 
 ## Specs
 

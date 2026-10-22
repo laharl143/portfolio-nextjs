@@ -4,6 +4,10 @@ Governing specs: [0003 studio placement and stack](../../docs/specs/0003-studio-
 
 ## Where things live
 
+- Client data retention follows [spec 0011](../../docs/specs/0011-client-data-retention/index.md), the explicit exception to the ordinary archive only client lifecycle.
+- `src/studio/retention/`: `rules.ts` holds policy constants, eligibility, filters and consent validation; `service.ts` owns scoped snapshots, holds, previews, removal, receipts and metadata cleanup; `actions.ts` guards posted forms and redirects.
+- `src/app/(studio)/studio/(signed-in)/retention/`: policy and filtered list, `[kind]/[id]/` review and holds, `previews/[previewId]/` confirmation, and `receipts/[eventId]/`. Shared forms and record paging live in `_components/`. The client detail page links to retention review.
+
 - `src/studio/guard.ts`: two gates. `requireStudioEnabled()` checks the flag only (`notFound()` unless `STUDIO_ENABLED === "true"`). `requireStudioAccess()` checks the flag plus the owner session, redirects to `/studio/login?next=` when signed out, and returns the `StudioSession`.
 - `src/proxy.ts`: Next 16 proxy, matcher `/studio` and `/studio/:path*`. Returns a bare 404 when the flag is off, redirects to the login page when the session cookie is missing (except on `/studio/login` and `/studio/setup`), sets the `x-studio-pathname` header, and refreshes the session cookie on GET requests only. It never touches the database. A first filter only, never the real gate.
 - `src/studio/auth/`: owner passkey login (SimpleWebAuthn v14) with opaque, hashed database sessions (30 days, sliding). `actions.ts` (server actions: sign in, setup, sign out, sign out everywhere, add passkey), `session.ts` (`getStudioSession()`), `config.ts` (constants and `getRpConfig()`), `challenge.ts`, `passkeys.ts`, `owner.ts`, `events.ts` (auth events, kept 90 days), `safe-next.ts`, `device-label.ts`, `cookie.ts` (cookie names, attributes, and the path header).
@@ -30,6 +34,12 @@ Governing specs: [0003 studio placement and stack](../../docs/specs/0003-studio-
 - `scripts/migrate-on-build.mjs`, `scripts/check-studio-leak.mjs`: run inside `npm run build`.
 
 ## Rules
+
+- Retention writes use the shared workspace advisory lock from `src/inquiries/db.ts`, then lock the parent client and included child rows. They deliberately support archived targets rather than calling the ordinary live client write guard. Keep full precision versions and recheck the complete snapshot, holds, relationship blockers and expiry inside the removal transaction.
+- Retention due dates use archive time plus 12 calendar months in UTC. A server preview is bound to its workspace and actor, expires after ten minutes, and needs both the posted acknowledgement and exact `DELETE` confirmation. Removal is capped at 1,000 total rows and commits its aggregate receipt atomically; retries return the same unexpired receipt.
+- Client retention removes only eligible clients, their contacts and their associated notes; independent contact removal preserves unrelated client notes. Contracts, projects and source inquiries block removal, and business records and immutable contract history are never deleted by retention. Inquiry cleanup remains separate.
+- Retention metadata cleanup runs on use, at most 1,000 expired previews and 1,000 expired events per visit in the current workspace. Receipts last 12 calendar months and hold audit events record reason codes. Preview, receipt and audit rows contain identifiers and counts rather than copied personal content; do not add names or note text.
+- Only the retention list has a Suspense loading fallback. Do not add a route wide `loading.tsx`: streaming before a resource lookup finishes turns its not found response into HTTP 200. Missing or inaccessible record, preview and receipt pages must return 404. The retention error screen reloads the document on retry so it does not reuse a failed server response.
 
 - Every signed in studio layout, page, route handler, and server action calls `await requireStudioAccess()` before reading or writing anything. Only the studio root layout, the login and setup pages, and their actions call `requireStudioEnabled()` instead. The proxy alone is never enough (server actions can be POSTed to any path).
 - Only the proxy refreshes the session cookie; only server actions create or clear it. `getStudioSession()` never writes cookies.
