@@ -38,6 +38,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 23 | Contracts & PDF export | Studio slice 2 | done |
 | 24 | Private systems map | Studio slice 3 | done |
 | 25 | Lead intake form | Studio slice 4 | done |
+| 26 | Client data retention | Studio slice 5 | done |
 
 ## Existing
 
@@ -245,13 +246,37 @@ Let prospective freelance clients submit their name, email, and project descript
 - [x] Test it: `/test lead intake form` · 2026-10-21, `npm test` 62/62, `npm run test:db` 10/10, `npm run test:e2e` 6/6
 spec [0010](../specs/0010-lead-intake/index.md) · Jira [DP-72](https://vital-stats.atlassian.net/browse/DP-72) · code in `src/inquiries/`, `src/studio/data/inquiries.ts`, `src/studio/inquiries/`, `src/app/(studio)/studio/(signed-in)/inquiries/`, `src/app/(site)/contact/`
 
-Product choices confirmed on 2026-10-21: dedicated `/contact`; required name, email, and project description; optional company and free text budget; New, Reviewing, Converted, and Closed inbox states; deliberate linking to an existing client or creating a Lead; owner email alerts with visible manual retry after failure; visitor on screen confirmation; 12 month inquiry retention. Visitor receipts are outside this slice. Tracer Bullet follows the project default. Beta covers public submissions and stored contact details. Spec 0010 settles the remaining design under the engineer's delegated recommended choices. Production setup still needs sender domain verification, owner recipient, bot challenge configuration, and deployment secrets. Jira mirrored on 2026-10-21: DP-72, Design DP-73 (done), Build DP-74, Verify DP-75, Test DP-76. Converted client record retention remains a separate deferred decision.
+Product choices confirmed on 2026-10-21: dedicated `/contact`; required name, email, and project description; optional company and free text budget; New, Reviewing, Converted, and Closed inbox states; deliberate linking to an existing client or creating a Lead; owner email alerts with visible manual retry after failure; visitor on screen confirmation; 12 month inquiry retention. Visitor receipts are outside this slice. Tracer Bullet follows the project default. Beta covers public submissions and stored contact details. Spec 0010 settles the remaining design under the engineer's delegated recommended choices. Production setup still needs sender domain verification, owner recipient, bot challenge configuration, and deployment secrets. Jira mirrored on 2026-10-21: DP-72, Design DP-73 (done), Build DP-74, Verify DP-75, Test DP-76. Converted client record retention is tracked separately in feature 26.
+
+## Studio slice 5: Client data retention
+
+### 26. Client data retention · done · Beta
+Set retention rules for archived contacts and client records created by lead conversion before live client use. Bring together the deferred decisions from specs 0004 and 0010, including copied contact details and notes, while keeping the existing 12 month inquiry retention separate.
+**Done when:** an agreed policy defines which personal data is kept, for how long, what starts the retention period, and any exceptions; you can safely enforce it within your own workspace with clear confirmation and tests, preserving related business records as the policy requires.
+- [x] Design it (spec): `/architect client data retention` (2026-10-21, recommended choices and content confirmation delegated)
+- [x] Build it: `/develop client data retention` (2026-10-21, development migrations applied and schema confirmed; fake data checks only)
+   - [x] Thin thread: policy, additive data model, contact preview, confirmed removal and receipt, satisfies AC-1, AC-2, AC-5, AC-6, AC-8
+   - [x] Full lifecycle: client removal, blockers, holds, snapshots, inquiry references and concurrency, satisfies AC-2 through AC-7
+   - [x] Hardening: metadata retention, UI states, privacy and access checks, automated tests, lint, build and leak check, satisfies AC-1, AC-6, AC-8 through AC-10
+- [x] Verify it: `/check verify client data retention` (PASS 2026-10-21 after Debug)
+   - Resolved streamed HTTP 200 responses for missing resources and a retry button that reused a failed response. Missing/foreign resources now return 404; actual timeout and keyboard retry recover. Completed remaining width/theme/state and keyboard checks. 69 unit/DOM, 23 database and 4 retention browser tests passed; ESLint, production build, TypeScript, leak check and live schema check passed. Evidence and initial failure retained in spec 0011 `verify.md`; next `/test client data retention`. Jira DP-80 Done; Test DP-81 remains open.
+- [x] Test it: `/test client data retention` (PASS recorded 2026-10-22)
+   - Extended the existing browser and database suites with keyboard retry requesting a fresh document, HTTP 404 and privacy checks across workspaces, preview actor binding within one workspace, expired/tampered sessions, denied mutations preserving records, exact cutoff and microsecond versions, every hold reason, altered preview metadata and the 1,000 row cleanup cap. No application code or runner configuration changed during Test.
+   - Results: `npm test` 69/69; `npm run test:db` 27/27; full browser run before the retry addition 12/12, then final retention browser run 8/8 (six unchanged lead intake cases also passed in the full run). Changed test files passed ESLint; final `tsc --noEmit` passed. Retry uses the actual error component in a browser fixture with a controlled document response; full server timeout/recovery, visual themes and backups remain manual checks recorded by Verify. Logs: local scratch `retention-verify/test-stage-*.txt`.
+   - Jira sync completed 2026-10-22: the working Atlassian connection confirmed DP-81 Done with the passing test results. The owner then accepted spec 0011 and marked the feature done, authorizing its commit and push. Final precommit unit run: 69/69 passed.
+spec [0011](../specs/0011-client-data-retention/index.md) · Jira [DP-77](https://vital-stats.atlassian.net/browse/DP-77) · code in `src/studio/retention/`, `src/app/(studio)/studio/(signed-in)/retention/`
+
+Tracer Bullet follows the project default. Beta covers the risk of removing stored personal data. Spec 0011 defines owner reviewed removal after 12 calendar months archived, with holds, relationship blockers, a fresh preview, and atomic confirmation. The existing inquiry policy remains separate. Fresh context critique completed and recommended fixes applied under the engineer's delegation; model independence is unverified.
+
+Build checks on 2026-10-21: 69 unit and DOM tests, 23 database tests, and 10 browser tests passed; TypeScript, application lint, production build, and studio leak check passed. Development migrations 0010 and 0011 are applied, with schema introspection confirming 24 retention columns and their constraints. The retention preview was inspected in desktop light and mobile dark themes. Vitest uses one VM worker for unit and DOM tests after ordinary worker startup stalled on this machine; database tests retain the thread pool. Verify and Test subsequently passed as recorded above. No production migration or removal was run during local verification.
 
 ## Deferred
 Out of scope for this pass, kept so the plan stays honest.
+- **Contract and project data retention**: decide removal or anonymization for linked business records, signed PDFs, and immutable history, from spec 0011. Needs a decision.
+- **Formal erasure and external copies**: define a workflow for requests that reach backups, mailboxes, exported files, or unrelated free text, from spec 0011. Needs a decision.
+- **Automatic client retention scheduling**: consider only if owner review volume warrants it, from spec 0011.
 - **ED Solutions rebrand**: rename the public site to ED Solutions with a brand pass (wordmark, palette, type), revisit copy, metadata, and favicon; SEO foundation (feature 15) should then point at the new name · needs a decision
 - **E-signature**: sign contracts inside the studio · needs a decision
-- **Archived contact data retention**: decide how long archived contacts' personal data is kept before real client data lands (Data Privacy Act), from spec 0004 · needs a decision
 - **Invoicing**: invoices from active contracts, the next step toward your Invoicing product · needs a decision
 - **Studio security extras**: rename and remove passkeys (never the last), an active sessions list, and a recent activity view over auth events; fits spec 0005's tables with no migration, from spec 0005
 - **Client search extras**: match contact names and emails in the client search, and a `pg_trgm` index once the list passes about 5,000 rows, from spec 0006 · needs a decision
@@ -269,7 +294,6 @@ Out of scope for this pass, kept so the plan stays honest.
 - **Retire the old systems artifact**: after verifying the production import, decide whether to leave the old SMB Systems Map artifact read only or retire it, from spec 0008. This is an owner action outside the repo.
 - **Lead intake production launch**: verify the sender domain, set the owner recipient, add Turnstile production keys and the deployment secrets, then turn intake on, from spec 0010. This is an owner action outside the repo.
 - **Lead intake extras**: visitor receipts, replying from the studio, file attachments, automatic email retries, and spam classification, from spec 0010. Needs a decision.
-- **Converted client data retention**: decide how long a converted lead's client record is kept, separate from the 12 month inquiry retention, from spec 0010. Needs a decision.
 
 ## Legend
 

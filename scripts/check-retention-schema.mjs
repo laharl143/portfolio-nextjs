@@ -1,0 +1,14 @@
+import nextEnv from '@next/env';
+import {neon} from '@neondatabase/serverless';
+if(process.env.VERCEL||process.env.VERCEL_ENV) throw new Error('Development schema check only');
+const env=nextEnv.loadEnvConfig(process.cwd(),true,{info(){},error(){}});
+const dev=env.loadedEnvFiles.find(file=>file.path==='.env.development.local');
+if(!dev||!process.env.DATABASE_URL) throw new Error('Development database configuration required');
+const match=dev.contents.match(/^\s*DATABASE_URL\s*=\s*(.+)\s*$/m);
+const configured=match?.[1].trim().replace(/^(['"])(.*)\1$/, '$2');
+if(configured!==process.env.DATABASE_URL) throw new Error('Active database must match the development file');
+const q=neon(process.env.DATABASE_URL);
+const columns=await q`select table_name,column_name from information_schema.columns where table_schema='studio' and ((table_name in ('clients','contacts') and column_name in ('retention_hold','retention_hold_reason')) or table_name in ('retention_previews','retention_events')) order by table_name,ordinal_position`;
+const constraints=await q`select conname from pg_constraint c join pg_namespace n on n.oid=c.connamespace where n.nspname='studio' and (conname like 'retention_%' or conname in ('clients_retention_hold_check','contacts_retention_hold_check')) order by conname`;
+if(columns.length!==24||!constraints.some(c=>c.conname==='retention_events_count_types_check')) throw new Error('Retention migration is incomplete');
+console.log(JSON.stringify({retentionColumns:columns.length,constraints:constraints.map(c=>c.conname),schema:'studio',result:'PASS'}));

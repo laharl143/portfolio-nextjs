@@ -4,6 +4,7 @@ export default defineConfig({
   ...base,
   test: {
     ...base.test,
+    pool: "threads",
     include: ["src/**/*.db.test.ts"],
     exclude: [],
     fileParallelism: false,

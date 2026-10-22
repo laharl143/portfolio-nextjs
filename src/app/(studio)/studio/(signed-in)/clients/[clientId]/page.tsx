@@ -105,6 +105,9 @@ function Contacts({ detail, live }: { detail: ClientDetail; live: boolean }) {
                   </>
                 )}
               </dl>
+              <Link className={`${textLink} mt-3 inline-block text-sm`} href={`/studio/retention/contact/${contact.id}`}>
+                Retention hold and policy
+              </Link>
             </li>
           ))}
         </ul>
@@ -291,6 +294,9 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
         <div className="min-w-0">
           <p className={pageEyebrow}>Client</p>
           <h1 className="mt-2 break-words text-4xl md:text-5xl">{client.name}</h1>
+          <Link href={`/studio/retention/client/${client.id}`} className={`${textLink} mt-3 inline-block text-sm`}>
+            Retention hold and policy
+          </Link>
         </div>
         {live && (
           <div className="flex flex-wrap items-start gap-3">

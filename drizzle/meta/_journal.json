@@ -71,6 +71,20 @@
       "when": 1792550377550,
       "tag": "0009_amused_dreadnoughts",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792577387109,
+      "tag": "0010_faithful_the_order",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792578194897,
+      "tag": "0011_ambitious_mindworm",
+      "breakpoints": true
     }
   ]
 }

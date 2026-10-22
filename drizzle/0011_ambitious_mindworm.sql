@@ -1,0 +1,1 @@
+ALTER TABLE "studio"."retention_events" ADD CONSTRAINT "retention_events_count_types_check" CHECK (jsonb_typeof("studio"."retention_events"."counts"->'clients')='number' and jsonb_typeof("studio"."retention_events"."counts"->'contacts')='number' and jsonb_typeof("studio"."retention_events"."counts"->'notes')='number');

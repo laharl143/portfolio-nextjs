@@ -7,6 +7,7 @@ import {
   foreignKey,
   index,
   integer,
+  jsonb,
   pgSchema,
   primaryKey,
   text,
@@ -51,6 +52,45 @@ import {
 // No "server-only" import: drizzle-kit loads this file outside Next. It holds table shapes only;
 // the connection lives in ./client.ts, which is server-only.
 export const studio = pgSchema("studio");
+
+// Spec 0011: short lived plans and finite audit receipts, never copies of personal content.
+export const retentionPreviews = studio.table('retention_previews', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id, {onDelete:'restrict'}),
+  actorUserId: uuid('actor_user_id').notNull().references(() => owners.id, {onDelete:'restrict'}),
+  kind: text('kind').notNull(),
+  targetId: uuid('target_id').notNull(),
+  clientId: uuid('client_id').notNull(),
+  policyVersion: text('policy_version').notNull(),
+  snapshotHash: text('snapshot_hash').notNull(),
+  createdAt: timestamp('created_at', {withTimezone:true}).notNull().defaultNow(),
+  expiresAt: timestamp('expires_at', {withTimezone:true}).notNull().default(sql`now() + interval '10 minutes'`),
+}, t => [
+  check('retention_previews_kind_check', sql`${t.kind} in ('client','contact')`),
+  check('retention_previews_hash_check', sql`${t.snapshotHash} ~ '^[a-f0-9]{64}$'`),
+  check('retention_previews_expiry_check', sql`${t.expiresAt} > ${t.createdAt}`),
+  index('retention_previews_expiry_idx').on(t.workspaceId,t.expiresAt),
+  index('retention_previews_actor_idx').on(t.workspaceId,t.actorUserId),
+]);
+export const retentionEvents = studio.table('retention_events', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id, {onDelete:'restrict'}),
+  actorUserId: uuid('actor_user_id').notNull().references(() => owners.id, {onDelete:'restrict'}),
+  kind: text('kind').notNull(),
+  targetId: uuid('target_id').notNull(),
+  action: text('action').notNull(),
+  policyVersion: text('policy_version').notNull(),
+  reason: text('reason'),
+  counts: jsonb('counts').$type<{clients:number;contacts:number;notes:number}>().notNull(),
+  createdAt: timestamp('created_at', {withTimezone:true}).notNull().defaultNow(),
+}, t => [
+  check('retention_events_kind_check', sql`${t.kind} in ('client','contact')`),
+  check('retention_events_action_check', sql`${t.action} in ('remove','hold_set','hold_release')`),
+  check('retention_events_reason_check', sql`(${t.action}='remove' and ${t.reason} is null) or (${t.action} in ('hold_set','hold_release') and ${t.reason} is not null and ${t.reason} in ('contract','payment','dispute','other_business_need'))`),
+  check('retention_events_count_types_check', sql`jsonb_typeof(${t.counts}->'clients')='number' and jsonb_typeof(${t.counts}->'contacts')='number' and jsonb_typeof(${t.counts}->'notes')='number'`),
+  check('retention_events_counts_check', sql`jsonb_typeof(${t.counts})='object' and ${t.counts} ?& array['clients','contacts','notes'] and (${t.counts} - 'clients' - 'contacts' - 'notes')='{}'::jsonb and (${t.counts}->>'clients') ~ '^(0|[1-9][0-9]*)$' and (${t.counts}->>'contacts') ~ '^(0|[1-9][0-9]*)$' and (${t.counts}->>'notes') ~ '^(0|[1-9][0-9]*)$' and (${t.action}='remove' or ${t.counts}='{"clients":0,"contacts":0,"notes":0}'::jsonb)`),
+  index('retention_events_workspace_time_idx').on(t.workspaceId,t.createdAt),
+]);
 
 // Spec 0010: immutable visitor fields, private owner workflow, separate alert activity.
 export const inquiries = studio.table(
@@ -280,12 +320,16 @@ export const clients = studio.table(
     status: text("status").$type<ClientStatus>().notNull().default("lead"),
     website: text("website"),
     industry: text("industry"),
+    retentionHold: boolean("retention_hold").notNull().default(false),
+    retentionHoldReason: text("retention_hold_reason"),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     ...timestamps,
   },
   (t) => [
     check("clients_status_check", oneOf(t.status, CLIENT_STATUSES)),
     check("clients_name_not_blank", notBlank(t.name)),
+    check("clients_retention_hold_check", sql`(${t.retentionHold} and ${t.retentionHoldReason} is not null and ${t.retentionHoldReason} in ('contract','payment','dispute','other_business_need')) or (not ${t.retentionHold} and ${t.retentionHoldReason} is null)`),
+    index("clients_retention_idx").on(t.workspaceId, t.archivedAt, t.id),
     uniqueIndex("clients_workspace_name_uq")
       .on(t.workspaceId, sql`lower(${t.name})`)
       .where(sql`${t.archivedAt} is null`),
@@ -306,6 +350,8 @@ export const contacts = studio.table(
     phone: text("phone"),
     preferredChannel: text("preferred_channel").$type<ContactChannel>(),
     isPrimary: boolean("is_primary").notNull().default(false),
+    retentionHold: boolean("retention_hold").notNull().default(false),
+    retentionHoldReason: text("retention_hold_reason"),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     ...timestamps,
   },
@@ -315,6 +361,8 @@ export const contacts = studio.table(
       oneOf(t.preferredChannel, CONTACT_CHANNELS),
     ),
     check("contacts_full_name_not_blank", notBlank(t.fullName)),
+    check("contacts_retention_hold_check", sql`(${t.retentionHold} and ${t.retentionHoldReason} is not null and ${t.retentionHoldReason} in ('contract','payment','dispute','other_business_need')) or (not ${t.retentionHold} and ${t.retentionHoldReason} is null)`),
+    index("contacts_retention_idx").on(t.workspaceId, t.archivedAt, t.id),
     uniqueIndex("contacts_one_primary_uq")
       .on(t.clientId)
       .where(sql`${t.isPrimary} and ${t.archivedAt} is null`),

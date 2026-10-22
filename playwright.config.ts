@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
   timeout: 60000,
+  workers: 2,
   use: { baseURL: "http://localhost:3100" },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
@@ -19,6 +20,6 @@ export default defineConfig({
     url: "http://localhost:3100",
     reuseExistingServer: false,
     env: { LEAD_INTAKE_ENABLED: "false", STUDIO_ENABLED: "true", STUDIO_ORIGIN:"http://localhost:3100", STUDIO_RP_ID:"localhost" },
-    timeout: 120000,
+    timeout: 300000,
   },
 });

@@ -11,6 +11,9 @@ export default defineConfig({
     },
   },
   test: {
+    // Reuse a VM worker to avoid slow DOM worker startup on Windows.
+    pool: "vmThreads",
+    maxWorkers: 1,
     include: ["src/**/*.test.{ts,tsx}"],
     exclude: ["src/**/*.db.test.ts"],
     environment: "node",
