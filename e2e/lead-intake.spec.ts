@@ -14,7 +14,7 @@ test("AC-1, AC-10, AC-11: disabled form offers email and signed out inbox stays 
   ).toBeVisible();
   await expect(page.locator("link[rel=canonical]")).toHaveAttribute(
     "href",
-    "https://erskine.vercel.app/contact",
+    "https://ed-solutions.dev/contact",
   );
   expect(
     await page.evaluate(

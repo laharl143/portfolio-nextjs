@@ -1,6 +1,6 @@
 // Public site config (spec 0009). Not content: titles and descriptions live in utils/data/seo-data.ts.
 // On a custom domain, change SITE_URL here; canonicals, the sitemap, and the JSON-LD all follow it.
-export const SITE_URL = "https://erskine.vercel.app";
+export const SITE_URL = "https://ed-solutions.dev";
 export const SITE_NAME = "Erskine Duenas";
 export const SITE_LOCALE = "en_US";
 
