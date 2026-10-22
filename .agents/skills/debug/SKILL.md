@@ -3,14 +3,16 @@ name: debug
 allowed-tools: Bash, Read, Grep, Glob, Write, Edit, Agent
 description: "Run /debug to find and fix a bug's root cause: a test failing for an unclear reason, /check verify finding a failure, or behavior being wrong. Runs a reproduce, localize, hypothesize, test, fix, verify loop, makes the minimal fix, and hands a regression test to /test. No features, no extra refactors."
 ---
+
 <!-- CODEX-COMPATIBILITY:START -->
 ## Codex compatibility
 
-In Codex, these mappings override Claude-specific instructions in this skill and its supporting files:
-- Read SKILL.md and supporting files directly. To invoke another skill, read its installed SKILL.md; there is no Claude Skill tool.
-- For questions in Codex, use the exposed request_user_input_async tool, or request_user_input only in Plan mode. For stage handoffs follow the Next step panel below: recommend the next ready action and present native clickable choices. An actual selection authorizes that named step; the immediate return or a preselected option does not. There is no AskUserQuestion or Skill tool in Codex.
-- For an explicitly requested new chat, use create_thread if available. Never call mcp__ccd_session__start_session or assume /clear works. Otherwise continue in the current chat.
-- For explicitly prescribed subagent work, use collaboration tools. Scout and researcher describe tasks, not required agent types. Follow current model-inheritance rules. Never pass haiku, sonnet, opus, or fable as Codex model IDs. When overrides are supported and permitted, choose an available Luna for lightweight work or Sol/Astra for difficult work.
+In Codex, these mappings override Claude-specific instructions in this skill and its supporting files. Everything else in the skill applies as written.
+- Read SKILL.md and supporting files directly. Wherever the skill says to invoke a skill with the `Skill` tool, read that skill's installed SKILL.md and run it with the same arguments; there is no Skill tool in Codex.
+- Wherever the skill says `AskUserQuestion` (or "your agent's interactive option picker"), use the exposed request_user_input_async tool, or request_user_input only in Plan mode, with the same question and options. Its immediate return, a preselected option, silence, or Skip is not the engineer's answer: end the turn with a short summary and act only on an actual selection. With no picker, put clickable `:codex-followup` controls in the final answer, one per option with the full command, e.g. `- :codex-followup[Develop lead intake (recommended)]{prompt="/develop lead intake form"}`; with neither, a short numbered list.
+- Next step panel: build the same options. `Fresh session: …` → use create_thread if available, passing the exact command and the feature/spec background; otherwise say that /clear can only be typed by the engineer and give the command to run after it. Never call mcp__ccd_session__start_session or assume /clear works. `Continue here: …` → read and run that skill's SKILL.md now.
+- "Claude Code", `CLAUDE.md` and `.claude/skills/` in this skill keep their meaning: they name Claude Code's files, which Codex leaves in place (`AGENTS.md` stays the canonical context file; never turn a `CLAUDE.md` pointer rule into an `AGENTS.md` rule).
+- For explicitly prescribed subagent work, use collaboration tools. Scout and researcher describe tasks, not required agent types. Follow current model-inheritance rules. Never pass haiku, sonnet, opus, or fable as Codex model IDs; read "Claude Code `haiku`" as "the cheapest available model" and "Claude Code `sonnet`" as "a strong model". When overrides are supported and permitted, choose an available Luna for lightweight work or Sol/Astra for difficult work.
 - Cross-model review: confirm the actual author model with the user or reliable task metadata; Claude settings and ANTHROPIC_MODEL do not identify the Codex author. Use a different available strong model only if overrides are permitted. Otherwise use an available code-review tool or fresh-context reviewer and disclose that model independence is unverified. Never claim a different-model review without evidence.
 - Resolve personal skills under ~/.agents/skills and project skills under .agents/skills. Claude settings.local.json, skillOverrides, and plugin enable flags do not configure Codex; use supported Codex configuration and plugin tools.
 - Named dependent skills and plugins must actually be available. Report missing dependencies rather than inventing tools or claiming they ran.
@@ -25,41 +27,22 @@ Write everything this skill produces, files and messages alike, in plain simple 
 ## Next step panel (clickable, no typing)
 
 <!-- NEXT-STEP:START (identical in every workflow skill: architect, audit, check, debug, develop, document, log, scope, sync, test; edit all or none) -->
-At the end of each completed, failed, or blocked stage, give a concrete recommendation and clickable choices. The user should be able to choose the next skill with a mouse, without typing a command or asking what comes next. This section overrides older handoff formatting elsewhere in this skill for Codex.
+Whenever this skill ends a run by suggesting what to do next (any `Next:`, `What is next`, `Suggested next`, "advise `/clear`", or a recommended command in the report or summary), keep that line in the text, then make the **very last action of the turn** a clickable panel so the engineer can continue with the mouse alone. Never end on a typed command as the only way forward.
 
-1. Finish the authorized work and report its real result first. Read this feature's current scope, spec status, workflow tier, unchecked boxes, and any failure or prerequisite. Recommend the first useful action that is actually ready, with one short reason. A failed check routes to its fix, not to the next success stage. Do not repeat a completed stage or require the user to work out the sequence.
-2. Offer 2 to 4 choices, including `Stop here`. Put the best next action first and mark it `(Recommended)`. Give each action a plain name, the feature, and a short explanation, for example `Develop lead intake (Recommended): Build the approved spec in this chat.` Add only alternatives that this result supports. The interface already provides free text, so do not add an `Other` option.
-3. In Codex, prefer `functions.request_user_input_async` when exposed. This is a preference question about the next action. Use one question with `title` such as `What would you like to do next for lead intake?` and `options` as an array of those choice strings. Make it the last tool call after all work and reporting. It returns immediately, so follow it only with a brief, self contained final summary and the recommendation. Do not cancel or replace the pending question by starting another stage.
-4. Wait for the user's actual reply. Preselection, the tool's immediate return, elapsed time, and Skip are not authorization to run the recommended choice. Stop or Skip means no further action. If the reply arrives later, use the pending question and feature context to interpret it without asking for the command again.
-5. A clicked action authorizes that named next step. Read the selected skill's installed `SKILL.md` and run it with the feature, spec, and relevant failure carried forward. Do not ask the user to type the command, repeat the selection, or confirm the same step. The chosen skill's real prerequisites and existing external action permissions still apply.
-
-Choose recommendations from evidence, not a fixed sequence:
-
-| Result | Usual recommendation, if the project's recorded workflow supports it |
-| --- | --- |
-| Audit finished | Scope the next work if no scope exists, otherwise the matching feature's next ready step. |
-| Scope finished with a decision owed | Architect that named feature. If already designed, offer its next unchecked execution step. |
-| Architect finished with an approved buildable spec | Develop the same feature. If a decision is still open, recommend resolving or ratifying it first. |
-| Develop finished | Check verify for the same feature when its Verify box exists. Otherwise follow its tier and next unchecked box. |
-| Check verify passed | Test at Beta or GA when its Test box remains, otherwise the next recorded closing step. |
-| Check verify failed | Debug the observed failure. For a confirmed unbuilt surface, Develop that surface instead. |
-| Check blocked | Explain the exact missing prerequisite and offer the action that resolves it, or a recheck after the user completes the outside setup. Never offer to bypass the block silently. |
-| Debug fixed the reported issue | Repeat the check that failed, then the remaining regression test stage if recorded. |
-| Test passed | The next required review or documentation stage, or offer marking done if this feature's closing checks are complete. |
-| Review found issues | Fix the concrete finding with Debug or Develop before another review. A clean review follows the recorded documentation or integration step. |
-| Document, Sync, or Log finished | Recommend the next remaining recorded step, or the next scoped feature when this one is closed. If nothing remains, say so and offer Stop. |
-
-Do not offer `Mark done` while a known failure or blocker remains. If the build is complete and the user may explicitly skip optional remaining stages, name exactly which checks that choice skips and never make it the recommendation over fixing a failure. Only a real user selection may invoke the existing done flow: surgical scope/spec updates, tracker mirroring, and the project's authorized commit and push rules. An Assumed spec stays Assumed and flagged for ratification.
-
-Use the current chat by default. Offer `New chat: ...` only when a fresh context would materially help and a supported `create_thread` tool exists. Label it explicitly; selecting it authorizes a new chat, so use the available project/thread tools and include the exact task, feature, spec, and unresolved state. Never call `mcp__ccd_session__start_session`, never assume `/clear` can be run by a tool, and do not make a new chat mandatory for an ordinary next step.
-
-If the asynchronous picker is unavailable, use `functions.request_user_input` only in Plan mode when exposed. On another runtime use its available native choice tool. In Codex Desktop, when no permitted picker exists but followup controls are supported, put clickable action items in the final answer using the app's exact unescaped syntax, with the full skill command and feature in each action prompt. For Stop, use an explicit instruction to stop rather than inventing a skill command:
-
-`- :codex-followup[Develop lead intake (Recommended)]{prompt="/develop lead intake form"}`
-
-Do not substitute a plain typed command list when a permitted clickable control exists. If no clickable interface is available, state that limitation and give the concrete recommendation with short numbered choices. Do not fabricate a tool, a radio panel, or an action that the client cannot render.
-
-Show one next step menu per finished stage, after any required artifact or design decisions. Do not show it in the middle of work, duplicate it with another picker, or use a generic `What next?` without an evidence based recommendation.
+- **Tool**: `AskUserQuestion` on Claude Code (on another agent, its own options picker; with no picker, the same options as a short numbered list).
+- **question**: "What do you want to do next?" · **header**: "Next step" · single select.
+- **options** (built from this run's real suggestions, never generic; 2 to 4 options, the picker adds Other):
+  1. The recommended next step, marked `(recommended)`. When the skill advises a fresh session first (`/clear` before the next unit), word it as a fresh session: `Fresh session: /<skill> <args>`.
+  2. The same step in this session: `Continue here: /<skill> <args>` (one line on the tradeoff: quicker, but this long conversation keeps costing tokens).
+  3. Up to one real alternative the run surfaced (e.g. `/architect <feature>: <the owed fix>`), only when it exists.
+  4. `Mark <feature> done`, whenever the run concerns a scope feature whose build has landed and that is not `done` yet (one line naming any unticked boxes it skips, e.g. "skips Verify and Test"). Otherwise (no such feature, or nothing built yet) `Stop here`: end the turn, nothing runs. The picker's own Skip button always stops too.
+- **Acting on the pick** (the click is the engineer's decision, so it overrides any "this skill does not run other skills, it points" line for this one step):
+  - `Fresh session: …` → on Claude Desktop, start a new session with `mcp__ccd_session__start_session` (`initiation: "user_asked"`, `context: "fresh"`, `prompt` = the exact command such as `/develop studio login`, `background` = one or two lines naming the feature, the spec path, and that the state lives in the scope and spec files), then end the turn with its link. With no such tool, say plainly that `/clear` can only be typed by you, and that the command to run after it is the one shown.
+  - `Continue here: …` → invoke that skill now with the `Skill` tool and its arguments.
+  - An alternative → do it if it is this skill's own job, else invoke the named skill with the `Skill` tool.
+  - `Mark <feature> done` → run the project's done flow, whichever skill this is: set the feature `done` in the scope (At a glance table and heading), record each skipped box as skipped with today's date, move the governing spec's `**Status**:` line `In Progress` → `Accepted` (an `Assumed` spec stays `Assumed`, flagged as owing ratification), mirror it to the tracker the project's `AGENTS.md` names (e.g. Jira), and follow the project's done rule (e.g. commit that feature's files and push). Then report what changed.
+  - `Stop here` → end the turn.
+- **Order**: show this panel after every other panel the run owns (confirm, save `verify.md`, and so on), never before them, and only once per run. When the run is blocked on something only the engineer can do outside the chat (a Vercel setting, a device step), say what to do first, and still show the panel with the step that follows once it is done, plus option 4 as above.
 <!-- NEXT-STEP:END -->
 
 ## What this skill does
@@ -132,7 +115,7 @@ Make the **minimal, targeted** change that addresses the proven cause. Don't fix
 ### Optional: run it in a subagent
 
 For a hunt that is not trivial, spawn an investigation subagent so the iterative tool use doesn't fill the main context:
-- `model`: set explicitly to a strong model, do not inherit the session model (Codex: `sonnet`)
+- `model`: set explicitly to a strong model, do not inherit the session model (Claude Code: `sonnet`)
 - `description: "Debug: <symptom>"`
 - Tools: `Read`, `Bash`, `Grep`, `Glob`, `Edit`, `Write`
 - `prompt`: this loop + the captured symptom + reproduction + the relevant `AGENTS.md` (inlined). Require it to report the root cause with evidence, not just "fixed it."
