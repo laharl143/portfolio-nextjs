@@ -44,3 +44,7 @@ playwright-report/
 
 # Playwright MCP session logs and snapshots
 .playwright-mcp/
+
+# Playwright skill kept local only (its sample password trips Vault Radar); reinstall from skills-lock.json
+.agents/skills/playwright-best-practices/
+.claude/skills/playwright-best-practices
