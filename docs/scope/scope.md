@@ -284,7 +284,7 @@ Turn `/studio` from a list of status lines into a dashboard that shows what need
    - [x] Checks: DOM, database, and browser tests, lint, build and leak check, satisfies AC-12, AC-13
    - [x] Outage screen (after verify): `studio/error.tsx` above the signed in layout, so a failed session lookup shows `Studio is unavailable`, satisfies AC-10 (first case), keeps AC-1
 - [x] Verify it: `/check verify studio home dashboard`
-spec [0012](../specs/0012-studio-home-dashboard/index.md) · code in `src/app/(studio)/studio/error.tsx`, `src/app/(studio)/studio/(signed-in)/page.tsx`, `src/app/(studio)/studio/(signed-in)/_home/`, `src/studio/data/home.ts`, `src/studio/retention/service.ts`
+spec [0012](../specs/0012-studio-home-dashboard/index.md) · Jira [DP-84](https://vital-stats.atlassian.net/browse/DP-84) · code in `src/app/(studio)/studio/error.tsx`, `src/app/(studio)/studio/(signed-in)/page.tsx`, `src/app/(studio)/studio/(signed-in)/_home/`, `src/studio/data/home.ts`, `src/studio/retention/service.ts`
 
 Tracer Bullet follows the project default; Alpha follows the project workflow default. Designed on 2026-10-22 with every interview round answered on visual boards. Design references come from Refero research mode on the free plan (Aboard, Linear inbox, Wrike); no Refero MCP is needed to build.
 
