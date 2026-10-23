@@ -39,6 +39,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 24 | Private systems map | Studio slice 3 | done |
 | 25 | Lead intake form | Studio slice 4 | done |
 | 26 | Client data retention | Studio slice 5 | done |
+| 27 | Lead intake production launch | Studio slice 6 | done |
 | 28 | Studio home dashboard | Studio slice 7 | done |
 
 ## Existing
@@ -271,6 +272,25 @@ Tracer Bullet follows the project default. Beta covers the risk of removing stor
 
 Build checks on 2026-10-21: 69 unit and DOM tests, 23 database tests, and 10 browser tests passed; TypeScript, application lint, production build, and studio leak check passed. Development migrations 0010 and 0011 are applied, with schema introspection confirming 24 retention columns and their constraints. The retention preview was inspected in desktop light and mobile dark themes. Vitest uses one VM worker for unit and DOM tests after ordinary worker startup stalled on this machine; database tests retain the thread pool. Verify and Test subsequently passed as recorded above. No production migration or removal was run during local verification.
 
+## Studio slice 6: Lead intake production launch
+
+### 27. Lead intake production launch · done · Beta
+Finish the production setup for the existing lead intake so visitors can send inquiries and you can receive alerts and review them privately. Complete one real path before opening intake to visitors.
+**Done when:** the approved sender and owner recipient are configured, production bot protection and deployment secrets are in place, and a controlled inquiry proves confirmation, private inbox storage and owner email receipt; access restrictions, failure handling and scheduled cleanup are checked, with a clear way to disable intake if launch checks fail.
+- [x] Prepare and complete the launch: `/develop lead intake production launch` (owner accepted completion, 2026-10-23).
+   - [x] Prepare production configuration, account prerequisites, controlled verification and disable procedure in [launch runbook](../operations/lead-intake-launch.md).
+   - [x] Confirm approved sender ownership, recipient and production account access (owner setup and screenshots, 2026-10-23).
+   - [x] Apply approved production setup and prove one controlled inquiry, private storage and mailbox receipt (owner screenshots, 2026-10-23).
+   - [x] Confirm signed out access denial, invalid request handling and successful scheduled cleanup (live HTTP checks and owner Vercel/Neon screenshots, 2026-10-23).
+   - [ ] Authenticated provider failure and retry runtime checks, skipped by owner decision on 2026-10-23.
+- [ ] Verify it: `/check verify lead intake production launch`, partial run completed; Preview denial and authenticated failure/retry checks skipped by owner decision on 2026-10-23. No full PASS claimed.
+- [ ] Test it: `/test lead intake production launch`, separate Beta test stage skipped by owner decision on 2026-10-23; existing suite run passed 97 tests.
+spec [0010](../specs/0010-lead-intake/index.md) · Jira [DP-82](https://vital-stats.atlassian.net/browse/DP-82) · code in `src/inquiries/`, `src/app/(site)/contact/`, `src/studio/inquiries/`
+
+Tracer Bullet inherits the project default, confirmed on 2026-10-22. Beta covers public submissions and personal details, with `/check verify` and `/test` after the launch work. No new design is needed within spec 0010; sender ownership, recipient and production account access still need confirmation during setup. Scope enrollment does not enable intake, send a test email or change production settings.
+
+Launch preparation on 2026-10-22 produced `docs/operations/lead-intake-launch.md`. On 2026-10-23, owner screenshots confirmed production form success, private inquiry storage and Gmail receipt from `alerts@ed-solutions.dev`. Live checks confirmed signed out list/detail/convert redirects, unauthenticated cleanup 401, wrong origin and invalid challenge 403, and no public inbox read API. Vercel cron returned 200 at 11:39 AM Manila; Neon recorded `complete`, last success 2026-10-23 03:39:53 UTC, zero deletions and no error. Midnight blue email styling deployed in `cf07a5b`. Owner accepted feature completion on 2026-10-23 with the remaining checks explicitly skipped above. The accepted spec remains Accepted because feature 25 already shipped; this closure does not claim a complete verification pass.
+
 ## Studio slice 7: Studio home dashboard
 
 ### 28. Studio home dashboard · done
@@ -316,7 +336,6 @@ Out of scope for this pass, kept so the plan stays honest.
 - **Studio separation review**: revisit whether the studio should run separately if it grows to hold many real client contracts, from spec 0003. Needs a decision.
 - **Shared Platform connections**: record the platform's real system links once they are known, then regenerate the public export, from spec 0002.
 - **Retire the old systems artifact**: after verifying the production import, decide whether to leave the old SMB Systems Map artifact read only or retire it, from spec 0008. This is an owner action outside the repo.
-- **Lead intake production launch**: verify the sender domain, set the owner recipient, add Turnstile production keys and the deployment secrets, then turn intake on, from spec 0010. This is an owner action outside the repo.
 - **Lead intake extras**: visitor receipts, replying from the studio, file attachments, automatic email retries, and spam classification, from spec 0010. Needs a decision.
 
 ## Legend
