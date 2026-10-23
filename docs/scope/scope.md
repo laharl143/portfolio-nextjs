@@ -2,9 +2,9 @@
 
 A personal portfolio site (Next.js) used to job hunt for a mid to senior software engineer or architect track role. This pass repositions the content and adds the cross cutting groundwork (SEO, light performance and accessibility hygiene, engagement tracking) a job hunting site needs.
 
-The site is now growing past the portfolio. The public site stays as it is, gains a public Products page for your SMB SaaS ecosystem, and gets a private studio behind a login where you run your freelance business (clients, contracts, and the full systems map). The studio is an early version of your planned CRM and Invoicing products, with you as customer zero. A full rebrand to ED Solutions is parked in Deferred.
+The site is now growing past the portfolio. The public site stays as it is, gains a public Products page for your SMB SaaS ecosystem, and gets a private studio behind a login where you run your freelance business (clients, contracts, and the full systems map). The studio is an early version of your planned CRM and Invoicing products, with you as customer zero. The ED Solutions rebrand, once parked in Deferred, now runs in the sales positioning slice (feature 37).
 
-The sales positioning slice (features 29 to 35) turns the home page toward small and medium business clients first, with the CV kept as a smaller second path. It applies Steve Jobs' sales rules: lead with client value, benefits before features, a simple message, a real story, and a clear path to `/contact`. Success is measured by contact form submissions.
+The sales positioning slice (features 29 to 38) splits the site in two. Today's portfolio moves as is to `/personal` for employers (Download CV stays in its hero), and `/` becomes a new ED Solutions landing page for small and medium business clients, with a full rebrand. The landing page applies Steve Jobs' sales rules: lead with client value, benefits before features, a simple message, a real story, and a clear path to `/contact`. Success is measured by contact form submissions.
 
 **Build approach:** Tracer Bullet (each feature is built complete and working end to end before moving to the next; no throwaway shell, no MVP left half grown).
 **Workflow:** Alpha (`/check verify` after `/develop`; no formal test suite or second model review by default). The project default level of rigor. `/architect` is the recommended first stop for a feature with a real decision, but skippable when you already know the build. Any feature can carry its own tag (e.g. `· GA`) to do more or less.
@@ -43,7 +43,10 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 26 | Client data retention | Studio slice 5 | done |
 | 27 | Lead intake production launch | Studio slice 6 | done |
 | 28 | Studio home dashboard | Studio slice 7 | done |
-| 29 | Hero client pitch | Sales slice | planned |
+| 36 | Portfolio moves to /personal | Sales slice | planned |
+| 37 | ED Solutions rebrand | Sales slice | planned |
+| 38 | ED Solutions landing page | Sales slice | planned |
+| 29 | Landing hero client pitch | Sales slice | planned |
 | 30 | Section calls to action | Sales slice | planned |
 | 31 | Contact next steps | Sales slice | planned |
 | 32 | Inquiry conversion tracking | Sales slice | planned |
@@ -325,14 +328,29 @@ Verified on 2026-10-22: all 13 acceptance criteria met with runtime evidence ([v
 
 ## Sales slice: Client positioning
 
-### 29. Hero client pitch · needs a decision
-Rewrite the hero to lead with what a small business gets (connected back office systems), state a clear stance on what you do and do not build, and keep perseverance as the supporting line. Simplify the entrance: drop the bouncing "Click Me!" ribbon, cut the 3 second subtitle delay, and make one primary call to action to `/contact` with Download CV as a smaller second button.
-**Done when:** the headline names the client value and a clear stance; the full message is readable within about a second of load; one primary button leads to `/contact` and the CV stays reachable; no layout regression at desktop and 375px in both themes.
-- [ ] Design it (spec): `/architect hero client pitch`
+### 36. Portfolio moves to /personal · needs a decision
+Move today's home page, unchanged, to `/personal` for employers, so the employer story keeps working while `/` turns into the client landing page. Download CV stays in its hero.
+**Done when:** `/personal` renders today's sections as they are, indexed with its own canonical and sitemap entry; its header and footer section links scroll on `/personal` and work from any other route; the Person JSON-LD sits on the page that represents you; old links to `/#<section>` still reach the right content.
+- [ ] Design it (spec): `/architect portfolio moves to /personal`
+
+### 37. ED Solutions rebrand · needs a decision
+Give the business its brand before the landing page is built on it: wordmark, palette, type, favicon, and the site name in metadata and share cards. Pulled forward from Deferred. Decide how much of it `/personal` shares.
+**Done when:** the ED Solutions wordmark, palette, type, and favicon are defined and applied to the landing page shell, metadata, and share cards in both themes; `/personal` looks the way the spec decides.
+- [ ] Design it (spec): `/architect ed solutions rebrand`
+
+### 38. ED Solutions landing page · needs a decision
+The new `/` for small business clients: which sections it has and in what order, its own navigation, and its metadata. Built from the existing UI and the new brand. A Mobbin reference (WHOOP) was wanted, but the Mobbin MCP needs a paid plan, so the design source is the current UI unless that changes.
+**Done when:** `/` renders the agreed sections in order with the ED Solutions brand, its nav links work on the page and from other routes, it links to `/personal` and `/products`, and its title, description, and share card speak to business clients; desktop and 375px in both themes.
+- [ ] Design it (spec): `/architect ed solutions landing page`
+
+### 29. Landing hero client pitch · needs a decision
+The landing page hero. Decided in a paused `/architect` run (2026-10-23): headline "I build the connected systems small businesses run on."; stance line "I don't build marketing sites. I build the systems behind them."; credibility line "Application Developer at IBM by day, building for small businesses."; no Perseverance and Curiosity line; one primary button "Tell me about your project" to `/contact`, tracked as `contact_click` with location `hero`; LinkedIn and GitHub only (all five socials in a footer icon row); fast word reveal under 0.5s with no 3 second delay and no "Click Me!" ribbon; keep portrait scroll zoom, the scroll hint without idle zoom, and button hover; static under reduced motion; design from the current UI.
+**Done when:** the full message reads within about a second of load; the button leads to `/contact` and fires `contact_click` with location `hero`; reduced motion renders it static; no layout regression at desktop and 375px in both themes.
+- [ ] Design it (spec): `/architect landing hero client pitch`
 
 ### 30. Section calls to action · needs a decision
-End the key home sections with a short "Tell me about your project" link to `/contact`, so every part of the page has a next step, following the existing `contact_click` tracking pattern.
-**Done when:** the chosen sections each end with a call to action to `/contact`; each click records which section it came from; links work by keyboard and read clearly to screen readers.
+End the key landing page sections with a short "Tell me about your project" link to `/contact`, so every part of the page has a next step, following the existing `contact_click` tracking pattern.
+**Done when:** the chosen landing sections each end with a call to action to `/contact`; each click records which section it came from; links work by keyboard and read clearly to screen readers.
 - [ ] Design it (spec): `/architect section calls to action`
 
 ### 31. Contact next steps
@@ -346,18 +364,18 @@ Measure the path from a visit to a sent inquiry: which section or call to action
 - [ ] Design it (spec): `/architect inquiry conversion tracking`
 
 ### 33. Project outcomes first · needs a decision
-Give each project a one line outcome (the problem it solved or the result it delivered) and show it before the tech stack icons, so cards sell benefits rather than features.
-**Done when:** flagship and in progress cards show an outcome line above the tech stack; a project without an outcome still renders cleanly; the existing tiers and toggle keep working.
+Give each project a one line outcome (the problem it solved or the result it delivered) and show it before the tech stack icons, from one shared data source: the landing page shows the client relevant projects, `/personal` keeps the full tiered list.
+**Done when:** outcome lines show above the tech stack on both pages; the landing page shows its chosen subset; a project without an outcome still renders cleanly; the tiers and toggle on `/personal` keep working.
 - [ ] Design it (spec): `/architect project outcomes first`
 
 ### 34. FAQs for business owners · needs a decision
-Rewrite the FAQs around what a small business owner asks before hiring you: cost, timeline, support after launch, and connecting to tools they already use. Recruiter questions move out or shrink.
-**Done when:** the FAQs answer cost, timeline, support, and integration questions in plain language, with at least one leading to `/contact`; the accordion stays keyboard accessible.
+A new FAQ set on the landing page for what a small business owner asks before hiring you: cost, timeline, support after launch, and connecting to tools they already use. `/personal` keeps today's recruiter FAQs unchanged.
+**Done when:** the landing page FAQs answer cost, timeline, support, and integration in plain language, with at least one leading to `/contact`; the `/personal` FAQs are unchanged; both accordions stay keyboard accessible.
 - [ ] Design it (spec): `/architect faqs for business owners`
 
 ### 35. Vital Stats case study · needs a decision
-Tell the Vital Stats story as problem, what you built, and the result (storefront, checkout and payments, orders flowing into the OMS), linked from the home page and `/products`. Public facts only, matching the `/products` rule against notes, client names, and repo links.
-**Done when:** the case study reads as problem, build, result with at least one concrete outcome; it is reachable from the home page and `/products`; if it is its own route, it is in `PUBLIC_ROUTES` with its own canonical and metadata.
+Tell the Vital Stats story as problem, what you built, and the result (storefront, checkout and payments, orders flowing into the OMS), linked from the landing page and `/products`. Public facts only, matching the `/products` rule against notes, client names, and repo links.
+**Done when:** the case study reads as problem, build, result with at least one concrete outcome; it is reachable from the landing page and `/products`; if it is its own route, it is in `PUBLIC_ROUTES` with its own canonical and metadata.
 - [ ] Design it (spec): `/architect vital stats case study`
 
 ## Deferred
@@ -365,7 +383,6 @@ Out of scope for this pass, kept so the plan stays honest.
 - **Contract and project data retention**: decide removal or anonymization for linked business records, signed PDFs, and immutable history, from spec 0011. Needs a decision.
 - **Formal erasure and external copies**: define a workflow for requests that reach backups, mailboxes, exported files, or unrelated free text, from spec 0011. Needs a decision.
 - **Automatic client retention scheduling**: consider only if owner review volume warrants it, from spec 0011.
-- **ED Solutions rebrand**: rename the public site to ED Solutions with a brand pass (wordmark, palette, type), revisit copy, metadata, and favicon; SEO foundation (feature 15) should then point at the new name · needs a decision
 - **E-signature**: sign contracts inside the studio · needs a decision
 - **Invoicing**: invoices from active contracts, the next step toward your Invoicing product · needs a decision
 - **Studio security extras**: rename and remove passkeys (never the last), an active sessions list, and a recent activity view over auth events; fits spec 0005's tables with no migration, from spec 0005
