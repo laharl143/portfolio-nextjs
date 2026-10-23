@@ -4,6 +4,8 @@ A personal portfolio site (Next.js) used to job hunt for a mid to senior softwar
 
 The site is now growing past the portfolio. The public site stays as it is, gains a public Products page for your SMB SaaS ecosystem, and gets a private studio behind a login where you run your freelance business (clients, contracts, and the full systems map). The studio is an early version of your planned CRM and Invoicing products, with you as customer zero. A full rebrand to ED Solutions is parked in Deferred.
 
+The sales positioning slice (features 29 to 35) turns the home page toward small and medium business clients first, with the CV kept as a smaller second path. It applies Steve Jobs' sales rules: lead with client value, benefits before features, a simple message, a real story, and a clear path to `/contact`. Success is measured by contact form submissions.
+
 **Build approach:** Tracer Bullet (each feature is built complete and working end to end before moving to the next; no throwaway shell, no MVP left half grown).
 **Workflow:** Alpha (`/check verify` after `/develop`; no formal test suite or second model review by default). The project default level of rigor. `/architect` is the recommended first stop for a feature with a real decision, but skippable when you already know the build. Any feature can carry its own tag (e.g. `· GA`) to do more or less.
 
@@ -41,6 +43,13 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 26 | Client data retention | Studio slice 5 | done |
 | 27 | Lead intake production launch | Studio slice 6 | done |
 | 28 | Studio home dashboard | Studio slice 7 | done |
+| 29 | Hero client pitch | Sales slice | planned |
+| 30 | Section calls to action | Sales slice | planned |
+| 31 | Contact next steps | Sales slice | planned |
+| 32 | Inquiry conversion tracking | Sales slice | planned |
+| 33 | Project outcomes first | Sales slice | planned |
+| 34 | FAQs for business owners | Sales slice | planned |
+| 35 | Vital Stats case study | Sales slice | planned |
 
 ## Existing
 
@@ -314,6 +323,43 @@ Outage screen built on 2026-10-22 after verify flagged AC-10: `src/app/(studio)/
 
 Verified on 2026-10-22: all 13 acceptance criteria met with runtime evidence ([verify report](../reviews/0012-studio-home-dashboard-verify.md)). The outage screen held on an unreachable and an unmigrated database, and `In sync` and `All clear` were reached on a throwaway dev branch database seeded from the bundled products file, then dropped. Marked done the same day; no `Test it` box at Alpha.
 
+## Sales slice: Client positioning
+
+### 29. Hero client pitch · needs a decision
+Rewrite the hero to lead with what a small business gets (connected back office systems), state a clear stance on what you do and do not build, and keep perseverance as the supporting line. Simplify the entrance: drop the bouncing "Click Me!" ribbon, cut the 3 second subtitle delay, and make one primary call to action to `/contact` with Download CV as a smaller second button.
+**Done when:** the headline names the client value and a clear stance; the full message is readable within about a second of load; one primary button leads to `/contact` and the CV stays reachable; no layout regression at desktop and 375px in both themes.
+- [ ] Design it (spec): `/architect hero client pitch`
+
+### 30. Section calls to action · needs a decision
+End the key home sections with a short "Tell me about your project" link to `/contact`, so every part of the page has a next step, following the existing `contact_click` tracking pattern.
+**Done when:** the chosen sections each end with a call to action to `/contact`; each click records which section it came from; links work by keyboard and read clearly to screen readers.
+- [ ] Design it (spec): `/architect section calls to action`
+
+### 31. Contact next steps
+After a visitor sends an inquiry, the `/contact` success state tells them exactly what happens next (when you reply, and what you will send), so the experience does not end on a bare thank you.
+**Done when:** a successful submission shows the next steps copy with a reply time you commit to; the error and validation states are unchanged.
+- [ ] Build it: `/develop contact next steps`
+
+### 32. Inquiry conversion tracking · needs a decision
+Measure the path from a visit to a sent inquiry: which section or call to action brought the visitor to `/contact`, and how many of those finish the form. This is the loop that tells you which of the other changes work.
+**Done when:** a sent inquiry can be traced back to the call to action that led to `/contact`; form starts and successful submissions show as distinct events in the analytics dashboard; no personal data is sent to analytics.
+- [ ] Design it (spec): `/architect inquiry conversion tracking`
+
+### 33. Project outcomes first · needs a decision
+Give each project a one line outcome (the problem it solved or the result it delivered) and show it before the tech stack icons, so cards sell benefits rather than features.
+**Done when:** flagship and in progress cards show an outcome line above the tech stack; a project without an outcome still renders cleanly; the existing tiers and toggle keep working.
+- [ ] Design it (spec): `/architect project outcomes first`
+
+### 34. FAQs for business owners · needs a decision
+Rewrite the FAQs around what a small business owner asks before hiring you: cost, timeline, support after launch, and connecting to tools they already use. Recruiter questions move out or shrink.
+**Done when:** the FAQs answer cost, timeline, support, and integration questions in plain language, with at least one leading to `/contact`; the accordion stays keyboard accessible.
+- [ ] Design it (spec): `/architect faqs for business owners`
+
+### 35. Vital Stats case study · needs a decision
+Tell the Vital Stats story as problem, what you built, and the result (storefront, checkout and payments, orders flowing into the OMS), linked from the home page and `/products`. Public facts only, matching the `/products` rule against notes, client names, and repo links.
+**Done when:** the case study reads as problem, build, result with at least one concrete outcome; it is reachable from the home page and `/products`; if it is its own route, it is in `PUBLIC_ROUTES` with its own canonical and metadata.
+- [ ] Design it (spec): `/architect vital stats case study`
+
 ## Deferred
 Out of scope for this pass, kept so the plan stays honest.
 - **Contract and project data retention**: decide removal or anonymization for linked business records, signed PDFs, and immutable history, from spec 0011. Needs a decision.
@@ -336,6 +382,7 @@ Out of scope for this pass, kept so the plan stays honest.
 - **Studio separation review**: revisit whether the studio should run separately if it grows to hold many real client contracts, from spec 0003. Needs a decision.
 - **Shared Platform connections**: record the platform's real system links once they are known, then regenerate the public export, from spec 0002.
 - **Retire the old systems artifact**: after verifying the production import, decide whether to leave the old SMB Systems Map artifact read only or retire it, from spec 0008. This is an owner action outside the repo.
+- **Real testimonials**: re-enable `src/sections/Testimonials.tsx` with real client quotes in place of the placeholders, once you have at least one, from the sales positioning slice.
 - **Lead intake extras**: visitor receipts, replying from the studio, file attachments, automatic email retries, and spam classification, from spec 0010. Needs a decision.
 
 ## Legend
