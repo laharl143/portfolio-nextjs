@@ -5,6 +5,7 @@ import { SITE_URL } from "@/lib/site";
 import { getDb, rows, workspaceLock } from "./db";
 import { getAlertConfig, type AlertConfig } from "./config";
 import { IntakeError } from "./rules";
+import { createAlertBody, readAlertBody } from "./alert-email";
 
 type Attempt = {
   id: string;
@@ -55,7 +56,7 @@ export async function sendAlertPayload(
         from: payload.sender,
         to: [payload.recipient],
         subject: payload.subject,
-        text: payload.body,
+        ...readAlertBody(payload.body),
       }),
       signal: AbortSignal.timeout(5000),
     });
@@ -114,7 +115,7 @@ export async function attemptAlert(
           sender: config.sender,
           recipient: config.recipient,
           subject: "New portfolio inquiry",
-          body: `A new project inquiry is available in your private studio.\n\n${SITE_URL}/studio/inquiries/${id}`,
+          body: createAlertBody(`${SITE_URL}/studio/inquiries/${id}`),
           provider_key: `lead-inquiry/${a.id}/${generation}`,
         }
       : {

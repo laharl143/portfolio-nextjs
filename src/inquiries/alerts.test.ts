@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { sendAlertPayload } from "./alerts";
 import { authorizeCleanup } from "./cleanup";
+import { createAlertBody } from "./alert-email";
 describe("AC-8: provider outcomes", () => {
   const payload = {
     sender: "fake@example.invalid",
@@ -9,6 +10,24 @@ describe("AC-8: provider outcomes", () => {
     body: "Private inbox link",
     provider_key: "fake-key",
   };
+  it("sends frozen HTML and text with the same idempotency key on retry", async () => {
+    const frozen = {
+      ...payload,
+      body: createAlertBody("https://example.test/studio/inquiries/fake-id"),
+    };
+    const requests: RequestInit[] = [];
+    const fetcher = (async (_url, init) => {
+      requests.push(init!);
+      return Response.json({ id: "fake-id" });
+    }) as typeof fetch;
+    await sendAlertPayload(frozen, "fake", fetcher);
+    await sendAlertPayload(frozen, "fake", fetcher);
+    expect(requests[0].body).toBe(requests[1].body);
+    const sent = JSON.parse(requests[0].body as string);
+    expect(sent.html).toContain("View inquiry");
+    expect(sent.text).toContain("https://example.test/studio/inquiries/fake-id");
+    expect(requests[0].headers).toMatchObject({ "Idempotency-Key": "fake-key" });
+  });
   it("distinguishes rejection from uncertainty and acceptance", async () => {
     expect(
       await sendAlertPayload(payload, "fake", (async () =>
