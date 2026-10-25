@@ -43,7 +43,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 26 | Client data retention | Studio slice 5 | done |
 | 27 | Lead intake production launch | Studio slice 6 | done |
 | 28 | Studio home dashboard | Studio slice 7 | done |
-| 36 | Portfolio moves to /personal | Sales slice | planned |
+| 36 | Portfolio moves to /personal | Sales slice | in-progress |
 | 37 | ED Solutions rebrand | Sales slice | planned |
 | 38 | ED Solutions landing page | Sales slice | planned |
 | 29 | Landing hero client pitch | Sales slice | planned |
@@ -328,10 +328,17 @@ Verified on 2026-10-22: all 13 acceptance criteria met with runtime evidence ([v
 
 ## Sales slice: Client positioning
 
-### 36. Portfolio moves to /personal · needs a decision
+### 36. Portfolio moves to /personal · in-progress
 Move today's home page, unchanged, to `/personal` for employers, so the employer story keeps working while `/` turns into the client landing page. Download CV stays in its hero.
 **Done when:** `/personal` renders today's sections as they are, indexed with its own canonical and sitemap entry; its header and footer section links scroll on `/personal` and work from any other route; the Person JSON-LD sits on the page that represents you; old links to `/#<section>` still reach the right content.
-- [ ] Design it (spec): `/architect portfolio moves to /personal`
+- [x] Design it (spec): `/architect portfolio moves to /personal`
+- [ ] Build it: `/develop portfolio moves to /personal`
+   - [ ] Thin thread: move the page and card to `/personal`, temporary redirect from `/`, satisfies AC-1, AC-2
+   - [ ] SEO surfaces: `seo.personal`, sitemap, JSON-LD url, `title.absolute`, a `/contact` share card, satisfies AC-3 to AC-6
+   - [ ] Navigation: header and footer links to `/personal#<id>`, home links stay `/`, satisfies AC-7, AC-8
+   - [ ] Checks: routing unit test, lint, tests, build, and a browser pass, satisfies AC-9, AC-10
+- [ ] Verify it: `/check verify portfolio moves to /personal`
+spec [0013](../specs/0013-portfolio-moves-to-personal.md) · Jira [DP-91](https://vital-stats.atlassian.net/browse/DP-91)
 
 ### 37. ED Solutions rebrand · needs a decision
 Give the business its brand before the landing page is built on it: wordmark, palette, type, favicon, and the site name in metadata and share cards. Pulled forward from Deferred. Decide how much of it `/personal` shares.
