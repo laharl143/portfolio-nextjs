@@ -322,18 +322,20 @@ Verified on 2026-10-22: all 13 acceptance criteria met with runtime evidence ([v
 Create invoices from active contracts, track them from draft to sent to paid, and export a PDF, the next step toward your Invoicing product with you as customer zero. Builds on the contract state machine from feature 23. Beta because it handles money amounts and client billing details.
 **Done when:** signed in, you can create an invoice from an active contract, export a correct PDF that is never publicly reachable, move it only along allowed status steps with each change recorded, and see each client's invoices from the client view.
 - [x] Design it (spec): `/architect invoicing`
-- [ ] Build it: `/develop invoicing`
+- [x] Build it: `/develop invoicing`
    - [x] Thin thread: migration and triggers, money math, billing profile, invoice PDF, create from a contract, invoice page, numbered send with the frozen PDF, seed, satisfies AC-1 to AC-8, AC-13, AC-14
    - [x] Every step: mark paid, undo paid, void with a reason, the Overdue label, satisfies AC-4, AC-9
    - [x] Edit, discard, lists, and guards: draft edit, discard, contract and client Invoices sections, `/studio/invoices` with filters, the nav link, open invoice archive guards, satisfies AC-5, AC-10, AC-11, AC-12
-   - [ ] Hardening: loading, error, and not found states, error paths, clean logs, phone width and both themes, lint, build, leak check, production PDF check, satisfies AC-13, AC-15
+   - [x] Hardening: loading, error, and not found states, error paths, clean logs, phone width and both themes, lint, build, leak check, production PDF check, satisfies AC-13, AC-15
 - [x] Verify it: `/check verify invoicing`
 - [ ] Test it: `/test invoicing`
 spec [0013](../specs/0013-invoicing/index.md) · Jira [DP-88](https://vital-stats.atlassian.net/browse/DP-88) · code in `src/studio/invoices/`, `src/studio/data/invoices.ts`, `src/app/(studio)/studio/(signed-in)/invoices/`
 
 Designed on 2026-10-26, every interview pick the recommended option at your request, then a cross check on another model whose 18 gaps and 10 soundness notes were applied (line amount overflow, the two invoice send race, the render stamp, list order). Line items, gapless `INV-<year>-<n>` numbers taken at send, draft, sent, paid, and void, a billing profile in the studio, no tax computation yet.
 
-Verified on 2026-10-27: AC-1 to AC-14 met with test evidence ([verify report](../reviews/0013-invoicing-verify.md)); lint, 167 unit tests, 49 database tests, 6 browser tests, and `npm run build` (`[leak-check] clean`) pass. Still owed: the production PDF check on a Vercel deploy (AC-6, AC-15), which keeps the Hardening milestone open, plus a look at live logs, every screen at phone width, and the contract and client Invoices sections in the browser.
+Verified on 2026-10-27: AC-1 to AC-14 met with test evidence ([verify report](../reviews/0013-invoicing-verify.md)); lint, 167 unit tests, 49 database tests, 6 browser tests, and `npm run build` (`[leak-check] clean`) pass. Still owed from verify: a look at live logs, every screen at phone width, and the contract and client Invoices sections in the browser.
+
+Production PDF check on 2026-10-27 (deploy of `2ae3adc`): a fake draft and a fake sent invoice (`INV-2026-0001`, client "FAKE PDF Check Client (production test)") both embed Noto Sans with real glyphs for `₱`, `ñ`, curly quotes, and the en dash; the sent PDF is `INV-2026-0001.pdf`, identical across two downloads, served `private, no-store` and `nosniff`. Hardening closed. A fake billing profile ("FAKE Test Billing") is saved in production; replace it before the first real invoice, which will be `INV-2026-0002`.
 
 ## Studio hardening
 

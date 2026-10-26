@@ -1,14 +1,13 @@
-# /check verify invoicing · PASS (1 check blocked on a deploy)
+# /check verify invoicing · PASS
 
 **Date**: 2026-10-27 · **Spec**: [0013](../specs/0013-invoicing/index.md) · **Checklist**: [verify.md](../specs/0013-invoicing/verify.md) · **Scope**: feature 29
 
-**PASS: AC-1 to AC-14 met with test evidence; AC-6 and AC-15 met locally, with the production PDF check owed on a Vercel deploy.** The build was checked uncommitted, read from disk on `main` at `bb719c5` plus the working tree (the invoicing build, Codex's logging fix and tests, and two test fixes from this run).
+**PASS: AC-1 to AC-15 met; the production PDF check passed on 2026-10-27.** The build was checked uncommitted, read from disk on `main` at `bb719c5` plus the working tree (the invoicing build, Codex's logging fix and tests, and two test fixes from this run).
 
 This record collects three runs: the build session's browser walk (2026-10-26), a Codex verify pass in this folder that fixed a logging leak (production errors no longer log SQL or parameters; its own report is not in the repo), and this rerun of every automated suite on 2026-10-27.
 
 ## Open items
 
-- **Production PDF on Vercel: blocked.** Download a draft and a sent invoice PDF with `₱` and `ñ` on a deploy, to prove the fonts are traced into the server output (AC-6, AC-15). Needs the work committed and deployed.
 - **Live server logs: not observed in this run.** Covered by `invoice-reads.test.ts` (unexpected errors become `UNEXPECTED`, not found stays 404) and Codex's fix, but no log was read during the browser run (AC-13).
 - **Phone width on every screen: partly observed.** The e2e test checks no sideways scroll in both themes on the invoice page at 375px; the build session saw the other screens at phone width but there is no recorded evidence for the list, form, and dialogs (AC-15).
 - **Contract and client Invoices sections in the browser: not observed.** The totals rule (void excluded) is proven by the database test; the rendered sections were not looked at in this run (AC-11).
@@ -22,7 +21,7 @@ This record collects three runs: the build session's browser walk (2026-10-26), 
 | AC-3 | met ✅ | e2e: `0.33` × `100.01` shows `Total PHP 33.00`. Unit: `money.test.ts` matches the database rule on edge and sampled inputs and does not overflow at the largest inputs. db: a wrong `amount_minor` is refused. |
 | AC-4 | met ✅ | e2e: Draft heading and `Created` in the history. db: ordered lines, rounded totals, one opening event; today is not overdue. |
 | AC-5 | met ✅ | e2e: draft edit saves. db: after sending, `update studio.invoices set notes` and `update studio.invoice_lines set description` are refused by the triggers; a send from an old version takes no number. |
-| AC-6 | met locally ✅, Vercel ⚠️ | e2e: draft PDF `200`, starts `%PDF`. db: draft values render without storing. Build session: draft PDF blocks, DRAFT watermark, `Page 1 of 1`, `₱ ñ` and curly quotes render. Vercel check blocked. |
+| AC-6 | met ✅ | e2e: draft PDF `200`, starts `%PDF`. db: draft values render without storing. Build session: draft PDF blocks, DRAFT watermark, `Page 1 of 1`, `₱ ñ` and curly quotes render. Production: see below. |
 | AC-7 | met ✅ | e2e: send with no profile shows "Complete your billing profile before sending."; a stale tab gets "This was changed elsewhere. Reload to see the latest." and the counter stays empty. db: missing profile, no lines, zero total refused with no side effects; store and render failures change nothing; changed printed data after upload refuses and removes the orphan. |
 | AC-8 | met ✅ | db: simultaneous sends retry once and stay consecutive after a void and a discard; a rolled back allocation leaves no gap; a new year starts at 1. Build session: `INV-2026-0001`, two downloads matched the stored SHA-256. |
 | AC-9 | met ✅ | db: date rules, one event per step, stale dialogs refused, undo clears payment details. Unit: void reason required, payment method list, paid details submitted. |
@@ -31,7 +30,17 @@ This record collects three runs: the build session's browser walk (2026-10-26), 
 | AC-12 | met ✅ | db: a sent invoice blocks archiving its contract and client; archived parents refuse writes. |
 | AC-13 | met ✅ (logs not read live) | e2e: signed out pages and PDF return `307` to login with no PDF; malformed and foreign ids `404` with no foreign text; tampered and expired sessions go to login. db: foreign workspaces can't read or write; PDF headers `private, no-store`, `nosniff`; a missing file never falls back to rendering. Unit: `actions.test.ts` denies PDF downloads before lookup. |
 | AC-14 | met ✅ | db: seed reruns create no extra profiles or invoices. |
-| AC-15 | met locally ✅, Vercel ⚠️ | e2e: invoice page in light and dark at desktop and 375px with no overflow. Lint, unit, db, build, and leak check below. |
+| AC-15 | met ✅ | e2e: invoice page in light and dark at desktop and 375px with no overflow. Lint, unit, db, build, and leak check below. |
+
+## Production PDF check (2026-10-27)
+
+On the deploy of `2ae3adc` at `ed-solutions.dev`, signed in by the owner, with fake records only:
+
+- Draft PDF of a fake invoice whose line is `FAKE ₱ señor “quote” – PDF check`: `200 application/pdf`, `inline; filename="invoice-draft-1f7c0c9b.pdf"`, `private, no-store`, `nosniff`. Embedded fonts `NotoSans-Regular` and `NotoSans-Bold`. The decompressed ToUnicode map of the Regular subset gives `ñ` glyph 13, `₱` glyph 34 (width 572), `“` 35, `”` 36, `–` 37, none on glyph 0 (missing glyph).
+- Marked sent: `INV-2026-0001`, issued Oct 27, 2026, due Nov 11, 2026. The sent PDF is `inline; filename="INV-2026-0001.pdf"`, title `INV-2026-0001`, same headers, the same glyph mapping, and two downloads had the same SHA-256 (`443f6a94851bd70a31f1586603d5581c8849fe598a69ea790af3b826c41a6e92`).
+- The PDF was checked through its bytes, not looked at as a picture, since the browser pane downloads PDFs instead of showing them.
+
+Fake production records left (permanent by design): billing profile "FAKE Test Billing (replace before real use)", client "FAKE PDF Check Client (production test)", contract "FAKE PDF check contract" (active, with its frozen sent PDF), and invoice `INV-2026-0001` (sent). The first real invoice will be `INV-2026-0002`.
 
 ## Commands (2026-10-27)
 

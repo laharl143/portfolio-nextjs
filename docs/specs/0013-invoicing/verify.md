@@ -40,7 +40,7 @@ _Steps derived from spec 0013 acceptance criteria and its Value sourcing table. 
 - [x] Send three invoices, void the second, discard a fourth draft → numbers 0001, 0002, 0003, no gap, 0002 shows Void → AC-8
 - [x] `npm run db:seed` twice → second run reports billing profiles and invoices "0 created" → AC-14
 - [x] `npm run lint`, `npm test`, `npm run build` (leak check clean) → AC-15
-- [ ] On a Vercel deploy: download a draft and a sent invoice PDF with `₱` and `ñ` (proves the font tracing) → AC-6, AC-15
+- [x] On a Vercel deploy: download a draft and a sent invoice PDF with `₱` and `ñ` (proves the font tracing) → AC-6, AC-15
 - [ ] Server logs during all of the above carry only action or route names and codes, never lines, profile, or client details → AC-13
 
 ## Acceptance-criteria coverage
