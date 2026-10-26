@@ -41,6 +41,8 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 26 | Client data retention | Studio slice 5 | done |
 | 27 | Lead intake production launch | Studio slice 6 | done |
 | 28 | Studio home dashboard | Studio slice 7 | done |
+| 29 | Invoicing | Studio slice 8 | in-progress |
+| 30 | Session lookup log hygiene | Studio hardening | planned |
 
 ## Existing
 
@@ -314,20 +316,48 @@ Outage screen built on 2026-10-22 after verify flagged AC-10: `src/app/(studio)/
 
 Verified on 2026-10-22: all 13 acceptance criteria met with runtime evidence ([verify report](../reviews/0012-studio-home-dashboard-verify.md)). The outage screen held on an unreachable and an unmigrated database, and `In sync` and `All clear` were reached on a throwaway dev branch database seeded from the bundled products file, then dropped. Marked done the same day; no `Test it` box at Alpha.
 
+## Studio slice 8: Invoicing
+
+### 29. Invoicing · in-progress · Beta
+Create invoices from active contracts, track them from draft to sent to paid, and export a PDF, the next step toward your Invoicing product with you as customer zero. Builds on the contract state machine from feature 23. Beta because it handles money amounts and client billing details.
+**Done when:** signed in, you can create an invoice from an active contract, export a correct PDF that is never publicly reachable, move it only along allowed status steps with each change recorded, and see each client's invoices from the client view.
+- [x] Design it (spec): `/architect invoicing`
+- [ ] Build it: `/develop invoicing`
+   - [ ] Thin thread: migration and triggers, money math, billing profile, invoice PDF, create from a contract, invoice page, numbered send with the frozen PDF, seed, satisfies AC-1 to AC-8, AC-13, AC-14
+   - [ ] Every step: mark paid, undo paid, void with a reason, the Overdue label, satisfies AC-4, AC-9
+   - [ ] Edit, discard, lists, and guards: draft edit, discard, contract and client Invoices sections, `/studio/invoices` with filters, the nav link, open invoice archive guards, satisfies AC-5, AC-10, AC-11, AC-12
+   - [ ] Hardening: loading, error, and not found states, error paths, clean logs, phone width and both themes, lint, build, leak check, production PDF check, satisfies AC-13, AC-15
+- [ ] Verify it: `/check verify invoicing`
+- [ ] Test it: `/test invoicing`
+spec [0013](../specs/0013-invoicing/index.md) · Jira [DP-88](https://vital-stats.atlassian.net/browse/DP-88)
+
+Designed on 2026-10-26, every interview pick the recommended option at your request, then a cross check on another model whose 18 gaps and 10 soundness notes were applied (line amount overflow, the two invoice send race, the render stamp, list order). Line items, gapless `INV-<year>-<n>` numbers taken at send, draft, sent, paid, and void, a billing profile in the studio, no tax computation yet.
+
+## Studio hardening
+
+### 30. Session lookup log hygiene
+When a session lookup fails, Next logs the Drizzle `Failed query` line with its parameters, including the session token hash. Log only the error code or class name for that read so studio logs stay clean. From spec 0012's follow up.
+**Done when:** a failed session lookup logs no query parameters or token hash, and the outage screen and sign in redirect still behave as spec 0012 describes.
+- [ ] Build it: `/develop session lookup log hygiene`
+Jira [DP-89](https://vital-stats.atlassian.net/browse/DP-89)
+
 ## Deferred
 Out of scope for this pass, kept so the plan stays honest.
 - **Contract and project data retention**: decide removal or anonymization for linked business records, signed PDFs, and immutable history, from spec 0011. Needs a decision.
 - **Formal erasure and external copies**: define a workflow for requests that reach backups, mailboxes, exported files, or unrelated free text, from spec 0011. Needs a decision.
 - **Automatic client retention scheduling**: consider only if owner review volume warrants it, from spec 0011.
-- **ED Solutions rebrand**: rename the public site to ED Solutions with a brand pass (wordmark, palette, type), revisit copy, metadata, and favicon; SEO foundation (feature 15) should then point at the new name · needs a decision
+- **ED Solutions rebrand**: rename the public site to ED Solutions with a brand pass (wordmark, palette, type), revisit copy, metadata, and favicon; SEO foundation (feature 15) should then point at the new name. The domain already moved to `ed-solutions.dev` on 2026-10-22 (`SITE_URL`, commit `2e5b339`); the brand pass is still open · needs a decision
 - **E-signature**: sign contracts inside the studio · needs a decision
-- **Invoicing**: invoices from active contracts, the next step toward your Invoicing product · needs a decision
+- **Projects list page**: a studio projects list with `?status=`, so the home dashboard's project bar can link through like the client and contract bars, from spec 0012
 - **Studio security extras**: rename and remove passkeys (never the last), an active sessions list, and a recent activity view over auth events; fits spec 0005's tables with no migration, from spec 0005
 - **Client search extras**: match contact names and emails in the client search, and a `pg_trgm` index once the list passes about 5,000 rows, from spec 0006 · needs a decision
 - **Archived contacts and projects view**: see archived contacts and projects of a client (hidden in feature 22), from spec 0006
 - **Notes on contacts and projects**: the notes table already supports them; feature 22 writes client notes only, from spec 0006
-- **Contract extras**: contract notes, unarchive, a richer PDF layout (logo, tables, two column signature block), and business details as workspace fields for Invoicing, from spec 0007 · needs a decision
-- **Blob orphan cleanup**: a manual script that deletes private contract files with no `contract_files` row, from spec 0007
+- **Contract extras**: contract notes, unarchive, a richer PDF layout (logo, tables, two column signature block), from spec 0007 (business details for invoices are now the spec 0013 billing profile) · needs a decision
+- **Blob orphan cleanup**: a manual script that deletes private contract files with no `contract_files` row, from spec 0007; extend it to invoice files under `ws/<id>/invoices/`, from spec 0013
+- **Invoice tax and compliance**: VAT or percentage tax lines, withholding (Form 2307), and whether studio invoices must meet BIR registered invoice rules; check with your accountant first, from spec 0013 · needs a decision
+- **Invoice extras**: partial payments, sending invoices by email from the studio, and recurring invoices for monthly contracts, from spec 0013 · needs a decision
+- **Overdue invoices on the home dashboard**: an attention signal and an invoice status bar on `/studio`, from spec 0013
 - **Systems map diagram**: a drawn map of systems and links in the studio, like the old artifact's view, from spec 0008
 - **Export as a pull request**: the systems export opens a pull request with the new `products-data.ts` instead of a download, from spec 0008 · needs a decision
 - **SEO extras**: a real headshot for the Person JSON-LD `image`, the Archivo font in the share cards, and Google Search Console sitemap submission, from spec 0009
