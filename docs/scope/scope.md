@@ -4,6 +4,8 @@ A personal portfolio site (Next.js) used to job hunt for a mid to senior softwar
 
 The site is now growing past the portfolio. The public site stays as it is, gains a public Products page for your SMB SaaS ecosystem, and gets a private studio behind a login where you run your freelance business (clients, contracts, and the full systems map). The studio is an early version of your planned CRM and Invoicing products, with you as customer zero. A full rebrand to ED Solutions is parked in Deferred.
 
+The sales positioning slice (features 31 to 40) splits the site in two. Today's portfolio moves as is to `/personal` for employers (Download CV stays in its hero), and `/` becomes a new ED Solutions landing page for small and medium business clients, with a full rebrand. The landing page applies Steve Jobs' sales rules: lead with client value, benefits before features, a simple message, a real story, and a clear path to `/contact`. Success is measured by contact form submissions.
+
 **Build approach:** Tracer Bullet (each feature is built complete and working end to end before moving to the next; no throwaway shell, no MVP left half grown).
 **Workflow:** Alpha (`/check verify` after `/develop`; no formal test suite or second model review by default). The project default level of rigor. `/architect` is the recommended first stop for a feature with a real decision, but skippable when you already know the build. Any feature can carry its own tag (e.g. `· GA`) to do more or less.
 
@@ -43,6 +45,16 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 28 | Studio home dashboard | Studio slice 7 | done |
 | 29 | Invoicing | Studio slice 8 | done |
 | 30 | Session lookup log hygiene | Studio hardening | planned |
+| 31 | Portfolio moves to /personal | Sales slice | in-progress |
+| 32 | ED Solutions rebrand | Sales slice | planned |
+| 33 | ED Solutions landing page | Sales slice | planned |
+| 34 | Landing hero client pitch | Sales slice | planned |
+| 35 | Section calls to action | Sales slice | planned |
+| 36 | Contact next steps | Sales slice | planned |
+| 37 | Inquiry conversion tracking | Sales slice | planned |
+| 38 | Project outcomes first | Sales slice | planned |
+| 39 | FAQs for business owners | Sales slice | planned |
+| 40 | Vital Stats case study | Sales slice | planned |
 
 ## Existing
 
@@ -345,12 +357,80 @@ When a session lookup fails, Next logs the Drizzle `Failed query` line with its 
 - [ ] Build it: `/develop session lookup log hygiene`
 Jira [DP-89](https://vital-stats.atlassian.net/browse/DP-89)
 
+## Sales slice: Client positioning
+Jira epic [DP-90](https://vital-stats.atlassian.net/browse/DP-90).
+
+### 31. Portfolio moves to /personal · in-progress
+Move today's home page, unchanged, to `/personal` for employers, so the employer story keeps working while `/` turns into the client landing page. Download CV stays in its hero.
+**Done when:** `/personal` renders today's sections as they are, indexed with its own canonical and sitemap entry; its header and footer section links scroll on `/personal` and work from any other route; the Person JSON-LD sits on the page that represents you; old links to `/#<section>` still reach the right content.
+- [x] Design it (spec): `/architect portfolio moves to /personal`
+- [ ] Build it: `/develop portfolio moves to /personal`
+   - [ ] Thin thread: move the page and card to `/personal`, temporary redirect from `/`, satisfies AC-1, AC-2
+   - [ ] SEO surfaces: `seo.personal`, sitemap, JSON-LD url, `title.absolute`, a `/contact` share card, satisfies AC-3 to AC-6
+   - [ ] Navigation: header and footer links to `/personal#<id>`, home links stay `/`, satisfies AC-7, AC-8
+   - [ ] Checks: routing unit test, lint, tests, build, and a browser pass, satisfies AC-9, AC-10
+- [ ] Verify it: `/check verify portfolio moves to /personal`
+spec [0014](../specs/0014-portfolio-moves-to-personal.md) · Jira [DP-91](https://vital-stats.atlassian.net/browse/DP-91)
+
+### 32. ED Solutions rebrand · needs a decision
+Give the business its brand before the landing page is built on it: wordmark, palette, type, favicon, and the site name in metadata and share cards. Pulled forward from Deferred. Decide how much of it `/personal` shares.
+**Done when:** the ED Solutions wordmark, palette, type, and favicon are defined and applied to the landing page shell, metadata, and share cards in both themes; `/personal` looks the way the spec decides.
+- [ ] Design it (spec): `/architect ed solutions rebrand`
+Jira [DP-92](https://vital-stats.atlassian.net/browse/DP-92)
+
+### 33. ED Solutions landing page · needs a decision
+The new `/` for small business clients: which sections it has and in what order, its own navigation, and its metadata. Built from the existing UI and the new brand. A Mobbin reference (WHOOP) was wanted, but the Mobbin MCP needs a paid plan, so the design source is the current UI unless that changes.
+**Done when:** `/` renders the agreed sections in order with the ED Solutions brand, its nav links work on the page and from other routes, it links to `/personal` and `/products`, and its title, description, and share card speak to business clients; desktop and 375px in both themes.
+- [ ] Design it (spec): `/architect ed solutions landing page`
+Jira [DP-93](https://vital-stats.atlassian.net/browse/DP-93)
+
+### 34. Landing hero client pitch · needs a decision
+The landing page hero. Decided in a paused `/architect` run (2026-10-23): headline "I build the connected systems small businesses run on."; stance line "I don't build marketing sites. I build the systems behind them."; credibility line "Application Developer at IBM by day, building for small businesses."; no Perseverance and Curiosity line; one primary button "Tell me about your project" to `/contact`, tracked as `contact_click` with location `hero`; LinkedIn and GitHub only (all five socials in a footer icon row); fast word reveal under 0.5s with no 3 second delay and no "Click Me!" ribbon; keep portrait scroll zoom, the scroll hint without idle zoom, and button hover; static under reduced motion; design from the current UI.
+**Done when:** the full message reads within about a second of load; the button leads to `/contact` and fires `contact_click` with location `hero`; reduced motion renders it static; no layout regression at desktop and 375px in both themes.
+- [ ] Design it (spec): `/architect landing hero client pitch`
+Jira [DP-94](https://vital-stats.atlassian.net/browse/DP-94)
+
+### 35. Section calls to action · needs a decision
+End the key landing page sections with a short "Tell me about your project" link to `/contact`, so every part of the page has a next step, following the existing `contact_click` tracking pattern.
+**Done when:** the chosen landing sections each end with a call to action to `/contact`; each click records which section it came from; links work by keyboard and read clearly to screen readers.
+- [ ] Design it (spec): `/architect section calls to action`
+Jira [DP-95](https://vital-stats.atlassian.net/browse/DP-95)
+
+### 36. Contact next steps
+After a visitor sends an inquiry, the `/contact` success state tells them exactly what happens next (when you reply, and what you will send), so the experience does not end on a bare thank you.
+**Done when:** a successful submission shows the next steps copy with a reply time you commit to; the error and validation states are unchanged.
+- [ ] Build it: `/develop contact next steps`
+Jira [DP-96](https://vital-stats.atlassian.net/browse/DP-96)
+
+### 37. Inquiry conversion tracking · needs a decision
+Measure the path from a visit to a sent inquiry: which section or call to action brought the visitor to `/contact`, and how many of those finish the form. This is the loop that tells you which of the other changes work.
+**Done when:** a sent inquiry can be traced back to the call to action that led to `/contact`; form starts and successful submissions show as distinct events in the analytics dashboard; no personal data is sent to analytics.
+- [ ] Design it (spec): `/architect inquiry conversion tracking`
+Jira [DP-97](https://vital-stats.atlassian.net/browse/DP-97)
+
+### 38. Project outcomes first · needs a decision
+Give each project a one line outcome (the problem it solved or the result it delivered) and show it before the tech stack icons, from one shared data source: the landing page shows the client relevant projects, `/personal` keeps the full tiered list.
+**Done when:** outcome lines show above the tech stack on both pages; the landing page shows its chosen subset; a project without an outcome still renders cleanly; the tiers and toggle on `/personal` keep working.
+- [ ] Design it (spec): `/architect project outcomes first`
+Jira [DP-98](https://vital-stats.atlassian.net/browse/DP-98)
+
+### 39. FAQs for business owners · needs a decision
+A new FAQ set on the landing page for what a small business owner asks before hiring you: cost, timeline, support after launch, and connecting to tools they already use. `/personal` keeps today's recruiter FAQs unchanged.
+**Done when:** the landing page FAQs answer cost, timeline, support, and integration in plain language, with at least one leading to `/contact`; the `/personal` FAQs are unchanged; both accordions stay keyboard accessible.
+- [ ] Design it (spec): `/architect faqs for business owners`
+Jira [DP-99](https://vital-stats.atlassian.net/browse/DP-99)
+
+### 40. Vital Stats case study · needs a decision
+Tell the Vital Stats story as problem, what you built, and the result (storefront, checkout and payments, orders flowing into the OMS), linked from the landing page and `/products`. Public facts only, matching the `/products` rule against notes, client names, and repo links.
+**Done when:** the case study reads as problem, build, result with at least one concrete outcome; it is reachable from the landing page and `/products`; if it is its own route, it is in `PUBLIC_ROUTES` with its own canonical and metadata.
+- [ ] Design it (spec): `/architect vital stats case study`
+Jira [DP-100](https://vital-stats.atlassian.net/browse/DP-100)
+
 ## Deferred
 Out of scope for this pass, kept so the plan stays honest.
 - **Contract and project data retention**: decide removal or anonymization for linked business records, signed PDFs, and immutable history, from spec 0011. Needs a decision.
 - **Formal erasure and external copies**: define a workflow for requests that reach backups, mailboxes, exported files, or unrelated free text, from spec 0011. Needs a decision.
 - **Automatic client retention scheduling**: consider only if owner review volume warrants it, from spec 0011.
-- **ED Solutions rebrand**: rename the public site to ED Solutions with a brand pass (wordmark, palette, type), revisit copy, metadata, and favicon; SEO foundation (feature 15) should then point at the new name. The domain already moved to `ed-solutions.dev` on 2026-10-22 (`SITE_URL`, commit `2e5b339`); the brand pass is still open · needs a decision
 - **E-signature**: sign contracts inside the studio · needs a decision
 - **Projects list page**: a studio projects list with `?status=`, so the home dashboard's project bar can link through like the client and contract bars, from spec 0012
 - **Studio security extras**: rename and remove passkeys (never the last), an active sessions list, and a recent activity view over auth events; fits spec 0005's tables with no migration, from spec 0005
@@ -365,6 +445,7 @@ Out of scope for this pass, kept so the plan stays honest.
 - **Systems map diagram**: a drawn map of systems and links in the studio, like the old artifact's view, from spec 0008
 - **Export as a pull request**: the systems export opens a pull request with the new `products-data.ts` instead of a download, from spec 0008 · needs a decision
 - **SEO extras**: a real headshot for the Person JSON-LD `image`, the Archivo font in the share cards, and Google Search Console sitemap submission, from spec 0009
+- **Real testimonials**: re-enable `src/sections/Testimonials.tsx` with real client quotes in place of the placeholders, once you have at least one, from the sales positioning slice.
 
 - **Studio error visibility**: revisit how you detect and investigate studio failures when real client data lands, from spec 0003. Needs a decision.
 - **Studio separation review**: revisit whether the studio should run separately if it grows to hold many real client contracts, from spec 0003. Needs a decision.
