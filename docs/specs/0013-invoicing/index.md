@@ -1,7 +1,7 @@
 # 0013. Invoicing: line item invoices from contracts, numbered at send, a PDF frozen in private Blob
 
 **Date**: 2026-10-26
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 

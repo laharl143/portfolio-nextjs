@@ -41,7 +41,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 26 | Client data retention | Studio slice 5 | done |
 | 27 | Lead intake production launch | Studio slice 6 | done |
 | 28 | Studio home dashboard | Studio slice 7 | done |
-| 29 | Invoicing | Studio slice 8 | in-progress |
+| 29 | Invoicing | Studio slice 8 | done |
 | 30 | Session lookup log hygiene | Studio hardening | planned |
 
 ## Existing
@@ -318,7 +318,7 @@ Verified on 2026-10-22: all 13 acceptance criteria met with runtime evidence ([v
 
 ## Studio slice 8: Invoicing
 
-### 29. Invoicing · in-progress · Beta
+### 29. Invoicing · done · Beta
 Create invoices from active contracts, track them from draft to sent to paid, and export a PDF, the next step toward your Invoicing product with you as customer zero. Builds on the contract state machine from feature 23. Beta because it handles money amounts and client billing details.
 **Done when:** signed in, you can create an invoice from an active contract, export a correct PDF that is never publicly reachable, move it only along allowed status steps with each change recorded, and see each client's invoices from the client view.
 - [x] Design it (spec): `/architect invoicing`
@@ -328,7 +328,7 @@ Create invoices from active contracts, track them from draft to sent to paid, an
    - [x] Edit, discard, lists, and guards: draft edit, discard, contract and client Invoices sections, `/studio/invoices` with filters, the nav link, open invoice archive guards, satisfies AC-5, AC-10, AC-11, AC-12
    - [x] Hardening: loading, error, and not found states, error paths, clean logs, phone width and both themes, lint, build, leak check, production PDF check, satisfies AC-13, AC-15
 - [x] Verify it: `/check verify invoicing`
-- [ ] Test it: `/test invoicing`
+- [ ] Test it: `/test invoicing` (skipped, marked done on 2026-10-27: the build and verify already added unit, database, and browser tests)
 spec [0013](../specs/0013-invoicing/index.md) · Jira [DP-88](https://vital-stats.atlassian.net/browse/DP-88) · code in `src/studio/invoices/`, `src/studio/data/invoices.ts`, `src/app/(studio)/studio/(signed-in)/invoices/`
 
 Designed on 2026-10-26, every interview pick the recommended option at your request, then a cross check on another model whose 18 gaps and 10 soundness notes were applied (line amount overflow, the two invoice send race, the render stamp, list order). Line items, gapless `INV-<year>-<n>` numbers taken at send, draft, sent, paid, and void, a billing profile in the studio, no tax computation yet.
