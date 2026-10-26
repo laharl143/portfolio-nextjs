@@ -42,6 +42,7 @@ const MESSAGES: Record<string, string> = {
   CLIENT_NOT_FOUND: "This client no longer exists.",
   CONTRACT_NOT_FOUND: "This contract no longer exists.",
   CONTRACT_NOT_ARCHIVABLE: "Only a draft, ended, or cancelled contract can be archived.",
+  CONTRACT_HAS_OPEN_INVOICES: "Settle or void this contract's open invoices before archiving.",
   CONTRACT_NOT_SIGNED: "A signed copy can be added only to a signed, active, or ended contract.",
   TEMPLATE_NOT_FOUND: "This template no longer exists or was archived.",
 };

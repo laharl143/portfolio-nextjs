@@ -4,9 +4,11 @@ import { archiveClientAction, createNoteAction, deleteNoteAction } from "@/studi
 import { notFoundOr } from "@/studio/clients/page-errors";
 import { NOTE_LIMIT, getClientDetail, type ClientDetail } from "@/studio/data/clients";
 import { listClientContracts, type ContractRow } from "@/studio/data/contracts";
+import { listClientInvoices, type InvoiceRow } from "@/studio/data/invoices";
 import { formatAmount, formatDate, formatDateTime, formatPlainDate, statusLabel } from "@/studio/format";
 import { requireStudioAccess } from "@/studio/guard";
 import ConfirmSubmit from "../../../_components/ConfirmSubmit";
+import InvoiceRows from "../../../_components/InvoiceRows";
 import NoteForm from "../../../_components/NoteForm";
 import StatusBadge from "../../../_components/StatusBadge";
 import { card, pageEyebrow, primaryButton, secondaryButton, textLink } from "../../../_components/ui";
@@ -210,6 +212,19 @@ function Contracts({ detail, contracts, live }: { detail: ClientDetail; contract
   );
 }
 
+// Live invoices of this client with their contract (spec 0013, AC-11). New invoices start from a contract.
+function Invoices({ invoices }: { invoices: InvoiceRow[] }) {
+  return (
+    <Section title="Invoices">
+      {invoices.length === 0 ? (
+        <p className={empty}>No invoices yet.</p>
+      ) : (
+        <InvoiceRows rows={invoices} show={{ contract: true }} />
+      )}
+    </Section>
+  );
+}
+
 function Notes({ detail, live }: { detail: ClientDetail; live: boolean }) {
   const clientId = detail.client.id;
   return (
@@ -275,8 +290,13 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
 
   let detail: ClientDetail;
   let contracts: ContractRow[];
+  let invoices: InvoiceRow[];
   try {
-    [detail, contracts] = await Promise.all([getClientDetail(clientId), listClientContracts(clientId)]);
+    [detail, contracts, invoices] = await Promise.all([
+      getClientDetail(clientId),
+      listClientContracts(clientId),
+      listClientInvoices(clientId),
+    ]);
   } catch (err) {
     notFoundOr(err);
   }
@@ -343,6 +363,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ c
       <Contacts detail={detail} live={live} />
       <Projects detail={detail} live={live} />
       <Contracts detail={detail} contracts={contracts} live={live} />
+      {live && <Invoices invoices={invoices} />}
       <Notes detail={detail} live={live} />
     </main>
   );

@@ -26,6 +26,7 @@ const MESSAGES: Record<string, string> = {
   PROJECT_NOT_FOUND: "This project no longer exists or was archived.",
   NOTE_NOT_FOUND: "This note no longer exists.",
   CLIENT_HAS_LIVE_CONTRACTS: "This client has a signed or active contract, so it cannot be archived yet.",
+  CLIENT_HAS_OPEN_INVOICES: "Settle or void this client's open invoices before archiving.",
   PROJECT_HAS_LIVE_CONTRACTS: "This project has a signed or active contract.",
 };
 

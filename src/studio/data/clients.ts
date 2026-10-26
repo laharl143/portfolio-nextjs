@@ -4,10 +4,11 @@ import { alias } from "drizzle-orm/pg-core";
 import { and, asc, desc, eq, inArray, isNotNull, isNull, ne, sql, type SQL } from "drizzle-orm";
 import { getDb, type Tx } from "@/studio/db/client";
 import type { ClientStatus } from "@/studio/db/constants";
-import { clients, contacts, contracts, notes, projects } from "@/studio/db/schema";
+import { clients, contacts, contracts, invoices, notes, projects } from "@/studio/db/schema";
 import {
   ClientArchived,
   ClientHasLiveContracts,
+  ClientHasOpenInvoices,
   ClientNotFound,
   DuplicateClientName,
   StaleRecord,
@@ -312,6 +313,15 @@ export async function archiveClient(clientId: string): Promise<Client> {
       .limit(1);
     if (live) {
       throw new ClientHasLiveContracts();
+    }
+    // Spec 0013, AC-12: drafts do not block; they become read only.
+    const [open] = await tx
+      .select({ id: invoices.id })
+      .from(invoices)
+      .where(and(eq(invoices.clientId, client.id), eq(invoices.workspaceId, workspaceId), eq(invoices.status, "sent")))
+      .limit(1);
+    if (open) {
+      throw new ClientHasOpenInvoices();
     }
 
     const [archived] = await tx

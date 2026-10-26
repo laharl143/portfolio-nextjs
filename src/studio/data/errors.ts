@@ -246,3 +246,83 @@ export class ImportHasErrors extends StudioDataError {
     super("IMPORT_HAS_ERRORS", "The import has errors");
   }
 }
+
+// Invoicing (spec 0013).
+
+export class InvoiceNotFound extends StudioDataError {
+  constructor() {
+    super("INVOICE_NOT_FOUND", "Invoice not found");
+  }
+}
+
+export class InvoiceArchived extends StudioDataError {
+  constructor() {
+    super("INVOICE_ARCHIVED", "The invoice draft was discarded");
+  }
+}
+
+export class ContractNotInvoiceable extends StudioDataError {
+  constructor() {
+    super("CONTRACT_NOT_INVOICEABLE", "Only an active or ended contract can be invoiced");
+  }
+}
+
+export class InvoiceNotEditable extends StudioDataError {
+  constructor() {
+    super("INVOICE_NOT_EDITABLE", "Only a draft invoice can be edited");
+  }
+}
+
+export class InvoiceNotDiscardable extends StudioDataError {
+  constructor() {
+    super("INVOICE_NOT_DISCARDABLE", "Only a draft invoice can be discarded");
+  }
+}
+
+export class InvoiceEmpty extends StudioDataError {
+  constructor() {
+    super("INVOICE_EMPTY", "The invoice has no lines");
+  }
+}
+
+export class InvoiceTotalZero extends StudioDataError {
+  constructor() {
+    super("INVOICE_TOTAL_ZERO", "The invoice total is zero");
+  }
+}
+
+export class BillingProfileMissing extends StudioDataError {
+  constructor() {
+    super("BILLING_PROFILE_MISSING", "No billing profile is saved yet");
+  }
+}
+
+export class InvalidInvoiceTransition extends StudioDataError {
+  constructor(from: string, to: string) {
+    super("INVALID_INVOICE_TRANSITION", `An invoice cannot move from ${from} to ${to}`);
+  }
+}
+
+export class InvoiceStatusConflict extends StudioDataError {
+  constructor() {
+    super("INVOICE_STATUS_CONFLICT", "The invoice status changed while this change was running");
+  }
+}
+
+export class InvoiceNumberRace extends StudioDataError {
+  constructor() {
+    super("INVOICE_NUMBER_RACE", "Another invoice took the reserved number");
+  }
+}
+
+export class ContractHasOpenInvoices extends StudioDataError {
+  constructor() {
+    super("CONTRACT_HAS_OPEN_INVOICES", "The contract has a sent invoice");
+  }
+}
+
+export class ClientHasOpenInvoices extends StudioDataError {
+  constructor() {
+    super("CLIENT_HAS_OPEN_INVOICES", "The client has a sent invoice");
+  }
+}

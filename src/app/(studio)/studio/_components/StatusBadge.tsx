@@ -9,9 +9,12 @@ const TONES: Record<string, string> = {
   draft: "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200",
   sent: "bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-200",
   signed: "bg-violet-100 text-violet-900 dark:bg-violet-950 dark:text-violet-200",
+  // Invoices (spec 0013): overdue is derived from a sent invoice past its due date.
+  paid: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200",
+  overdue: "bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-200",
 };
 
-// Client, project, and contract status as a small text label (never colour alone).
+// Client, project, contract, and invoice status as a small text label (never colour alone).
 export default function StatusBadge({ status }: { status: string }) {
   return (
     <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ${TONES[status] ?? NEUTRAL}`}>

@@ -7,7 +7,7 @@ import type { Watermark } from "@/studio/contracts/pdf/render";
 import { resolveValues, sameValues, todayText, type ValueSources } from "@/studio/contracts/values";
 import { getDb, type Db, type Tx } from "@/studio/db/client";
 import type { BillingCadence, ContractStatus } from "@/studio/db/constants";
-import { clients, contacts, contractFiles, contracts, contractStatusEvents, projects } from "@/studio/db/schema";
+import { clients, contacts, contractFiles, contracts, contractStatusEvents, invoices, projects } from "@/studio/db/schema";
 import { deletePrivateFile, putPrivatePdf } from "@/studio/storage/blob";
 import { lockLiveClient } from "./clients";
 import { contractFileExists, contractFilePathname, recordContractFile } from "./contract-files";
@@ -16,6 +16,7 @@ import {
   ClientArchived,
   ContractArchived,
   ContractEmpty,
+  ContractHasOpenInvoices,
   ContractHasMissingValues,
   ContractNotArchivable,
   ContractNotEditable,
@@ -126,7 +127,8 @@ async function assertProject(tx: Tx, projectId: string, clientId: string, worksp
 
 // Lock order is always client row, then contract row (spec 0004). Finds the contract's client (it never changes),
 // then takes both locks in order. Does not judge archived rows; callers check in the spec 0007 order.
-async function lockClientThenContract(tx: Tx, contractId: string, workspaceId: string) {
+// Invoices (spec 0013) lock through this too, then lock the invoice row.
+export async function lockClientThenContract(tx: Tx, contractId: string, workspaceId: string) {
   if (!isUuid(contractId)) {
     throw new ContractNotFound();
   }
@@ -725,6 +727,15 @@ export async function archiveContract(contractId: string): Promise<Contract> {
     }
     if (!ARCHIVABLE_STATUSES.includes(contract.status)) {
       throw new ContractNotArchivable(contract.status);
+    }
+    // Spec 0013, AC-12: counted under the client and contract locks, so a concurrent send cannot slip past.
+    const [open] = await tx
+      .select({ id: invoices.id })
+      .from(invoices)
+      .where(and(eq(invoices.contractId, contract.id), eq(invoices.workspaceId, workspaceId), eq(invoices.status, "sent")))
+      .limit(1);
+    if (open) {
+      throw new ContractHasOpenInvoices();
     }
     const [archived] = await tx
       .update(contracts)

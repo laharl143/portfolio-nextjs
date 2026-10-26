@@ -6,6 +6,7 @@ import {
   ContactNotFound,
   ContractFileNotFound,
   ContractNotFound,
+  InvoiceNotFound,
   NoteNotFound,
   ProjectNotFound,
   SystemLinkNotFound,
@@ -25,6 +26,7 @@ export function notFoundOr(err: unknown): never {
     err instanceof NoteNotFound ||
     err instanceof ContractNotFound ||
     err instanceof ContractFileNotFound ||
+    err instanceof InvoiceNotFound ||
     err instanceof TemplateNotFound ||
     err instanceof SystemNotFound ||
     err instanceof SystemLinkNotFound ||

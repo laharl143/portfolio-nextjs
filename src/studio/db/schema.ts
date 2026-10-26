@@ -10,6 +10,7 @@ import {
   jsonb,
   pgSchema,
   primaryKey,
+  smallint,
   text,
   timestamp,
   unique,
@@ -25,7 +26,9 @@ import {
   CONTACT_CHANNELS,
   CONTRACT_FILE_KINDS,
   CONTRACT_STATUSES,
+  INVOICE_STATUSES,
   MEMBER_ROLES,
+  PAYMENT_METHODS,
   PASSKEY_DEVICE_TYPES,
   PROJECT_STATUSES,
   SYSTEM_LAYERS,
@@ -39,7 +42,9 @@ import {
   type ContactChannel,
   type ContractFileKind,
   type ContractStatus,
+  type InvoiceStatus,
   type MemberRole,
+  type PaymentMethod,
   type PasskeyDeviceType,
   type ProjectStatus,
   type SystemLayer,
@@ -550,6 +555,8 @@ export const contracts = studio.table(
     check("contracts_currency_check", sql`${t.currency} ~ '^[A-Z]{3}$'`),
     check("contracts_end_after_start", notBefore(t.endDate, t.startDate)),
     check("contracts_body_length", sql`char_length(${t.body}) <= 50000`),
+    // Target of the invoices composite key, so an invoice's client is always its contract's client (spec 0013).
+    unique("contracts_id_client_uq").on(t.id, t.clientId),
     index("contracts_workspace_status_idx").on(t.workspaceId, t.status),
     index("contracts_client_idx").on(t.clientId),
     index("contracts_project_idx").on(t.projectId),
@@ -638,6 +645,214 @@ export const contractFiles = studio.table(
       t.createdAt.desc(),
     ),
     index("contract_files_workspace_idx").on(t.workspaceId),
+  ],
+);
+
+// Invoicing (spec 0013). Every table below is scoped by workspace; triggers (custom migration) keep sent invoices
+// and their lines frozen, and the event and file rows append only.
+
+function maxLength(column: AnyPgColumn, max: number): SQL {
+  return sql`${column} is null or char_length(${column}) <= ${sql.raw(String(max))}`;
+}
+
+// One per workspace. Holds your business and payment details: confidential, never in the repo.
+export const billingProfiles = studio.table(
+  "billing_profiles",
+  {
+    workspaceId: uuid("workspace_id")
+      .primaryKey()
+      .references(() => workspaces.id, { onDelete: "restrict" }),
+    businessName: text("business_name").notNull(),
+    address: text("address").notNull(),
+    tin: text("tin"),
+    email: text("email"),
+    phone: text("phone"),
+    paymentInstructions: text("payment_instructions").notNull(),
+    taxNote: text("tax_note"),
+    documentTitle: text("document_title").notNull().default("Invoice"),
+    defaultPaymentTermsDays: smallint("default_payment_terms_days").notNull().default(15),
+    ...timestamps,
+  },
+  (t) => [
+    check("billing_profiles_business_name_not_blank", notBlank(t.businessName)),
+    check("billing_profiles_address_not_blank", notBlank(t.address)),
+    check("billing_profiles_payment_instructions_not_blank", notBlank(t.paymentInstructions)),
+    check("billing_profiles_document_title_not_blank", notBlank(t.documentTitle)),
+    check(
+      "billing_profiles_lengths",
+      sql`(${maxLength(t.businessName, 200)}) and (${maxLength(t.address, 1000)}) and (${maxLength(t.tin, 30)}) and (${maxLength(t.email, 320)}) and (${maxLength(t.phone, 50)}) and (${maxLength(t.paymentInstructions, 2000)}) and (${maxLength(t.taxNote, 200)}) and (${maxLength(t.documentTitle, 60)})`,
+    ),
+    check("billing_profiles_tin_format", sql`${t.tin} is null or ${t.tin} ~ '^[0-9-]+$'`),
+    check("billing_profiles_terms_range", sql`${t.defaultPaymentTermsDays} between 0 and 365`),
+  ],
+);
+
+export const invoices = studio.table(
+  "invoices",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: workspaceId(),
+    clientId: uuid("client_id")
+      .notNull()
+      .references(() => clients.id, { onDelete: "restrict" }),
+    contractId: uuid("contract_id").notNull(),
+    // Changed only by applyInvoiceStep() in src/studio/data/invoices.ts.
+    status: text("status").$type<InvoiceStatus>().notNull().default("draft"),
+    // Taken at send from invoice_number_counters, e.g. INV-2026-0001. Null exactly while draft.
+    number: text("number"),
+    issuedOn: date("issued_on"),
+    dueOn: date("due_on"),
+    paymentTermsDays: smallint("payment_terms_days").notNull(),
+    currency: text("currency").notNull(),
+    billToAddress: text("bill_to_address"),
+    notes: text("notes"),
+    paidOn: date("paid_on"),
+    paymentMethod: text("payment_method").$type<PaymentMethod>(),
+    paymentReference: text("payment_reference"),
+    // Discarded drafts only.
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [
+    foreignKey({
+      name: "invoices_contract_client_fk",
+      columns: [t.contractId, t.clientId],
+      foreignColumns: [contracts.id, contracts.clientId],
+    }).onDelete("restrict"),
+    check("invoices_status_check", oneOf(t.status, INVOICE_STATUSES)),
+    check("invoices_payment_method_check", oneOf(t.paymentMethod, PAYMENT_METHODS)),
+    check("invoices_number_iff_not_draft", sql`(${t.status} = 'draft') = (${t.number} is null)`),
+    check(
+      "invoices_dates_iff_number",
+      sql`(${t.number} is null) = (${t.issuedOn} is null) and (${t.number} is null) = (${t.dueOn} is null)`,
+    ),
+    check("invoices_number_format", sql`${t.number} is null or ${t.number} ~ '^INV-[0-9]{4}-[0-9]{4,}$'`),
+    check("invoices_due_after_issue", notBefore(t.dueOn, t.issuedOn)),
+    check("invoices_paid_iff_paid_on", sql`(${t.status} = 'paid') = (${t.paidOn} is not null)`),
+    check("invoices_paid_after_issue", notBefore(t.paidOn, t.issuedOn)),
+    check(
+      "invoices_payment_fields_only_when_paid",
+      sql`${t.status} = 'paid' or (${t.paymentMethod} is null and ${t.paymentReference} is null)`,
+    ),
+    check("invoices_archived_only_draft", sql`${t.archivedAt} is null or ${t.status} = 'draft'`),
+    check("invoices_terms_range", sql`${t.paymentTermsDays} between 0 and 365`),
+    check("invoices_currency_check", sql`${t.currency} ~ '^[A-Z]{3}$'`),
+    check(
+      "invoices_lengths",
+      sql`(${maxLength(t.billToAddress, 1000)}) and (${maxLength(t.notes, 2000)}) and (${maxLength(t.paymentReference, 200)})`,
+    ),
+    uniqueIndex("invoices_workspace_number_uq")
+      .on(t.workspaceId, t.number)
+      .where(sql`${t.number} is not null`),
+    index("invoices_workspace_status_due_idx").on(t.workspaceId, t.status, t.dueOn),
+    index("invoices_contract_idx").on(t.contractId),
+    index("invoices_client_idx").on(t.clientId),
+  ],
+);
+
+// Replaced as a whole on each draft edit; a trigger refuses any change once the invoice leaves draft.
+export const invoiceLines = studio.table(
+  "invoice_lines",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: workspaceId(),
+    invoiceId: uuid("invoice_id")
+      .notNull()
+      .references(() => invoices.id, { onDelete: "restrict" }),
+    position: smallint("position").notNull(),
+    description: text("description").notNull(),
+    quantityHundredths: integer("quantity_hundredths").notNull(),
+    // Centavos.
+    unitPriceMinor: bigint("unit_price_minor", { mode: "bigint" }).notNull(),
+    amountMinor: bigint("amount_minor", { mode: "bigint" }).notNull(),
+    createdAt,
+  },
+  (t) => [
+    check("invoice_lines_position_range", sql`${t.position} between 1 and 50`),
+    check("invoice_lines_description_not_blank", notBlank(t.description)),
+    check("invoice_lines_description_length", sql`char_length(${t.description}) <= 500`),
+    check("invoice_lines_quantity_range", sql`${t.quantityHundredths} between 1 and 9999999`),
+    check("invoice_lines_unit_price_range", sql`${t.unitPriceMinor} between 0 and 999999999999`),
+    check("invoice_lines_amount_range", sql`${t.amountMinor} between 0 and 999999999999`),
+    // The money.ts rule, half up to the centavo, evaluated in numeric so the largest inputs cannot overflow here.
+    check(
+      "invoice_lines_amount_rule",
+      sql`${t.amountMinor} = floor((${t.quantityHundredths}::numeric * ${t.unitPriceMinor} + 50) / 100)::bigint`,
+    ),
+    unique("invoice_lines_invoice_position_uq").on(t.invoiceId, t.position),
+  ],
+);
+
+// Append only: a trigger (custom migration) rejects any update or delete.
+export const invoiceStatusEvents = studio.table(
+  "invoice_status_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: workspaceId(),
+    invoiceId: uuid("invoice_id")
+      .notNull()
+      .references(() => invoices.id, { onDelete: "restrict" }),
+    fromStatus: text("from_status").$type<InvoiceStatus>(),
+    toStatus: text("to_status").$type<InvoiceStatus>().notNull(),
+    changedAt: timestamp("changed_at", { withTimezone: true }).notNull().defaultNow(),
+    note: text("note"),
+    createdAt,
+  },
+  (t) => [
+    check("invoice_status_events_from_status_check", oneOf(t.fromStatus, INVOICE_STATUSES)),
+    check("invoice_status_events_to_status_check", oneOf(t.toStatus, INVOICE_STATUSES)),
+    check("invoice_status_events_opening_is_draft", sql`${t.fromStatus} is not null or ${t.toStatus} = 'draft'`),
+    check("invoice_status_events_from_to_differ", sql`${t.fromStatus} is distinct from ${t.toStatus}`),
+    check("invoice_status_events_note_length", maxLength(t.note, 1000)),
+    uniqueIndex("invoice_status_events_one_opening_uq")
+      .on(t.invoiceId)
+      .where(sql`${t.fromStatus} is null`),
+    index("invoice_status_events_invoice_changed_idx").on(t.invoiceId, t.changedAt),
+  ],
+);
+
+// Append only: the PDF frozen at send, one per invoice. The bytes live in private Blob.
+export const invoiceFiles = studio.table(
+  "invoice_files",
+  {
+    id: uuid("id").primaryKey(),
+    workspaceId: workspaceId(),
+    invoiceId: uuid("invoice_id")
+      .notNull()
+      .references(() => invoices.id, { onDelete: "restrict" }),
+    statusEventId: uuid("status_event_id")
+      .notNull()
+      .references(() => invoiceStatusEvents.id, { onDelete: "restrict" }),
+    blobPathname: text("blob_pathname").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    sha256: text("sha256").notNull(),
+    createdAt,
+  },
+  (t) => [
+    check("invoice_files_size_positive", sql`${t.sizeBytes} > 0`),
+    check("invoice_files_sha256_hex", sql`${t.sha256} ~ '^[0-9a-f]{64}$'`),
+    uniqueIndex("invoice_files_invoice_uq").on(t.invoiceId),
+    uniqueIndex("invoice_files_status_event_uq").on(t.statusEventId),
+    uniqueIndex("invoice_files_blob_pathname_uq").on(t.blobPathname),
+  ],
+);
+
+// The last number taken per workspace and issue year (Asia/Manila), moved only inside the send transaction.
+export const invoiceNumberCounters = studio.table(
+  "invoice_number_counters",
+  {
+    workspaceId: workspaceId(),
+    year: smallint("year").notNull(),
+    lastNumber: integer("last_number").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    primaryKey({ name: "invoice_number_counters_pk", columns: [t.workspaceId, t.year] }),
+    check("invoice_number_counters_last_positive", sql`${t.lastNumber} >= 1`),
+    check("invoice_number_counters_year_range", sql`${t.year} between 2000 and 9999`),
   ],
 );
 

@@ -34,7 +34,31 @@ export type ContractStatus = (typeof CONTRACT_STATUSES)[number];
 export const CONTRACT_FILE_KINDS = ["sent_pdf", "signed_copy"] as const;
 export type ContractFileKind = (typeof CONTRACT_FILE_KINDS)[number];
 
-export const BILLING_CADENCES = ["one_time", "monthly", "milestone"] as const;
+// Invoicing (spec 0013). Discard is an archive, not a status.
+export const INVOICE_STATUSES = ["draft", "sent", "paid", "void"] as const;
+export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
+
+// The allowed invoice steps (spec 0013, State transitions). The only source the data layer and the invoice page read.
+export const INVOICE_TRANSITIONS: Record<InvoiceStatus, readonly InvoiceStatus[]> = {
+  draft: ["sent"],
+  sent: ["paid", "void"],
+  paid: ["sent"],
+  void: [],
+};
+
+export const PAYMENT_METHODS = ["bank_transfer", "gcash", "maya", "cash", "check", "other"] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  bank_transfer: "Bank transfer",
+  gcash: "GCash",
+  maya: "Maya",
+  cash: "Cash",
+  check: "Check",
+  other: "Other",
+};
+
+export const BILLING_CADENCES =["one_time", "monthly", "milestone"] as const;
 export type BillingCadence = (typeof BILLING_CADENCES)[number];
 
 export const SYSTEM_LINK_STATES = ["live", "planned"] as const;

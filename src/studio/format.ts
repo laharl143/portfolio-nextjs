@@ -68,3 +68,22 @@ export function slugify(title: string): string {
     .replace(/-+$/g, "");
   return slug || "contract";
 }
+
+// Today in Asia/Manila as a `date` column string (YYYY-MM-DD), for invoice dates and the overdue rule (spec 0013).
+const isoDateFormat = new Intl.DateTimeFormat("en-CA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: STUDIO_TIME_ZONE,
+});
+
+export function studioToday(now: Date = new Date()): string {
+  return isoDateFormat.format(now);
+}
+
+// Calendar day arithmetic on a YYYY-MM-DD string, in UTC so no time zone ever shifts the day.
+export function addDays(value: string, days: number): string {
+  const date = new Date(`${value}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}

@@ -5,6 +5,7 @@ import {
   BILLING_CADENCES,
   CLIENT_STATUSES,
   CONTACT_CHANNELS,
+  PAYMENT_METHODS,
   PROJECT_STATUSES,
   SYSTEM_LAYERS,
   SYSTEM_LINK_STATES,
@@ -13,12 +14,24 @@ import {
   type BillingCadence,
   type ClientStatus,
   type ContactChannel,
+  type InvoiceStatus,
+  type PaymentMethod,
   type ProjectStatus,
   type SystemLayer,
   type SystemLinkState,
   type SystemResourceKind,
   type SystemStatus,
 } from "@/studio/db/constants";
+import {
+  MAX_LINES,
+  QUANTITY_MESSAGE,
+  TOTAL_TOO_LARGE_MESSAGE,
+  UNIT_PRICE_MESSAGE,
+  exceedsMoneyLimit,
+  lineAmountMinor,
+  parseQuantity,
+  parseUnitPrice,
+} from "@/studio/invoices/money";
 import { InvalidInput } from "./errors";
 
 // Form input parsing for client tracking (spec 0006): trim every text field, blank optionals become null,
@@ -523,4 +536,192 @@ export function parseSystemNoteBody(raw: Raw): string {
   const body = c.required("body", raw, "Note", SYSTEM_LIMITS.text);
   c.finish();
   return body;
+}
+
+// Invoicing (spec 0013, Form and display details): address, payment instructions, and notes keep line breaks (CRLF
+// becomes LF); a line description is single line, so its newlines collapse to spaces. Limits count after that.
+
+function multiline(raw: Raw): string {
+  return (raw ?? "").replace(/\r\n?/g, "\n");
+}
+
+function singleLine(raw: Raw): string {
+  return (raw ?? "").replace(/\s*[\r\n]+\s*/g, " ");
+}
+
+const TERMS_MESSAGE = "Enter whole days from 0 to 365.";
+
+function parseTerms(c: Collector, field: string, raw: Raw): number {
+  const value = (raw ?? "").trim();
+  if (!/^\d{1,3}$/.test(value) || Number(value) > 365) {
+    c.errors[field] = TERMS_MESSAGE;
+    return 0;
+  }
+  return Number(value);
+}
+
+export type BillingProfileFormInput = {
+  businessName?: Raw;
+  address?: Raw;
+  tin?: Raw;
+  email?: Raw;
+  phone?: Raw;
+  paymentInstructions?: Raw;
+  taxNote?: Raw;
+  documentTitle?: Raw;
+  defaultPaymentTermsDays?: Raw;
+};
+
+export type BillingProfileValues = {
+  businessName: string;
+  address: string;
+  tin: string | null;
+  email: string | null;
+  phone: string | null;
+  paymentInstructions: string;
+  taxNote: string | null;
+  documentTitle: string;
+  defaultPaymentTermsDays: number;
+};
+
+export function parseBillingProfileInput(input: BillingProfileFormInput): BillingProfileValues {
+  const c = new Collector();
+  const tin = c.optional("tin", input.tin, "TIN", 30);
+  if (tin && !c.errors.tin && !/^[0-9-]+$/.test(tin)) {
+    c.errors.tin = "Use digits and hyphens only.";
+  }
+  const email = c.optional("email", input.email, "Email", 320);
+  if (email && !c.errors.email && !EMAIL_PATTERN.test(email)) {
+    c.errors.email = "Enter an email like name@example.com.";
+  }
+  const values = {
+    businessName: c.required("businessName", input.businessName, "Business name", 200),
+    address: c.required("address", multiline(input.address), "Address", 1000),
+    tin,
+    email,
+    phone: c.optional("phone", input.phone, "Phone", 50),
+    paymentInstructions: c.required(
+      "paymentInstructions",
+      multiline(input.paymentInstructions),
+      "Payment instructions",
+      2000,
+    ),
+    taxNote: c.optional("taxNote", input.taxNote, "Tax note", 200),
+    documentTitle: c.required("documentTitle", input.documentTitle, "Document title", 60),
+    defaultPaymentTermsDays: parseTerms(c, "defaultPaymentTermsDays", input.defaultPaymentTermsDays),
+  };
+  c.finish();
+  return values;
+}
+
+export type InvoiceFormInput = {
+  lineDescription?: string[];
+  lineQuantity?: string[];
+  lineUnitPrice?: string[];
+  paymentTermsDays?: Raw;
+  billToAddress?: Raw;
+  notes?: Raw;
+};
+
+export type InvoiceLineValues = {
+  position: number;
+  description: string;
+  quantityHundredths: number;
+  unitPriceMinor: bigint;
+  amountMinor: bigint;
+};
+
+export type InvoiceValues = {
+  lines: InvoiceLineValues[];
+  paymentTermsDays: number;
+  billToAddress: string | null;
+  notes: string | null;
+};
+
+// The new and edit invoice forms (AC-2, AC-5). Lines arrive as parallel arrays in display order; per line errors key
+// as `lines.<index>.<field>`, and a line amount or total above the limit is an error on the `lines` group.
+export function parseInvoiceInput(input: InvoiceFormInput): InvoiceValues {
+  const c = new Collector();
+  const descriptions = input.lineDescription ?? [];
+  const count = Math.max(descriptions.length, input.lineQuantity?.length ?? 0, input.lineUnitPrice?.length ?? 0);
+  if (count === 0) {
+    c.errors.lines = "Add at least one line.";
+  } else if (count > MAX_LINES) {
+    c.errors.lines = `An invoice can have at most ${MAX_LINES} lines.`;
+  }
+  const lines: InvoiceLineValues[] = [];
+  for (let index = 0; index < Math.min(count, MAX_LINES); index++) {
+    const description = c.required(
+      `lines.${index}.description`,
+      singleLine(descriptions[index]),
+      "Description",
+      500,
+    );
+    const quantity = parseQuantity(input.lineQuantity?.[index] ?? "");
+    if (quantity === null) {
+      c.errors[`lines.${index}.quantity`] = QUANTITY_MESSAGE;
+    }
+    const unitPrice = parseUnitPrice(input.lineUnitPrice?.[index] ?? "");
+    if (unitPrice === null) {
+      c.errors[`lines.${index}.unitPrice`] = UNIT_PRICE_MESSAGE;
+    }
+    if (quantity !== null && unitPrice !== null) {
+      lines.push({
+        position: index + 1,
+        description,
+        quantityHundredths: quantity,
+        unitPriceMinor: unitPrice,
+        amountMinor: lineAmountMinor(quantity, unitPrice),
+      });
+    }
+  }
+  if (!c.errors.lines && exceedsMoneyLimit(lines.map((line) => line.amountMinor))) {
+    c.errors.lines = TOTAL_TOO_LARGE_MESSAGE;
+  }
+  const values = {
+    lines,
+    paymentTermsDays: parseTerms(c, "paymentTermsDays", input.paymentTermsDays),
+    billToAddress: c.optional("billToAddress", multiline(input.billToAddress), "Bill to address", 1000),
+    notes: c.optional("notes", multiline(input.notes), "Notes", 2000),
+  };
+  c.finish();
+  return values;
+}
+
+export type InvoiceStepFormInput = {
+  note?: Raw;
+  paidOn?: Raw;
+  paymentMethod?: Raw;
+  paymentReference?: Raw;
+};
+
+export type InvoiceStepValues = {
+  note: string | null;
+  paidOn: string | null;
+  paymentMethod: PaymentMethod | null;
+  paymentReference: string | null;
+};
+
+export const PAID_ON_MESSAGE = "Choose a date from the issue date to today.";
+
+// One invoice step's fields (AC-9). The paid date's range (issue date to today) is checked by the data layer,
+// which reads the issue date under the lock.
+export function parseInvoiceStepInput(to: InvoiceStatus, input: InvoiceStepFormInput): InvoiceStepValues {
+  const c = new Collector();
+  const note = c.optional("note", multiline(input.note), "Note", 1000);
+  if (to === "void" && !note && !c.errors.note) {
+    c.errors.note = "Say why this invoice is void.";
+  }
+  const values: InvoiceStepValues = { note, paidOn: null, paymentMethod: null, paymentReference: null };
+  if (to === "paid") {
+    const raw = (input.paidOn ?? "").trim();
+    values.paidOn = raw ? c.date("paidOn", raw, "Paid date") : null;
+    if (!raw || (!values.paidOn && c.errors.paidOn)) {
+      c.errors.paidOn = PAID_ON_MESSAGE;
+    }
+    values.paymentMethod = c.oneOf("paymentMethod", input.paymentMethod, PAYMENT_METHODS, null, "payment method");
+    values.paymentReference = c.optional("paymentReference", input.paymentReference, "Reference", 200);
+  }
+  c.finish();
+  return values;
 }

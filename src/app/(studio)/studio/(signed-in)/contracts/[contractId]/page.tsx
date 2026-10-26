@@ -15,11 +15,13 @@ import {
   getContractView,
   type ContractView,
 } from "@/studio/data/contracts";
+import { canInvoice, listContractInvoices } from "@/studio/data/invoices";
 import { formatAmount, formatDate, formatDateTime, formatPlainDate, statusLabel } from "@/studio/format";
 import { requireStudioAccess } from "@/studio/guard";
 import AddSignedCopyForm from "../../../_components/AddSignedCopyForm";
 import ConfirmSubmit from "../../../_components/ConfirmSubmit";
 import ContractBody from "../../../_components/ContractBody";
+import InvoiceRows from "../../../_components/InvoiceRows";
 import StatusBadge from "../../../_components/StatusBadge";
 import StepDialog from "../../../_components/StepDialog";
 import { card, pageEyebrow, primaryButton, secondaryButton, textLink } from "../../../_components/ui";
@@ -175,6 +177,46 @@ function Files({ view, writable }: { view: ContractView; writable: boolean }) {
   );
 }
 
+// Live invoices of this contract with the billed and paid totals (spec 0013, AC-11).
+function Invoices({
+  view,
+  invoices,
+}: {
+  view: ContractView;
+  invoices: Awaited<ReturnType<typeof listContractInvoices>>;
+}) {
+  const { contract } = view;
+  const summary = [
+    `Billed ${formatAmount(invoices.billedMinor, contract.currency)}`,
+    `Paid ${formatAmount(invoices.paidMinor, contract.currency)}`,
+    ...(contract.amountMinor === null ? [] : [`Contract amount ${formatAmount(contract.amountMinor, contract.currency)}`]),
+  ];
+  return (
+    <section aria-labelledby="invoices-title" className="mt-12">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h2 id="invoices-title" className={sectionTitle}>
+          Invoices
+        </h2>
+        {canInvoice(contract, view.client) && (
+          <Link href={`/studio/contracts/${contract.id}/invoices/new`} className={secondaryButton}>
+            New invoice
+          </Link>
+        )}
+      </div>
+      <p className={`mb-4 flex flex-wrap gap-x-4 text-sm tabular-nums ${muted}`}>
+        {summary.map((part) => (
+          <span key={part}>{part}</span>
+        ))}
+      </p>
+      {invoices.rows.length === 0 ? (
+        <p className={`${card} p-5 text-sm text-stone-600 dark:text-stone-300`}>No invoices yet.</p>
+      ) : (
+        <InvoiceRows rows={invoices.rows} show={{}} />
+      )}
+    </section>
+  );
+}
+
 function History({ view }: { view: ContractView }) {
   return (
     <Section id="history-title" title="Status history">
@@ -208,8 +250,9 @@ export default async function ContractPage({ params }: { params: Promise<{ contr
   const { contractId } = await params;
 
   let view: ContractView;
+  let invoices: Awaited<ReturnType<typeof listContractInvoices>>;
   try {
-    view = await getContractView(contractId);
+    [view, invoices] = await Promise.all([getContractView(contractId), listContractInvoices(contractId)]);
   } catch (err) {
     notFoundOr(err);
   }
@@ -276,6 +319,7 @@ export default async function ContractPage({ params }: { params: Promise<{ contr
         </div>
       </Section>
 
+      <Invoices view={view} invoices={invoices} />
       <Files view={view} writable={writable} />
       <History view={view} />
     </main>

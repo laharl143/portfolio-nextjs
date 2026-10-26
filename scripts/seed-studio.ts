@@ -51,6 +51,7 @@ const ID = {
   clinicContract: "5eed0000-0000-4000-8000-000000000402",
   hardwareContract: "5eed0000-0000-4000-8000-000000000403",
   exampleTemplate: "5eed0000-0000-4000-8000-000000000601",
+  bakeryInvoice: "5eed0000-0000-4000-8000-000000000701",
 } as const;
 
 // A clearly fake template that uses every placeholder (spec 0007, AC-12). Seeded contracts keep an empty body.
@@ -205,6 +206,28 @@ const NOTES = [
   { id: "5eed0000-0000-4000-8000-000000000505", body: "Fake note: second milestone due in March.", contractId: ID.bakeryContract },
 ] as const;
 
+// Spec 0013, AC-14: a clearly fake billing profile and one draft invoice with two lines on the seeded active contract.
+const BILLING_PROFILE = {
+  businessName: "Example Studio (fake)",
+  address: "123 Sample Street\nDemo City 1000\nPhilippines",
+  tin: "000-000-000-000",
+  email: "billing@example.com",
+  phone: "+63 900 000 0000",
+  paymentInstructions: "Fake details for testing only.\nExample Bank, account 0000-0000-00, Example Studio",
+  taxNote: "Example tax note, not real",
+  documentTitle: "Invoice",
+  defaultPaymentTermsDays: 15,
+};
+
+const INVOICE_FORM = {
+  lineDescription: ["Example storefront build, milestone 1", "Sample design review hours"],
+  lineQuantity: ["1", "2.5"],
+  lineUnitPrice: ["50000.00", "1500.00"],
+  paymentTermsDays: "15",
+  billToAddress: "Example Bakery\n45 Demo Avenue\nSample City",
+  notes: "Fake invoice for testing the studio.",
+};
+
 function report(label: string, created: number, total: number) {
   console.log(`[seed] ${label}: ${created} created, ${total - created} already present`);
 }
@@ -219,6 +242,7 @@ async function main() {
   const schema = await import("../src/studio/db/schema");
   const { STUDIO_WORKSPACE_ID, getWorkspaceId, runInWorkspace } = await import("../src/studio/data/workspace");
   const { createContract, changeContractStatus } = await import("../src/studio/data/contracts");
+  const { createInvoice } = await import("../src/studio/data/invoices");
   const { products, productLinks } = await import("../utils/data/products-data");
 
   // The seed has no session, so it runs inside an explicit workspace scope (spec 0005, AC-11).
@@ -325,6 +349,23 @@ async function main() {
         .onConflictDoNothing({ target: schema.contractTemplates.id })
         .returning({ id: schema.contractTemplates.id });
       report("contract templates", templates.length, 1);
+
+      const profiles = await db
+        .insert(schema.billingProfiles)
+        .values({ ...BILLING_PROFILE, workspaceId })
+        .onConflictDoNothing({ target: schema.billingProfiles.workspaceId })
+        .returning({ workspaceId: schema.billingProfiles.workspaceId });
+      report("billing profiles", profiles.length, 1);
+
+      // Through createInvoice(), so the lines and the opening event follow the same rules as the app.
+      const [invoice] = await db
+        .select({ id: schema.invoices.id })
+        .from(schema.invoices)
+        .where(eq(schema.invoices.id, ID.bakeryInvoice));
+      if (!invoice) {
+        await createInvoice(ID.bakeryContract, INVOICE_FORM, { id: ID.bakeryInvoice });
+      }
+      report("invoices", invoice ? 0 : 1, 1);
 
       // Notes last, since one points at a contract.
       const notes = await db

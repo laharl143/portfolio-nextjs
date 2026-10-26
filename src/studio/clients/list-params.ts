@@ -75,3 +75,30 @@ export function contractListHref(filters: Partial<ContractListFilters>): string 
   const query = params.toString();
   return query ? `/studio/contracts?${query}` : "/studio/contracts";
 }
+
+// The invoice list's URL state (spec 0013, AC-11): `status` (`overdue` is derived, `sent` includes overdue ones),
+// `archived=1` (discarded drafts), and `page`. An unknown status shows all.
+export const INVOICE_FILTERS = ["draft", "sent", "overdue", "paid", "void"] as const;
+export type InvoiceFilter = (typeof INVOICE_FILTERS)[number];
+export type InvoiceListFilters = { status: InvoiceFilter | null; archived: boolean; page: number };
+
+export function parseInvoiceListParams(params: RawSearchParams): InvoiceListFilters {
+  const rawStatus = first(params.status);
+  const status = (INVOICE_FILTERS as readonly string[]).includes(rawStatus) ? (rawStatus as InvoiceFilter) : null;
+  return { status, archived: first(params.archived) === "1", page: parsePage(params) };
+}
+
+export function invoiceListHref(filters: Partial<InvoiceListFilters>): string {
+  const params = new URLSearchParams();
+  if (filters.status) {
+    params.set("status", filters.status);
+  }
+  if (filters.archived) {
+    params.set("archived", "1");
+  }
+  if (filters.page && filters.page > 1) {
+    params.set("page", String(filters.page));
+  }
+  const query = params.toString();
+  return query ? `/studio/invoices?${query}` : "/studio/invoices";
+}

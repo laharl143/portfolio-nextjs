@@ -18,7 +18,9 @@ export type ContractPdfInput = {
   values: PlaceholderValues;
 };
 
-const FAMILY = "Noto Sans";
+// Shared with the invoice renderer (spec 0013), so the fonts stay where outputFileTracingIncludes traces them.
+export const PDF_FONT_FAMILY = "Noto Sans";
+const FAMILY = PDF_FONT_FAMILY;
 const FONT_DIR = path.join(process.cwd(), "src", "studio", "contracts", "pdf", "fonts");
 const FONT_FILES = [
   { file: "NotoSans-Regular.ttf", fontWeight: "normal", fontStyle: "normal" },
@@ -30,7 +32,7 @@ const FONT_FILES = [
 let fontsRegistered = false;
 
 // Once per process, by absolute path. A missing file fails loudly instead of falling back to Helvetica.
-function registerFonts() {
+export function registerPdfFonts() {
   if (fontsRegistered) {
     return;
   }
@@ -191,7 +193,7 @@ function ContractDocument({ input, watermark }: { input: ContractPdfInput; water
 
 // Throws PdfRenderFailed on any rendering problem; the caller logs only the code.
 export async function renderContractPdf(input: ContractPdfInput, opts: { watermark: Watermark | null }): Promise<Buffer> {
-  registerFonts();
+  registerPdfFonts();
   try {
     return await renderToBuffer(<ContractDocument input={input} watermark={opts.watermark} />);
   } catch {
