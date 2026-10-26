@@ -44,7 +44,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 27 | Lead intake production launch | Studio slice 6 | done |
 | 28 | Studio home dashboard | Studio slice 7 | done |
 | 29 | Invoicing | Studio slice 8 | done |
-| 30 | Session lookup log hygiene | Studio hardening | planned |
+| 30 | Session lookup log hygiene | Studio hardening | done |
 | 31 | Portfolio moves to /personal | Sales slice | in-progress |
 | 32 | ED Solutions rebrand | Sales slice | planned |
 | 33 | ED Solutions landing page | Sales slice | planned |
@@ -351,10 +351,11 @@ Production PDF check on 2026-10-27 (deploy of `2ae3adc`): a fake draft and a fak
 
 ## Studio hardening
 
-### 30. Session lookup log hygiene
+### 30. Session lookup log hygiene · done
 When a session lookup fails, Next logs the Drizzle `Failed query` line with its parameters, including the session token hash. Log only the error code or class name for that read so studio logs stay clean. From spec 0012's follow up.
 **Done when:** a failed session lookup logs no query parameters or token hash, and the outage screen and sign in redirect still behave as spec 0012 describes.
-- [ ] Build it: `/develop session lookup log hygiene`
+- [x] Build it: `/develop session lookup log hygiene`
+code in `src/studio/auth/session.ts` (`SessionLookupFailed`, tests in `session.test.ts`)
 Jira [DP-89](https://vital-stats.atlassian.net/browse/DP-89)
 
 ## Sales slice: Client positioning

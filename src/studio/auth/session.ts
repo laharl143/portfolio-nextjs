@@ -4,6 +4,7 @@ import { asc, and, eq, gt, lt, sql } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import "@/studio/marker";
+import { pgErrorOf } from "@/studio/data/errors";
 import { getDb, type Tx } from "@/studio/db/client";
 import { sessions, workspaceMembers } from "@/studio/db/schema";
 import { SESSION_DAYS, SESSION_SLIDE_AFTER_HOURS } from "./config";
@@ -16,6 +17,13 @@ export type StudioSession = {
 };
 
 const SLIDE_AFTER_MS = SESSION_SLIDE_AFTER_HOURS * 60 * 60 * 1000;
+
+class SessionLookupFailed extends Error {
+  constructor(readonly code: string) {
+    super(`session lookup failed (${code})`);
+    this.name = "SessionLookupFailed";
+  }
+}
 
 export function newSessionToken(): string {
   return randomBytes(32).toString("base64url");
@@ -47,16 +55,23 @@ export const getStudioSession = cache(async (): Promise<StudioSession | null> =>
     return null;
   }
   const db = getDb();
-  const [row] = await db
-    .select({
-      sessionId: sessions.id,
-      ownerId: sessions.ownerId,
-      workspaceId: sessions.workspaceId,
-      lastSeenAt: sessions.lastSeenAt,
-    })
-    .from(sessions)
-    .where(and(eq(sessions.tokenHash, hashSessionToken(token)), gt(sessions.expiresAt, sql`now()`)))
-    .limit(1);
+  let row;
+  try {
+    [row] = await db
+      .select({
+        sessionId: sessions.id,
+        ownerId: sessions.ownerId,
+        workspaceId: sessions.workspaceId,
+        lastSeenAt: sessions.lastSeenAt,
+      })
+      .from(sessions)
+      .where(and(eq(sessions.tokenHash, hashSessionToken(token)), gt(sessions.expiresAt, sql`now()`)))
+      .limit(1);
+  } catch (err) {
+    // Next logs the thrown error with its cause; the Drizzle error holds the SQL and the token hash parameter.
+    // Rethrow only a safe code so the outage screen (spec 0012) still shows and the logs stay clean.
+    throw new SessionLookupFailed(pgErrorOf(err)?.code ?? "UNEXPECTED");
+  }
   if (!row) {
     return null;
   }
