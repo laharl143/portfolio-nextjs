@@ -27,7 +27,9 @@ const navItems = [
   },
 ];
 
-const Footer: FC = () => {
+// "brand" is for the (brand) pages only (spec 0015); copy stays the same until feature 33.
+const Footer: FC<{ variant?: "personal" | "brand" }> = ({ variant = "personal" }) => {
+  const brand = variant === "brand";
   const router = useRouter();
   const { scope, entranceAnimation } = useTextRevealAnimation();
   const inView = useInView(scope);
@@ -43,7 +45,7 @@ const Footer: FC = () => {
   };
 
   return (
-    <footer className="bg-stone-900 text-white" id="contact">
+    <footer className={brand ? "bg-card text-card-foreground" : "bg-stone-900 text-white"} id="contact">
       <div className="container">
         <div className="section">
           <div className="flex items-center gap-3">
@@ -69,7 +71,7 @@ const Footer: FC = () => {
                   trackContactClick("footer");
                   router.push("/contact");
                 }}
-                variant="secondary"
+                variant={brand ? "pill-outline" : "secondary"}
                 className="mt-8"
                 iconAfter={
                   <div className="size-6 overflow-hidden">
@@ -114,7 +116,7 @@ const Footer: FC = () => {
               <nav className="flex flex-col md:items-end gap-8 mt-16 md:mt-0">
                 {navItems.map(({ href, label }) => (
                   <a href={href} key={label} onClick={handleClickNavItem}>
-                    <Button variant="text" className="text-lg">
+                    <Button variant="text" className={brand ? "text-lg after:bg-signal" : "text-lg"}>
                       {label}
                     </Button>
                   </a>
@@ -123,7 +125,7 @@ const Footer: FC = () => {
             </div>
           </div>
         </div>
-        <p className="py-16 text-white/30 text-sm">
+        <p className={`py-16 text-sm ${brand ? "text-muted-foreground" : "text-white/30"}`}>
           Copyright &copy; Erskine Duenas &bull; All rights reserved
         </p>
       </div>

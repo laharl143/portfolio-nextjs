@@ -5,7 +5,8 @@ import { FaArrowUp } from "react-icons/fa6";
 
 const SCROLL_THRESHOLD = 50;
 
-const ScrollToTop = () => {
+// variant "brand" uses the brand tokens (spec 0015); "personal" keeps the old palette.
+const ScrollToTop = ({ variant = "personal" }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -23,10 +24,13 @@ const ScrollToTop = () => {
   return (
     <button
       className={`fixed bottom-8 right-6 z-50 flex items-center justify-center
-        rounded-full bg-stone-700 text-stone-200 shadow-md
+        rounded-full shadow-md
+        ${variant === "brand"
+          ? "border border-border bg-card text-foreground hover:bg-signal hover:text-primary-foreground hover:border-transparent"
+          : `bg-stone-700 text-stone-200
         dark:bg-stone-600 dark:text-white
         hover:bg-neon-500 hover:text-white
-        dark:hover:bg-neon-500 dark:hover:text-white
+        dark:hover:bg-neon-500 dark:hover:text-white`}
         transition-all duration-300 p-4 size-12
         ${isVisible ? "opacity-100" : "opacity-0 pointer-events-none"}`}
       onClick={onClickBtn}

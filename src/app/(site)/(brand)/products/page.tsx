@@ -4,7 +4,7 @@ import Products from "@/sections/Products";
 import Footer from "@/sections/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import { SITE_NAME, openGraphBase } from "@/lib/site";
-import { seo } from "../../../../utils/data/seo-data";
+import { seo } from "../../../../../utils/data/seo-data";
 
 export const metadata: Metadata = {
   title: seo.products.title,
@@ -21,12 +21,12 @@ export const metadata: Metadata = {
 export default function ProductsPage() {
   return (
     <>
-      <Header />
+      <Header variant="brand" />
       <main>
         <Products />
       </main>
-      <Footer />
-      <ScrollToTop />
+      <Footer variant="brand" />
+      <ScrollToTop variant="brand" />
     </>
   );
 }

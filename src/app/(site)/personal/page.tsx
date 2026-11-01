@@ -9,7 +9,7 @@ import Badges from "@/sections/Badges";
 import FAQs from "@/sections/FAQs";
 import Footer from "@/sections/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
-import { openGraphBase } from "@/lib/site";
+import { personalOpenGraphBase } from "@/lib/site";
 import { profilePageJsonLd, toJsonLdString } from "@/lib/json-ld";
 import { seo } from "../../../../utils/data/seo-data";
 
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: { absolute: seo.personal.title },
   description: seo.personal.description,
   alternates: { canonical: "/personal" },
-  openGraph: { ...openGraphBase, url: "/personal", title: seo.personal.title, description: seo.personal.description },
+  openGraph: { ...personalOpenGraphBase, url: "/personal", title: seo.personal.title, description: seo.personal.description },
 };
 
 export default function Personal() {

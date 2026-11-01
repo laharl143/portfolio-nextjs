@@ -7,6 +7,7 @@ import { ThemeToggleButton } from "@/components/ThemeToggleButton";
 import { scrollToSectionIfSamePage } from "@/lib/section-nav";
 import { trackContactClick } from "@/lib/analytics";
 import Link from "next/link";
+import Wordmark from "@/components/brand/Wordmark";
 import { useRouter } from "next/navigation";
 
 const navItems = [
@@ -70,7 +71,9 @@ const TitleToggle: FC = () => {
   );
 };
 
-const Header: FC = () => {
+// "brand" is for the (brand) pages only (spec 0015); the default keeps /personal exactly as it was.
+const Header: FC<{ variant?: "personal" | "brand" }> = ({ variant = "personal" }) => {
+  const brand = variant === "brand";
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [topLineScope, topLineAnimate] = useAnimate();
@@ -162,7 +165,7 @@ const Header: FC = () => {
   return (
     <header className="">
       <div
-        className="fixed top-0 left-0 w-full h-0 overflow-hidden bg-stone-900 z-10"
+        className={`fixed top-0 left-0 w-full h-0 overflow-hidden z-10 ${brand ? "bg-card" : "bg-stone-900"}`}
         ref={navScope}
       >
         <nav className="mt-20 flex flex-col">
@@ -170,7 +173,7 @@ const Header: FC = () => {
             <a
               href={href}
               key={label}
-              className="text-stone-200 border-t  last:border-b border-stone-800 py-8 group/nav-item relative isolate"
+              className={`border-t  last:border-b py-8 group/nav-item relative isolate ${brand ? "text-muted-foreground border-border" : "text-stone-200 border-stone-800"}`}
               onClick={handleClickMobileNavItem}
             >
               <div className="container !max-w-full flex items-center justify-between">
@@ -192,7 +195,7 @@ const Header: FC = () => {
                   />
                 </svg>
               </div>
-              <div className="absolute w-full h-0 bg-stone-800 group-hover/nav-item:h-full transition-all duration-500 bottom-0 -z-10"></div>
+              <div className={`absolute w-full h-0 group-hover/nav-item:h-full transition-all duration-500 bottom-0 -z-10 ${brand ? "bg-muted" : "bg-stone-800"}`}></div>
             </a>
           ))}
         </nav>
@@ -201,6 +204,11 @@ const Header: FC = () => {
         <div className="container !max-w-full">
           <div className="flex justify-between h-20 items-center">
             <div>
+              {brand ? (
+                <Link href="/" className="text-white">
+                  <Wordmark />
+                </Link>
+              ) : (
               <Link href="/">
                 <span className="text-xl font-bold uppercase text-white md:text-3xl lg:text-4xl">
                   Erskine Duenas
@@ -210,16 +218,22 @@ const Header: FC = () => {
                   <TitleToggle />
                 </span>
               </Link>
+              )}
             </div>
           </div>
         </div>
       </div>
-      <div className="fixed top-0 left-0 w-full z-10">
+      {/* On brand pages this full width bar lets clicks through to the wordmark under it; only its controls take them. */}
+      <div className={`fixed top-0 left-0 w-full z-10 ${brand ? "pointer-events-none" : ""}`}>
         <div className="container !max-w-full">
           <div className="flex justify-end h-20 items-center">
-            <div className="flex items-center gap-4">
+            <div className={`flex items-center gap-4 ${brand ? "pointer-events-auto" : ""}`}>
               <div
-                className="size-11 border border-stone-400 rounded-full inline-flex items-center justify-center bg-stone-200 dark:bg-stone-900 transition duration-500 hover:bg-neon-500 hover:text-white hover:border-transparent dark:hover:bg-primary/10 cursor-pointer"
+                className={
+                  brand
+                    ? "size-11 border border-border rounded-full inline-flex items-center justify-center bg-card text-foreground transition duration-500 hover:bg-signal hover:text-primary-foreground hover:border-transparent cursor-pointer"
+                    : "size-11 border border-stone-400 rounded-full inline-flex items-center justify-center bg-stone-200 dark:bg-stone-900 transition duration-500 hover:bg-neon-500 hover:text-white hover:border-transparent dark:hover:bg-primary/10 cursor-pointer"
+                }
                 onClick={() => setIsOpen(!isOpen)}
               >
                 <svg
@@ -254,8 +268,8 @@ const Header: FC = () => {
                 </svg>
               </div>
               <Button
-                variant="primary"
-                className="hidden md:inline-flex items-center dark:hover:text-primary/90"
+                variant={brand ? "pill" : "primary"}
+                className={brand ? "hidden md:inline-flex items-center" : "hidden md:inline-flex items-center dark:hover:text-primary/90"}
                 onClick={() => {
                   trackContactClick("header");
                   router.push("/contact");

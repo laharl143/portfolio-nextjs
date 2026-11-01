@@ -11,8 +11,8 @@ import {
 const statusDot: Record<ProductStatus, string> = {
   built: "bg-green-500",
   "in-progress": "bg-yellow-500",
-  next: "bg-neon-light-500",
-  planned: "bg-stone-400",
+  next: "bg-signal",
+  planned: "bg-muted-foreground",
 };
 
 const statusTitle = Object.fromEntries(
@@ -24,11 +24,11 @@ const productName = Object.fromEntries(
 ) as Record<PublicProduct["id"], string>;
 
 const focusRing =
-  "rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neon-light-500";
+  "rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 function StatusBadge({ status }: { status: ProductStatus }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-stone-400 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-stone-700 dark:border-stone-600 dark:text-stone-300">
+    <span className="brand-label inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-muted-foreground md:text-xs">
       <span
         className={`size-2 rounded-full ${statusDot[status]}`}
         aria-hidden="true"
@@ -44,7 +44,7 @@ function LinkStateMarker({ state }: { state: ProductLink["state"] }) {
       Live
     </span>
   ) : (
-    <span className="inline-flex items-center rounded-full border border-dashed border-stone-400 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-stone-600 dark:border-stone-600 dark:text-stone-400">
+    <span className="inline-flex items-center rounded-full border border-dashed border-border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
       Planned
     </span>
   );
@@ -63,7 +63,7 @@ function ConnectionList({
 
   return (
     <div>
-      <h4 className="text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+      <h4 className="brand-label text-muted-foreground md:text-xs">
         {title}
       </h4>
       <ul className="mt-2 space-y-2">
@@ -76,11 +76,11 @@ function ConnectionList({
             >
               <a
                 href={`#product-${otherId}`}
-                className={`font-medium underline decoration-dotted underline-offset-4 hover:text-neon-light-500 ${focusRing}`}
+                className={`font-medium underline decoration-dotted underline-offset-4 hover:text-signal ${focusRing}`}
               >
                 {productName[otherId]}
               </a>
-              <span className="text-stone-600 dark:text-stone-400">
+              <span className="text-muted-foreground">
                 {link.label}
               </span>
               <LinkStateMarker state={link.state} />
@@ -101,20 +101,20 @@ function ProductCard({ product }: { product: PublicProduct }) {
     <li>
       <article
         id={`product-${product.id}`}
-        className="h-full scroll-mt-28 border-t border-dotted border-stone-400 py-8 transition-colors duration-500 target:bg-stone-300 dark:target:bg-stone-800 md:px-6"
+        className="h-full scroll-mt-28 border-t border-dotted border-border py-8 transition-colors duration-500 target:bg-muted md:px-6"
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="text-2xl md:text-3xl text-gray-900 dark:text-white">
+          <h3 className="brand-heading text-2xl md:text-3xl text-foreground">
             {product.name}
           </h3>
           <StatusBadge status={product.status} />
         </div>
-        <p className="mt-4 max-w-prose text-stone-700 dark:text-stone-300">
+        <p className="mt-4 max-w-prose text-muted-foreground">
           {product.summary}
         </p>
         <div className="mt-6 space-y-5">
           {noLinks ? (
-            <p className="text-sm italic text-stone-600 dark:text-stone-400">
+            <p className="text-sm italic text-muted-foreground">
               {product.standalone
                 ? "Standalone, no connections by design"
                 : "Connections not mapped yet"}
@@ -139,17 +139,17 @@ const Products: FC = () => {
   return (
     <section className="section" id="products-ecosystem">
       <div className="container">
-        <p className="text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+        <p className="brand-label text-muted-foreground">
           SMB product ecosystem
         </p>
-        <h1 className="mt-2 text-4xl md:text-7xl lg:text-8xl">Products</h1>
-        <p className="mt-6 max-w-3xl text-lg md:text-xl text-stone-700 dark:text-stone-300">
+        <h1 className="brand-heading mt-2 text-4xl md:text-7xl lg:text-8xl">Products</h1>
+        <p className="mt-6 max-w-3xl text-lg md:text-xl text-muted-foreground">
           A family of connected products for small and medium businesses. Each
           one stands on its own, and they share events so orders, invoices,
           bookings and stock flow between them. Here is what is built, what is
           in progress, and what comes next.
         </p>
-        <p className="mt-6 flex flex-wrap items-center gap-3 text-sm text-stone-600 dark:text-stone-400">
+        <p className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <span>Connections:</span>
           <LinkStateMarker state="live" />
           <span>running today</span>
@@ -170,10 +170,10 @@ const Products: FC = () => {
             >
               <h2
                 id={headingId}
-                className="flex items-baseline gap-3 text-3xl md:text-5xl"
+                className="brand-heading flex items-baseline gap-3 text-3xl md:text-5xl"
               >
                 {title}
-                <span className="text-base md:text-lg text-stone-500 dark:text-stone-400">
+                <span className="text-base md:text-lg text-muted-foreground">
                   {items.length} {items.length === 1 ? "product" : "products"}
                 </span>
               </h2>

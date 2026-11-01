@@ -27,11 +27,11 @@ test("AC-1 AC-2 AC-3 AC-4 AC-5 AC-6 AC-7 AC-10 AC-11 AC-15: owner creates, edits
   // temporary session is removed. This fixture never calls Blob or sends an invoice to a real client.
   try{
     await page.goto(`/studio/contracts/${f.contract}`);await page.getByRole("link",{name:"New invoice",exact:true}).click();
-    await expect(page.getByRole("textbox",{name:"Description",exact:true})).toHaveValue("FAKE Storefront Build");
+    await expect(page.getByRole("textbox",{name:"Description",exact:true})).toHaveValue("FAKE Storefront Build",{timeout:30000});
     await expect(page.getByRole("textbox",{name:"Unit price (PHP)",exact:true})).toHaveValue("150000.00");
     await page.getByRole("textbox",{name:"Description",exact:true}).fill("FAKE ₱ ñ “quote” – work");await page.getByRole("textbox",{name:"Qty",exact:true}).fill("0.33");await page.getByRole("textbox",{name:"Unit price (PHP)",exact:true}).fill("100.01");
     await expect(page.getByText("Total PHP 33.00",{exact:true})).toBeVisible();await page.getByRole("button",{name:"Save draft",exact:true}).click();
-    await expect(page).toHaveURL(/\/studio\/invoices\/[0-9a-f-]+$/);const url=page.url(),id=url.split("/").pop()!;
+    await expect(page).toHaveURL(/\/studio\/invoices\/[0-9a-f-]+$/,{timeout:30000});const url=page.url(),id=url.split("/").pop()!;
     await expect(page.getByRole("heading",{name:"Draft",exact:true})).toBeVisible();await expect(page.getByText("Created",{exact:true})).toBeVisible();
     const pdf=await context.request.get(url+"/pdf");expect(pdf.status()).toBe(200);expect(pdf.headers()["cache-control"]).toBe("private, no-store");expect(pdf.headers()["x-content-type-options"]).toBe("nosniff");expect((await pdf.body()).subarray(0,4).toString()).toBe("%PDF");
     await page.getByRole("button",{name:"Mark sent",exact:true}).click();await page.getByRole("alertdialog").getByRole("button",{name:"Mark sent",exact:true}).click();await expect(page.getByRole("alert")).toContainText("Complete your billing profile before sending.");await page.getByRole("alertdialog").getByRole("button",{name:"Cancel",exact:true}).click();

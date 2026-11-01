@@ -4,8 +4,8 @@ import Footer from "@/sections/Footer";
 import ContactForm from "@/components/ContactForm";
 import { getPublicIntakeConfig } from "@/inquiries/public-config";
 import { openGraphBase, SITE_NAME } from "@/lib/site";
-import { seo } from "../../../../utils/data/seo-data";
-import { contactData } from "../../../../utils/data/contact-data";
+import { seo } from "../../../../../utils/data/seo-data";
+import { contactData } from "../../../../../utils/data/contact-data";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: seo.contact.title,
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
-      <Header />
+      <Header variant="brand" />
       <main className="container max-w-3xl pb-24 pt-36">
-        <h1 className="text-4xl font-semibold md:text-6xl">
+        <h1 className="brand-heading text-4xl md:text-6xl">
           {contactData.title}
         </h1>
         <p className="mb-10 mt-5 text-lg">{contactData.intro}</p>
@@ -35,7 +35,7 @@ export default function ContactPage() {
           </a>
         </p>
       </main>
-      <Footer />
+      <Footer variant="brand" />
     </>
   );
 }

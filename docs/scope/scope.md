@@ -46,7 +46,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 29 | Invoicing | Studio slice 8 | done |
 | 30 | Session lookup log hygiene | Studio hardening | done |
 | 31 | Portfolio moves to /personal | Sales slice | done |
-| 32 | ED Solutions rebrand | Sales slice | planned |
+| 32 | ED Solutions rebrand | Sales slice | done |
 | 33 | ED Solutions landing page | Sales slice | planned |
 | 34 | Landing hero client pitch | Sales slice | planned |
 | 35 | Section calls to action | Sales slice | planned |
@@ -373,11 +373,17 @@ Move today's home page, unchanged, to `/personal` for employers, so the employer
 - [x] Verify it: `/check verify portfolio moves to /personal`
 spec [0014](../specs/0014-portfolio-moves-to-personal/index.md) · code in `src/app/(site)/personal/`, `next.config.mjs` · Jira [DP-91](https://vital-stats.atlassian.net/browse/DP-91)
 
-### 32. ED Solutions rebrand · needs a decision
-Give the business its brand before the landing page is built on it: wordmark, palette, type, favicon, and the site name in metadata and share cards. Pulled forward from Deferred. Decide how much of it `/personal` shares.
-**Done when:** the ED Solutions wordmark, palette, type, and favicon are defined and applied to the landing page shell, metadata, and share cards in both themes; `/personal` looks the way the spec decides.
-- [ ] Design it (spec): `/architect ed solutions rebrand`
-Jira [DP-92](https://vital-stats.atlassian.net/browse/DP-92)
+### 32. ED Solutions rebrand · done
+Give the business its brand before the landing page is built on it: wordmark, palette, type, favicon, and the site name in metadata and share cards. Pulled forward from Deferred. Decided: a scoped brand in a `(brand)` route group for the business pages; `/personal` and the studio stay frozen.
+**Done when:** the ED Solutions wordmark, palette, type, and favicon are defined and applied to the brand pages (`/products`, `/contact`) through the `(brand)` layout that `/` will use, with metadata and share cards, in both themes; `/personal` and the studio are unchanged.
+- [x] Design it (spec): `/architect ed solutions rebrand` (2026-11-01, WHOOP screenshots as style reference; recommended choices delegated from the accent onward)
+- [x] Build it: `/develop ed solutions rebrand` (2026-11-01)
+   - [x] Route group and theme plumbing: `(brand)` group, provider per group with dark default, frozen baselines, satisfies AC-3, AC-7 to AC-9
+   - [x] Tokens, type, and identity: `.brand` tokens, Archivo width axis, Wordmark, Header and Footer variants, pill buttons, page body conversion, satisfies AC-1, AC-2, AC-2b
+   - [x] Metadata, icons, and share card: ED Solutions site name and titles, brand favicon, brand card, satisfies AC-4 to AC-7
+   - [x] Checks: unit and e2e tests, lint, build, and a browser pass, satisfies AC-10 (2026-11-01: ScrollToTop brand variant for AC-2b; invoicing e2e given 30s on its two slow dev navigations)
+- [x] Verify it: `/check verify ed solutions rebrand` (2026-11-01: AC-1 to AC-10 met; e2e flake fixed with a 30s project expect timeout, two full runs 36/36)
+spec [0015](../specs/0015-ed-solutions-brand/index.md) · code in `src/app/(site)/(brand)/`, `src/app/globals.css`, `src/components/brand/` · Jira [DP-92](https://vital-stats.atlassian.net/browse/DP-92)
 
 ### 33. ED Solutions landing page · needs a decision
 The new `/` for small business clients: which sections it has and in what order, its own navigation, and its metadata. Built from the existing UI and the new brand. A Mobbin reference (WHOOP) was wanted, but the Mobbin MCP needs a paid plan, so the design source is the current UI unless that changes.

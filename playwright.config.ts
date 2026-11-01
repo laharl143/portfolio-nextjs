@@ -2,6 +2,9 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
   timeout: 60000,
+  // Two workers share one `next dev` server against Neon, so a step can wait on an on demand compile or several
+  // database round trips (10s to 18s seen). The 5s default flaked whichever assertion met a slow response.
+  expect: { timeout: 30000 },
   workers: 2,
   use: { baseURL: "http://localhost:3100" },
   projects: [

@@ -14,7 +14,7 @@ declare global {
   }
 }
 const fieldClass =
-  "mt-2 block w-full rounded-lg border border-stone-400 bg-white p-3 text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-orange-500 dark:border-stone-600 dark:bg-stone-950 dark:text-stone-100";
+  "mt-2 block w-full rounded-lg border border-border bg-card p-3 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 export default function ContactForm({
   enabled,
   siteKey,
@@ -125,7 +125,7 @@ export default function ContactForm({
   }
   if (!enabled || !siteKey)
     return (
-      <p className="rounded-xl border border-stone-400 p-6">
+      <p className="rounded-xl border border-border p-6">
         The inquiry form is currently unavailable.{" "}
         <a className="underline" href={`mailto:${contactData.email}`}>
           Send me an email
@@ -148,7 +148,7 @@ export default function ContactForm({
         role={success ? "status" : "alert"}
         className={
           message
-            ? "mb-6 rounded-lg border border-stone-400 p-4 focus:outline-none focus:ring-2 focus:ring-red-orange-500"
+            ? "mb-6 rounded-lg border border-border p-4 focus:outline-none focus:ring-2 focus:ring-ring"
             : ""
         }
       >
@@ -178,7 +178,7 @@ export default function ContactForm({
             ] as const
           ).map((field) => (
             <div key={field.name}>
-              <label htmlFor={field.name} className="font-semibold">
+              <label htmlFor={field.name} className="brand-label">
                 {field.label}
               </label>
               {field.name === "description" ? (
@@ -229,7 +229,7 @@ export default function ContactForm({
               )}
             </div>
           ))}
-          <p className="text-sm text-stone-600 dark:text-stone-400">
+          <p className="text-sm text-muted-foreground">
             {contactData.privacy}
           </p>
           <label className="flex items-start gap-3">
@@ -259,7 +259,7 @@ export default function ContactForm({
           )}
           <button
             disabled={pending || !token}
-            className="rounded-lg bg-stone-900 px-6 py-3 font-semibold text-white focus-visible:ring-2 focus-visible:ring-red-orange-500 disabled:opacity-50 dark:bg-stone-100 dark:text-stone-900"
+            className="rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
           >
             {pending
               ? "Sending…"

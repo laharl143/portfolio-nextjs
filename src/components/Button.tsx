@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 
 const Button = (
   props: {
-    variant: "primary" | "secondary" | "third" | "text";
+    variant: "primary" | "secondary" | "third" | "text" | "pill" | "pill-outline";
     iconAfter?: ReactNode;
     pdfUrl?: string;
   } & ButtonHTMLAttributes<HTMLButtonElement>
@@ -28,6 +28,11 @@ const Button = (
         variant === "secondary" && "hover:bg-neon-500 hover:text-white",
         variant === "third" &&
           "hover:bg-neon-500 hover:text-white border-transparent hover:border-transparent",
+        // Brand pages only (spec 0015).
+        variant === "pill" &&
+          "rounded-full bg-primary text-primary-foreground border-primary tracking-[0.16em] hover:bg-transparent hover:text-foreground",
+        variant === "pill-outline" &&
+          "rounded-full border-foreground/60 text-foreground hover:bg-foreground hover:text-background",
         variant === "text" &&
           "h-auto px-0 border-transparent after:transition-all after:duration-500 after:content-[''] after:h-px after:w-0 after:absolute after:top-full after:bg-neon-light-500 hover:after:w-full",
         className
