@@ -1,19 +1,13 @@
 # 0014. Move the portfolio home page to `/personal`
 
 **Date**: 2026-10-25
-**Status**: Proposed
+**Status**: Accepted
+
+Decision history: [rationale.md](rationale.md) · Verify checklist: [verify.md](verify.md)
 
 ## Summary
 
 Today's home page moves, unchanged, to a new public page at `/personal`, the page for employers and recruiters. Until the ED Solutions landing page (scope feature 33) is ready, `/` sends visitors to `/personal` with a temporary redirect (an instruction that says "this lives somewhere else for now"). The search setup from spec 0009 moves with the page: its canonical link, share card, Person profile data, and sitemap entry now point at `/personal`. Header and footer section links point at `/personal#<section>`, so they scroll on that page and still work from `/products` and `/contact`.
-
-## Context
-
-The site is being split in two (scope slice "Sales slice: Client positioning"). Employers need the current portfolio as it is, CV download included. Small business clients need a new ED Solutions landing page at `/`. Both pages cannot live at `/`, so the portfolio has to move first, without breaking the links people already have: the bare domain, `/#projects` style section links in the header and footer, links in your CV and on LinkedIn, and the search and share setup from spec 0009.
-
-The landing page is several features away (rebrand 37, landing page 38). In the meantime, `/` must not show a blank page or a half built landing page. Feature 38 also needs a clear handover: which of the things this spec adds it must undo or keep.
-
-Everything here is routing and metadata on the existing Next 16 App Router site. It adds no dependency, no data, and no studio change.
 
 ## Requirements
 
@@ -40,20 +34,6 @@ Everything here is routing and metadata on the existing Next 16 App Router site.
 Move the page files into `src/app/(site)/personal/` and add a temporary redirect from `/` to `/personal` in `next.config.mjs`. Rename the `home` SEO copy entry to `personal`, with identical values. Point the sitemap, the JSON-LD, and the section links at `/personal`. Home links (the logo and the 404 link) stay at `/`, so they need no change when the landing page arrives.
 
 **Implementation skills**: `vercel-react-best-practices` (`vercel-labs/agent-skills`, `.claude/skills/vercel-react-best-practices/`)
-
-## Options considered
-
-1. **Move plus a temporary config redirect (chosen).** One commit, reverted by one revert. A 307 tells search engines the move is temporary, so `/` keeps its place in search until feature 33 puts the landing page there.
-2. **Keep the portfolio rendering at both `/` and `/personal`**, with `/` canonical to `/personal`. No redirect, but it is a duplicate page, and feature 33 would have to find and remove it. It also confuses which URL people share.
-3. **Wait and ship together with feature 33.** Nothing to design for the meantime, but it ties a small, safe move to the biggest feature in the slice and blocks feature 32's `/personal` decision from being checked live.
-
-## Rationale
-
-A config redirect is the smallest change that keeps every old link working. Browsers keep the `#section` part across a redirect, so `/#projects` reaches `/personal#projects` with no script. It is also the easiest to remove: feature 33 deletes one redirect entry and adds a page. A temporary redirect is chosen over a permanent one (308) because `/` is coming back as a real page. A permanent redirect is cached by browsers and would keep sending returning visitors to `/personal` after the landing page ships.
-
-The section links point straight at `/personal#…` instead of relying on the redirect. That way they keep working once `/` becomes the landing page, and `scrollToSectionIfSamePage` needs no change (it already compares paths). The logo and 404 links keep `/`, because their meaning is "site home", which is about to become the landing page.
-
-The `home` SEO copy entry is renamed `personal` rather than copied, so there is one source of the portfolio copy. Feature 38 adds a new `home` entry for the landing page and points the layout defaults at it.
 
 ## Design
 

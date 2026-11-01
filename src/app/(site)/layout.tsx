@@ -9,8 +9,8 @@ import { seo } from "../../../utils/data/seo-data";
 // Site wide SEO defaults (spec 0009). Pages add their own canonical and Open Graph url, title, and description.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: seo.home.title, template: `%s | ${SITE_NAME}` },
-  description: seo.home.description,
+  title: { default: seo.personal.title, template: `%s | ${SITE_NAME}` },
+  description: seo.personal.description,
   openGraph: openGraphBase,
   twitter: { card: "summary_large_image" },
 };

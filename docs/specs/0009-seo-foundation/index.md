@@ -3,6 +3,8 @@
 **Date**: 2026-10-20
 **Status**: Accepted
 
+> Partly superseded by [spec 0014](../0014-portfolio-moves-to-personal/index.md): the AC-3, AC-5, AC-6, and AC-8 statements about `/` (canonical, card, sitemap, JSON-LD) now apply to `/personal`.
+
 ## Summary
 
 The public site (`/` and `/products`) gets real search and sharing metadata: proper titles and descriptions, canonical links (the one official URL for a page), a generated social share card per page, a `sitemap.xml`, a `robots.txt`, and a Person profile in JSON-LD (machine readable data search engines read). Everything uses Next.js built in file conventions and the Metadata API, so there is no new dependency and nothing to run by hand. The studio stays out of search: it keeps its `noindex` tags, gains a `noindex` response header, and never appears in the sitemap.

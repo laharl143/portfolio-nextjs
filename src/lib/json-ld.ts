@@ -10,7 +10,7 @@ export function profilePageJsonLd() {
       "@type": "Person",
       name: personalData.name,
       jobTitle: personalData.designation,
-      url: SITE_URL,
+      url: new URL("/personal", SITE_URL).href,
       image: `${SITE_URL}/profile-image`,
       sameAs: [personalData.github, personalData.linkedIn],
     },

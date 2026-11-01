@@ -6,5 +6,5 @@ import { seo } from "../../../../utils/data/seo-data";
 export const dynamic = "force-static";
 
 export function GET() {
-  return renderShareCard(seo.home.cardHeadline);
+  return renderShareCard(seo.personal.cardHeadline);
 }

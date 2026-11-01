@@ -13,6 +13,11 @@ const nextConfig = {
   async headers() {
     return [{ source: "/studio/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
   },
+  // The portfolio lives at /personal. Temporary (307), because / comes back as the landing page in feature 38,
+  // and a cached permanent redirect would keep sending returning visitors away from it (spec 0014, AC-2).
+  async redirects() {
+    return [{ source: "/", destination: "/personal", permanent: false }];
+  },
   experimental: {
     // Signed copy uploads are capped at 4 MB, under Vercel's 4.5 MB request limit (spec 0007, AC-8).
     serverActions: { bodySizeLimit: "4.5mb" },

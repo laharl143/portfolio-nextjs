@@ -10,19 +10,19 @@ import { useRouter } from "next/navigation";
 
 const navItems = [
   {
-    href: "/#hero",
+    href: "/personal#hero",
     label: "About me",
   },
   {
-    href: "/#skills",
+    href: "/personal#skills",
     label: "Skills",
   },
   {
-    href: "/#projects",
+    href: "/personal#projects",
     label: "Projects",
   },
   {
-    href: "/#faqs",
+    href: "/personal#faqs",
     label: "Faqs",
   },
 ];

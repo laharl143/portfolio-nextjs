@@ -12,19 +12,19 @@ import { useRouter } from "next/navigation";
 const navItems = [
   {
     label: "About me",
-    href: "/#hero",
+    href: "/personal#hero",
   },
   {
     label: "Certifications",
-    href: "/#badges",
+    href: "/personal#badges",
   },
   {
     label: "Skills",
-    href: "/#skills",
+    href: "/personal#skills",
   },
   {
     label: "Projects",
-    href: "/#projects",
+    href: "/personal#projects",
   },
   {
     label: "Products",
@@ -32,11 +32,11 @@ const navItems = [
   },
   {
     label: "FAQs",
-    href: "/#faqs",
+    href: "/personal#faqs",
   },
   {
     label: "Contact",
-    href: "/#contact",
+    href: "/personal#contact",
   },
 ];
 

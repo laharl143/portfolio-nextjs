@@ -11,7 +11,7 @@ export const seo = {
     description: "Tell Erskine Duenas about your freelance software project.",
     cardHeadline: "Tell me about your project",
   },
-  home: {
+  personal: {
     title: "Erskine Duenas | Software Engineer and Aspiring Architect",
     description:
       "Erskine Duenas, software engineer at IBM. Architecting systems end to end, back-end focused and full-stack capable: Java, Spring Boot, React, and Next.js.",
