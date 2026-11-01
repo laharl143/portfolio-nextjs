@@ -24,6 +24,19 @@ describe("ED Solutions brand metadata (spec 0015)", () => {
     });
   });
   it("holds the wordmark name and tagline as public data", () => {
-    expect(brandData).toEqual({ name: "ED Solutions", tagline: "Connected systems for small businesses" });
+    expect(brandData.name).toBe("ED Solutions");
+    expect(brandData.tagline).toBe("Connected systems for small businesses");
+  });
+  it("gives the brand header and footer their links and copy (spec 0016, AC-7, AC-8)", () => {
+    expect(brandData.nav).toEqual([
+      { label: "What I build", href: "/#services" },
+      { label: "Products", href: "/products" },
+      { label: "Contact", href: "/contact" },
+    ]);
+    expect(brandData.footer).toEqual({
+      status: "Taking on new projects",
+      employerLink: { label: "For employers: my portfolio", href: "/personal" },
+      copyright: "Copyright © Erskine Duenas, ED Solutions • All rights reserved",
+    });
   });
 });

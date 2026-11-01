@@ -9,6 +9,8 @@ import { trackContactClick } from "@/lib/analytics";
 import Link from "next/link";
 import Wordmark from "@/components/brand/Wordmark";
 import { useRouter } from "next/navigation";
+import { focusRing } from "@/lib/utils";
+import { brandData } from "../../utils/data/brand-data";
 
 const navItems = [
   {
@@ -157,7 +159,7 @@ const Header: FC<{ variant?: "personal" | "brand" }> = ({ variant = "personal" }
   ]);
 
   const handleClickMobileNavItem = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (e.currentTarget.hash === "#contact") trackContactClick("mobile_nav");
+    if (e.currentTarget.pathname === "/contact" || e.currentTarget.hash === "#contact") trackContactClick("mobile_nav");
     setIsOpen(false);
     scrollToSectionIfSamePage(e);
   };
@@ -167,13 +169,15 @@ const Header: FC<{ variant?: "personal" | "brand" }> = ({ variant = "personal" }
       <div
         className={`fixed top-0 left-0 w-full h-0 overflow-hidden z-10 ${brand ? "bg-card" : "bg-stone-900"}`}
         ref={navScope}
+        // Closed, the menu is zero height but its links would still take Tab stops, unseen (spec 0016 AC-14).
+        inert={!isOpen}
       >
         <nav className="mt-20 flex flex-col">
-          {navItems.map(({ label, href }) => (
+          {(brand ? brandData.nav : navItems).map(({ label, href }) => (
             <a
               href={href}
               key={label}
-              className={`border-t  last:border-b py-8 group/nav-item relative isolate ${brand ? "text-muted-foreground border-border" : "text-stone-200 border-stone-800"}`}
+              className={`border-t  last:border-b py-8 group/nav-item relative isolate ${brand ? `text-muted-foreground border-border ${focusRing}` : "text-stone-200 border-stone-800"}`}
               onClick={handleClickMobileNavItem}
             >
               <div className="container !max-w-full flex items-center justify-between">
@@ -205,7 +209,7 @@ const Header: FC<{ variant?: "personal" | "brand" }> = ({ variant = "personal" }
           <div className="flex justify-between h-20 items-center">
             <div>
               {brand ? (
-                <Link href="/" className="text-white">
+                <Link href="/" className={`text-white ${focusRing}`}>
                   <Wordmark />
                 </Link>
               ) : (

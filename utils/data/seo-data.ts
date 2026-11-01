@@ -6,6 +6,12 @@ export type PageSeo = {
 };
 
 export const seo = {
+  home: {
+    title: "ED Solutions | Connected systems for small businesses",
+    description:
+      "Erskine Duenas builds the connected systems small businesses run on: orders, payments, inventory, and the tools that tie them together.",
+    cardHeadline: "I build the connected systems small businesses run on",
+  },
   contact: {
     title: "Contact",
     description: "Tell Erskine Duenas about your freelance software project.",

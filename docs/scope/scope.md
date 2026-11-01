@@ -47,7 +47,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 30 | Session lookup log hygiene | Studio hardening | done |
 | 31 | Portfolio moves to /personal | Sales slice | done |
 | 32 | ED Solutions rebrand | Sales slice | done |
-| 33 | ED Solutions landing page | Sales slice | planned |
+| 33 | ED Solutions landing page | Sales slice | done |
 | 34 | Landing hero client pitch | Sales slice | planned |
 | 35 | Section calls to action | Sales slice | planned |
 | 36 | Contact next steps | Sales slice | planned |
@@ -385,11 +385,18 @@ Give the business its brand before the landing page is built on it: wordmark, pa
 - [x] Verify it: `/check verify ed solutions rebrand` (2026-11-01: AC-1 to AC-10 met; e2e flake fixed with a 30s project expect timeout, two full runs 36/36)
 spec [0015](../specs/0015-ed-solutions-brand/index.md) · code in `src/app/(site)/(brand)/`, `src/app/globals.css`, `src/components/brand/` · Jira [DP-92](https://vital-stats.atlassian.net/browse/DP-92)
 
-### 33. ED Solutions landing page · needs a decision
+### 33. ED Solutions landing page · done
 The new `/` for small business clients: which sections it has and in what order, its own navigation, and its metadata. Built from the existing UI and the new brand. A Mobbin reference (WHOOP) was wanted, but the Mobbin MCP needs a paid plan, so the design source is the current UI unless that changes.
 **Done when:** `/` renders the agreed sections in order with the ED Solutions brand, its nav links work on the page and from other routes, it links to `/personal` and `/products`, and its title, description, and share card speak to business clients; desktop and 375px in both themes.
-- [ ] Design it (spec): `/architect ed solutions landing page`
-Jira [DP-93](https://vital-stats.atlassian.net/browse/DP-93)
+- [x] Design it (spec): `/architect ed solutions landing page` (2026-11-01, current UI plus brand; story led order; frame plus unowned sections; remaining choices delegated to the recommended picks)
+- [x] Build it: `/develop ed solutions landing page` (2026-11-01: lint, 199 unit tests, build with leak check clean, e2e 53 passed and 1 mobile skip; browser pass at desktop and 375px in both themes)
+   - [x] Thin thread live at `/`: remove the redirect, page with metadata, static hero, `ContactLink`, `/` in `PUBLIC_ROUTES`, satisfies AC-1, AC-3, AC-10, AC-12
+   - [x] Share card and Organization JSON-LD, satisfies AC-10, AC-11
+   - [x] Sections: What I build, products teaser, closing call to action, satisfies AC-2, AC-4 to AC-6, AC-13, AC-14
+   - [x] Brand nav, footer copy, and old `/#section` forwarding, satisfies AC-7 to AC-9, AC-15
+   - [x] Checks: landing e2e, brand crossover tests rewritten, lint, tests, build, browser pass, satisfies AC-13, AC-15, AC-16
+- [x] Verify it: `/check verify ed solutions landing page` (2026-11-01: AC-1 to AC-16 met; AC-14 fixed by /debug, closed menu now `inert`, Tab starts at the wordmark; lint, 199 unit tests, e2e 53 passed and 1 mobile skip)
+spec [0016](../specs/0016-ed-solutions-landing-page/index.md) · code in `src/app/(site)/(brand)/page.tsx`, `src/sections/`, `utils/data/landing-data.ts` · Jira [DP-93](https://vital-stats.atlassian.net/browse/DP-93)
 
 ### 34. Landing hero client pitch · needs a decision
 The landing page hero. Decided in a paused `/architect` run (2026-10-23): headline "I build the connected systems small businesses run on."; stance line "I don't build marketing sites. I build the systems behind them."; credibility line "Application Developer at IBM by day, building for small businesses."; no Perseverance and Curiosity line; one primary button "Tell me about your project" to `/contact`, tracked as `contact_click` with location `hero`; LinkedIn and GitHub only (all five socials in a footer icon row); fast word reveal under 0.5s with no 3 second delay and no "Click Me!" ribbon; keep portrait scroll zoom, the scroll hint without idle zoom, and button hover; static under reduced motion; design from the current UI.

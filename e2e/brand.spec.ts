@@ -48,6 +48,11 @@ test("AC-3: a first visit crosses between groups on each group's default", async
   await expect.poll(() => isDark(page)).toBe(true);
   await page.waitForLoadState("networkidle");
   await page.getByRole("link", { name: "ED Solutions" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator("#pitch")).toBeVisible();
+  expect(await isDark(page)).toBe(true);
+  // The way back to the portfolio is the brand footer's employer link (spec 0016, AC-8).
+  await page.locator("footer").getByRole("link", { name: "For employers: my portfolio" }).click();
   await expect(page).toHaveURL(/\/personal$/);
   await expect.poll(() => isDark(page)).toBe(false);
 });
@@ -59,6 +64,9 @@ test("AC-3: a picked theme holds on every page", async ({ page }) => {
   await page.locator("header button").last().click();
   await expect.poll(() => isDark(page)).toBe(false);
   await page.getByRole("link", { name: "ED Solutions" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  expect(await isDark(page)).toBe(false);
+  await page.locator("footer").getByRole("link", { name: "For employers: my portfolio" }).click();
   await expect(page).toHaveURL(/\/personal$/);
   await page.waitForLoadState("networkidle");
   expect(await isDark(page)).toBe(false);

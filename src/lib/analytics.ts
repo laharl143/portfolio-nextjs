@@ -1,9 +1,9 @@
 import { track } from "@vercel/analytics";
 
-// Vercel Analytics custom events for the actions that signal recruiter interest.
+// Vercel Analytics custom events for the actions that signal recruiter and client interest.
 // One named event per action type, so each shows as its own row in the dashboard.
 
-export type ContactLocation = "header" | "mobile_nav" | "footer";
+export type ContactLocation = "hero" | "closing" | "header" | "mobile_nav" | "footer";
 
 export const trackContactClick = (location: ContactLocation) =>
   track("contact_click", { location });

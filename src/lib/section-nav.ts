@@ -12,3 +12,13 @@ export function scrollToSectionIfSamePage(e: MouseEvent<HTMLAnchorElement>) {
   e.preventDefault();
   target.scrollIntoView({ behavior: "smooth" });
 }
+
+// The /personal section ids that lived on / before the portfolio moved (spec 0016, AC-9).
+// Never reuse one as an element id on /, or the forwarder would send that section's links away.
+export const PERSONAL_SECTION_IDS = ["hero", "badges", "skills", "projects", "faqs", "contact"] as const;
+
+// "#projects" → "/personal#projects"; any other hash, or none, stays on / (null).
+export function legacyHashTarget(hash: string): string | null {
+  const id = hash.replace(/^#/, "");
+  return (PERSONAL_SECTION_IDS as readonly string[]).includes(id) ? `/personal#${id}` : null;
+}

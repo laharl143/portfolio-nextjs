@@ -7,6 +7,8 @@ import { useInView } from "motion/react";
 import { scrollToSectionIfSamePage } from "@/lib/section-nav";
 import { trackContactClick } from "@/lib/analytics";
 import { useRouter } from "next/navigation";
+import { focusRing } from "@/lib/utils";
+import { brandData } from "../../utils/data/brand-data";
 
 const navItems = [
   {
@@ -27,7 +29,8 @@ const navItems = [
   },
 ];
 
-// "brand" is for the (brand) pages only (spec 0015); copy stays the same until feature 33.
+// "brand" is for the (brand) pages only (spec 0015). Its status, links, and copyright come from brandData (spec 0016, AC-8);
+// it has no id, because "contact" is a /personal section id that the landing page must never carry.
 const Footer: FC<{ variant?: "personal" | "brand" }> = ({ variant = "personal" }) => {
   const brand = variant === "brand";
   const router = useRouter();
@@ -44,8 +47,10 @@ const Footer: FC<{ variant?: "personal" | "brand" }> = ({ variant = "personal" }
     scrollToSectionIfSamePage(e);
   };
 
+  const links = brand ? [...brandData.nav, brandData.footer.employerLink] : navItems;
+
   return (
-    <footer className={brand ? "bg-card text-card-foreground" : "bg-stone-900 text-white"} id="contact">
+    <footer className={brand ? "bg-card text-card-foreground" : "bg-stone-900 text-white"} id={brand ? undefined : "contact"}>
       <div className="container">
         <div className="section">
           <div className="flex items-center gap-3">
@@ -55,7 +60,7 @@ const Footer: FC<{ variant?: "personal" | "brand" }> = ({ variant = "personal" }
             ></div>
 
             <span className="uppercase">
-              Seeking Full-Time Employment Opportunities
+              {brand ? brandData.footer.status : "Seeking Full-Time Employment Opportunities"}
             </span>
           </div>
           <div className="grid md:grid-cols-3 md:items-center">
@@ -110,12 +115,12 @@ const Footer: FC<{ variant?: "personal" | "brand" }> = ({ variant = "personal" }
               >
                 Contact Me
               </Button>
-              <a className="mt-4 block underline" href="mailto:erskine.duenas@gmail.com">erskine.duenas@gmail.com</a>
+              <a className={`mt-4 block underline ${brand ? `w-fit rounded-sm ${focusRing}` : ""}`} href="mailto:erskine.duenas@gmail.com">erskine.duenas@gmail.com</a>
             </div>
             <div>
               <nav className="flex flex-col md:items-end gap-8 mt-16 md:mt-0">
-                {navItems.map(({ href, label }) => (
-                  <a href={href} key={label} onClick={handleClickNavItem}>
+                {links.map(({ href, label }) => (
+                  <a href={href} key={label} onClick={handleClickNavItem} className={brand ? `rounded-sm ${focusRing}` : undefined}>
                     <Button variant="text" className={brand ? "text-lg after:bg-signal" : "text-lg"}>
                       {label}
                     </Button>
@@ -126,7 +131,7 @@ const Footer: FC<{ variant?: "personal" | "brand" }> = ({ variant = "personal" }
           </div>
         </div>
         <p className={`py-16 text-sm ${brand ? "text-muted-foreground" : "text-white/30"}`}>
-          Copyright &copy; Erskine Duenas &bull; All rights reserved
+          {brand ? brandData.footer.copyright : <>Copyright &copy; Erskine Duenas &bull; All rights reserved</>}
         </p>
       </div>
     </footer>
