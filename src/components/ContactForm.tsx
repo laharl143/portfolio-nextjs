@@ -153,6 +153,16 @@ export default function ContactForm({
         }
       >
         {message}
+        {success && (
+          <div className="mt-4">
+            <h2 className="font-semibold">{contactData.nextSteps.title}</h2>
+            <ol className="mt-2 list-decimal space-y-1 break-words pl-5 text-muted-foreground">
+              {contactData.nextSteps.steps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+          </div>
+        )}
       </div>
       {success ? (
         <button type="button" className={fieldClass} onClick={newDraft}>

@@ -50,7 +50,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 33 | ED Solutions landing page | Sales slice | done |
 | 34 | Landing hero motion and portrait | Sales slice | done |
 | 35 | Section calls to action | Sales slice | done |
-| 36 | Contact next steps | Sales slice | planned |
+| 36 | Contact next steps | Sales slice | done |
 | 37 | Inquiry conversion tracking | Sales slice | planned |
 | 38 | Project outcomes first | Sales slice | planned |
 | 39 | FAQs for business owners | Sales slice | planned |
@@ -421,11 +421,15 @@ End the key landing page sections with a short "Tell me about your project" link
 - [x] Verify it: `/check verify section calls to action` (2026-11-02: PASS, AC-1 to AC-7 met; lint, 211 unit tests, build with leak check, e2e 69 passed and 3 skipped by design)
 spec [0018](../specs/0018-section-calls-to-action/index.md) · code in `src/components/brand/ContactLink.tsx`, `src/lib/analytics.ts`, `src/sections/Services.tsx`, `src/sections/ProductsTeaser.tsx` · Jira [DP-95](https://vital-stats.atlassian.net/browse/DP-95)
 
-### 36. Contact next steps
+### 36. Contact next steps · done
 After a visitor sends an inquiry, the `/contact` success state tells them exactly what happens next (when you reply, and what you will send), so the experience does not end on a bare thank you.
 **Done when:** a successful submission shows the next steps copy with a reply time you commit to; the error and validation states are unchanged.
-- [ ] Build it: `/develop contact next steps`
-Jira [DP-96](https://vital-stats.atlassian.net/browse/DP-96)
+- [x] Design it (spec): `/architect contact next steps` (2026-11-02: reply within 1 business day; the reply carries a few questions and a couple of times to talk, no booking link; spam tip kept with the address read from `contactData.email`; remaining choices delegated to the recommended picks)
+- [x] Build it: `/develop contact next steps` (2026-11-02)
+   - [x] Copy and render: `contactData.nextSteps` with the spec copy, block inside the success status region only, satisfies AC-1 to AC-5
+   - [x] Checks: unit tests for success, error, reset, and the copy guard; lint, build, and a 375px and desktop pass in both themes, satisfies AC-4 to AC-7 (2026-11-02: lint, 211 unit tests, build with leak check pass; the browser pass is left to `/check verify`, since the success state needs a live Turnstile submission)
+- [x] Verify it: `/check verify contact next steps` (2026-11-02: AC-1 to AC-7 met; success state driven in the browser with Cloudflare's always pass test keys and the inquiries response stubbed in the page, so no row or alert email; desktop and 375px, light and dark, no horizontal scroll; lint, 211 unit tests, build with leak check pass)
+spec [0019](../specs/0019-contact-next-steps.md) · code in `utils/data/contact-data.ts`, `src/components/ContactForm.tsx` · Jira [DP-96](https://vital-stats.atlassian.net/browse/DP-96)
 
 ### 37. Inquiry conversion tracking · needs a decision
 Measure the path from a visit to a sent inquiry: which section or call to action brought the visitor to `/contact`, and how many of those finish the form. This is the loop that tells you which of the other changes work.
