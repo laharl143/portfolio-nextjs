@@ -1,4 +1,5 @@
 import { FC } from "react";
+import ContactLink from "@/components/brand/ContactLink";
 import { landingData } from "../../utils/data/landing-data";
 
 const Services: FC = () => {
@@ -19,6 +20,7 @@ const Services: FC = () => {
             </li>
           ))}
         </ul>
+        <ContactLink location="services" variant="text" className="mt-10" />
       </div>
     </section>
   );

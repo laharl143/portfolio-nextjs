@@ -45,3 +45,19 @@ describe("ProductsTeaser (spec 0016, AC-5)", () => {
     expect(screen.getByRole("link", { name: "See every product" })).toBeInTheDocument();
   });
 });
+
+describe("ProductsTeaser link row (spec 0018, AC-2)", () => {
+  const names = () => screen.getAllByRole("link").map((l) => l.textContent);
+
+  it("puts the contact link before See every product", () => {
+    render(<ProductsTeaser products={[product("oms", "built")]} />);
+    expect(screen.getByRole("link", { name: "Tell me about your project" })).toHaveAttribute("href", "/contact");
+    expect(names()).toEqual(["Tell me about your project", "See every product"]);
+  });
+
+  it("keeps both links when nothing is built", () => {
+    const { container } = render(<ProductsTeaser products={[product("crm", "planned")]} />);
+    expect(container.querySelector("ul")).toBeNull();
+    expect(names()).toEqual(["Tell me about your project", "See every product"]);
+  });
+});

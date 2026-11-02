@@ -307,3 +307,58 @@ test("0017 AC-5: the brand footer lists all five socials; /personal keeps its fo
   await page.goto("/personal");
   await expect(page.locator("footer").getByRole("list", { name: "Social links" })).toHaveCount(0);
 });
+
+// Spec 0018: quiet calls to action at the end of #services and #ecosystem.
+const CTA = "Tell me about your project";
+const ringOf = (page: Page) => page.evaluate(() => getComputedStyle(document.activeElement!).boxShadow);
+const tabTo = async (page: Page, target: ReturnType<Page["locator"]>) => {
+  for (let i = 0; i < 40; i++) {
+    if (await target.evaluate((el) => el === document.activeElement)) return;
+    await page.keyboard.press("Tab");
+  }
+};
+
+test("0018 AC-1 to AC-3, AC-6: section links go to /contact, quiet look, and wrap on mobile", async ({ page }) => {
+  await page.goto("/");
+  const services = page.locator("#services").getByRole("link", { name: CTA });
+  const ecosystem = page.locator("#ecosystem").getByRole("link");
+  await expect(services).toHaveAttribute("href", "/contact");
+  await expect(ecosystem).toHaveText([CTA, "See every product"]);
+  await expect(ecosystem.first()).toHaveAttribute("href", "/contact");
+
+  for (const link of [services, ecosystem.first()]) {
+    await expect(link).not.toHaveClass(/rounded-full|bg-primary/);
+    expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(24);
+  }
+  for (const id of ["pitch", "start"]) {
+    await expect(page.locator(`#${id}`).getByRole("link", { name: CTA })).toHaveClass(/rounded-full/);
+  }
+
+  const [a, b] = [(await ecosystem.first().boundingBox())!, (await ecosystem.last().boundingBox())!];
+  if (isMobile(page)) expect(b.y).toBeGreaterThan(a.y + a.height - 1);
+  else expect(b.x).toBeGreaterThan(a.x + a.width);
+  expect(await noHorizontalScroll(page)).toBe(true);
+
+  await page.waitForLoadState("networkidle");
+  await services.click();
+  await expect(page).toHaveURL(/\/contact$/);
+});
+
+test("0018 AC-5: Tab reaches each section link in order with a visible focus ring", async ({ page }) => {
+  test.skip(isMobile(page), "the keyboard pass runs on desktop");
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  const services = page.locator("#services").getByRole("link", { name: CTA });
+  const [contact, products] = [
+    page.locator("#ecosystem").getByRole("link", { name: CTA }),
+    page.locator("#ecosystem").getByRole("link", { name: "See every product" }),
+  ];
+  await tabTo(page, services);
+  await expect(services).toBeFocused();
+  expect(await ringOf(page)).not.toBe("none");
+  await page.keyboard.press("Tab");
+  await expect(contact).toBeFocused();
+  expect(await ringOf(page)).not.toBe("none");
+  await page.keyboard.press("Tab");
+  await expect(products).toBeFocused();
+});

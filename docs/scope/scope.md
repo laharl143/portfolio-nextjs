@@ -49,7 +49,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 32 | ED Solutions rebrand | Sales slice | done |
 | 33 | ED Solutions landing page | Sales slice | done |
 | 34 | Landing hero motion and portrait | Sales slice | done |
-| 35 | Section calls to action | Sales slice | planned |
+| 35 | Section calls to action | Sales slice | done |
 | 36 | Contact next steps | Sales slice | planned |
 | 37 | Inquiry conversion tracking | Sales slice | planned |
 | 38 | Project outcomes first | Sales slice | planned |
@@ -410,11 +410,16 @@ The second touch to the landing hero that feature 33 shipped static (`src/sectio
 - [x] Verify it: `/check verify landing hero motion and portrait` (2026-11-02: every step passes; AC-6 fixed so the scroll hint sits in the first viewport at 1366x768 and 1280x800; at 1024x768 it still falls below the fold, a known gap)
 spec [0017](../specs/0017-landing-hero-motion-portrait/index.md) · code in `src/sections/LandingHero.tsx`, `src/components/brand/`, `src/sections/Footer.tsx`, `src/app/globals.css`, `utils/data/` · Jira [DP-94](https://vital-stats.atlassian.net/browse/DP-94)
 
-### 35. Section calls to action · needs a decision
+### 35. Section calls to action · done
 End the key landing page sections with a short "Tell me about your project" link to `/contact`, so every part of the page has a next step, following the existing `contact_click` tracking pattern.
 **Done when:** the chosen landing sections each end with a call to action to `/contact`; each click records which section it came from; links work by keyboard and read clearly to screen readers.
-- [ ] Design it (spec): `/architect section calls to action`
-Jira [DP-95](https://vital-stats.atlassian.net/browse/DP-95)
+- [x] Design it (spec): `/architect section calls to action` (2026-11-02: a quiet `text` variant on `ContactLink` at the end of `#services` and in a shared row, contact first, at the end of `#ecosystem`; locations `services` and `ecosystem` named after the section ids; same label everywhere; remaining choices delegated to the recommended picks)
+- [x] Build it: `/develop section calls to action` (2026-11-02)
+   - [x] Thin thread: `ContactLocation` values, `ContactLink` text variant, services call to action, satisfies AC-1, AC-3 to AC-5
+   - [x] Products row: contact link first, then "See every product", empty list case, satisfies AC-2, AC-5
+   - [x] Checks: unit and e2e tests, lint, build, browser pass at desktop and 375px in both themes, satisfies AC-5 to AC-7
+- [x] Verify it: `/check verify section calls to action` (2026-11-02: PASS, AC-1 to AC-7 met; lint, 211 unit tests, build with leak check, e2e 69 passed and 3 skipped by design)
+spec [0018](../specs/0018-section-calls-to-action/index.md) · code in `src/components/brand/ContactLink.tsx`, `src/lib/analytics.ts`, `src/sections/Services.tsx`, `src/sections/ProductsTeaser.tsx` · Jira [DP-95](https://vital-stats.atlassian.net/browse/DP-95)
 
 ### 36. Contact next steps
 After a visitor sends an inquiry, the `/contact` success state tells them exactly what happens next (when you reply, and what you will send), so the experience does not end on a bare thank you.

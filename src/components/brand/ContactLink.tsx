@@ -22,18 +22,28 @@ const arrow = (
 
 // Every landing page call to action to /contact goes through here, so each click records where it came from (spec 0016).
 // A real link, so it still reaches /contact with JavaScript off; only the tracking is lost then.
-export default function ContactLink({ location, className }: { location: ContactLocation; className?: string }) {
+// "pill" is the strong ask (hero, closing); "text" is the quiet link at the end of a section (spec 0018).
+export default function ContactLink({
+  location,
+  variant = "pill",
+  className,
+}: {
+  location: ContactLocation;
+  variant?: "pill" | "text";
+  className?: string;
+}) {
+  const look =
+    variant === "pill"
+      ? buttonClassName(
+          "pill",
+          // The label wraps to two lines at 375px, so the pill grows with it instead of keeping the fixed button height.
+          // The lift and arrow slide stop under reduced motion; the color swap stays (spec 0017, AC-7 and AC-8).
+          `h-auto min-h-11 py-2.5 text-left motion-safe:hover:-translate-y-0.5 ${focusRing} ${className ?? ""}`,
+        )
+      : `group/button inline-flex items-center gap-2 rounded-sm py-1 text-left underline underline-offset-4 transition-colors hover:text-signal ${focusRing} ${className ?? ""}`;
+
   return (
-    <Link
-      href="/contact"
-      onClick={() => trackContactClick(location)}
-      className={buttonClassName(
-        "pill",
-        // The label wraps to two lines at 375px, so the pill grows with it instead of keeping the fixed button height.
-        // The lift and arrow slide stop under reduced motion; the color swap stays (spec 0017, AC-7 and AC-8).
-        `h-auto min-h-11 py-2.5 text-left motion-safe:hover:-translate-y-0.5 ${focusRing} ${className ?? ""}`,
-      )}
-    >
+    <Link href="/contact" onClick={() => trackContactClick(location)} className={look}>
       <span>{landingData.ctaLabel}</span>
       <span className="size-6 overflow-hidden">
         <span className="w-12 h-6 flex transition-transform duration-300 group-hover/button:-translate-x-1/2 motion-reduce:transition-none motion-reduce:group-hover/button:translate-x-0">

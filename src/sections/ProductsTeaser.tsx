@@ -1,5 +1,6 @@
 import { FC } from "react";
 import Link from "next/link";
+import ContactLink from "@/components/brand/ContactLink";
 import { focusRing } from "@/lib/utils";
 import { products as allProducts, statusSections, type PublicProduct } from "../../utils/data/products-data";
 import { landingData } from "../../utils/data/landing-data";
@@ -33,12 +34,13 @@ const ProductsTeaser: FC<{ products?: readonly PublicProduct[] }> = ({ products 
             ))}
           </ul>
         )}
-        <Link
-          href="/products"
-          className={`mt-10 inline-block rounded-sm underline underline-offset-4 hover:text-signal ${focusRing}`}
-        >
-          {linkLabel}
-        </Link>
+        {/* Contact first, the page's main job; then the path to more proof (spec 0018, AC-2). */}
+        <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+          <ContactLink location="ecosystem" variant="text" />
+          <Link href="/products" className={`rounded-sm underline underline-offset-4 hover:text-signal ${focusRing}`}>
+            {linkLabel}
+          </Link>
+        </div>
       </div>
     </section>
   );
