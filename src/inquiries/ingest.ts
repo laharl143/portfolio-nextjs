@@ -133,7 +133,7 @@ export async function ingest(
       await quota(tx, config, "email", input.email);
       const [saved] = await rows<{ id: string }>(
         tx,
-        sql`insert into studio.inquiries(workspace_id,submission_key,payload_hash,name,email,description,company,budget,privacy_notice_version) values(${config.workspaceId}::uuid,${input.submissionKey}::uuid,${hash},${input.name},${input.email},${input.description},${input.company},${input.budget},${input.noticeVersion}) returning id`,
+        sql`insert into studio.inquiries(workspace_id,submission_key,payload_hash,name,email,description,company,budget,privacy_notice_version,source_location) values(${config.workspaceId}::uuid,${input.submissionKey}::uuid,${hash},${input.name},${input.email},${input.description},${input.company},${input.budget},${input.noticeVersion},${input.sourceLocation}) returning id`,
       );
       await tx.execute(
         sql`insert into studio.inquiry_events(workspace_id,inquiry_id,kind) values(${config.workspaceId}::uuid,${saved.id}::uuid,'submitted')`,

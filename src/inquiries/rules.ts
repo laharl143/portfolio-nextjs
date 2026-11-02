@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { isContactLocation, type ContactLocation } from "@/lib/contact-location";
 
 export const NOTICE_VERSION = "lead-intake-v1";
 export const UUID =
@@ -23,6 +24,7 @@ export type Submission = {
   budget: string | null;
   noticeVersion: string;
   challengeToken: string;
+  sourceLocation: ContactLocation | null;
 };
 export function text(
   value: unknown,
@@ -77,6 +79,8 @@ export function parseSubmission(value: unknown): Submission {
     budget: text(v.budget ?? "", "budget", 200) || null,
     noticeVersion: NOTICE_VERSION,
     challengeToken: text(v.challengeToken ?? "", "challengeToken", 2048),
+    // Tracking only: an unknown value becomes null and never rejects a lead (spec 0020, AC-7). Not in payloadHash.
+    sourceLocation: isContactLocation(v.sourceLocation) ? v.sourceLocation : null,
   };
 }
 export function hash(values: unknown[]): string {

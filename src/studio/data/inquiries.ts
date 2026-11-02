@@ -30,6 +30,7 @@ export type Inquiry = {
   converted_client_id: string | null;
   converted_contact_id: string | null;
   converted_note_id: string | null;
+  source_location: string | null;
 };
 export type Alert = {
   id: string;

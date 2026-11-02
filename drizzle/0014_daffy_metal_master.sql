@@ -1,0 +1,2 @@
+ALTER TABLE "studio"."inquiries" ADD COLUMN "source_location" text;--> statement-breakpoint
+ALTER TABLE "studio"."inquiries" ADD CONSTRAINT "inquiries_source_location_check" CHECK ("studio"."inquiries"."source_location" is null or "studio"."inquiries"."source_location" ~ '^[a-z_]{1,32}$');

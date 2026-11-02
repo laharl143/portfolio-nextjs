@@ -54,6 +54,29 @@ describe("AC-2, AC-3: intake validation and replay", () => {
     ).toContain("\n");
   });
 });
+describe("spec 0020 AC-7, AC-8: source location", () => {
+  it("keeps an allowlisted location and leaves it out of the payload hash", () => {
+    const a = parseSubmission({ ...draft, sourceLocation: "hero" });
+    expect(a.sourceLocation).toBe("hero");
+    expect(parseSubmission(draft).sourceLocation).toBeNull();
+    expect(payloadHash(a)).toBe(payloadHash(parseSubmission(draft)));
+    expect(payloadHash(a)).toBe(
+      payloadHash(parseSubmission({ ...draft, sourceLocation: "footer" })),
+    );
+  });
+  it.each([
+    "<script>",
+    "unknown",
+    "HERO",
+    7,
+    null,
+    ["hero"],
+    { location: "hero" },
+    "a".repeat(5000),
+  ])("stores null and never rejects for %j", (sourceLocation) => {
+    expect(parseSubmission({ ...draft, sourceLocation }).sourceLocation).toBeNull();
+  });
+});
 describe("AC-6, AC-7: owner state and conversion retry identity", () => {
   it("keeps converted final and requires reopening a closed inquiry", () => {
     expect(transitionAllowed("converted", "reviewing")).toBe(false);

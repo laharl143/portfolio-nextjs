@@ -2,6 +2,17 @@
 import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
 import { contactData } from "../../utils/data/contact-data";
+import {
+  forgetContactLocation,
+  readContactLocation,
+  type ContactLocation,
+} from "@/lib/contact-location";
+import {
+  trackInquiryFailed,
+  trackInquiryStart,
+  trackInquirySent,
+  type InquiryFailure,
+} from "@/lib/analytics";
 
 type Turnstile = {
   render: (element: HTMLElement, options: Record<string, unknown>) => string;
@@ -13,6 +24,17 @@ declare global {
     turnstile?: Turnstile;
   }
 }
+// The fields whose first edit counts as a form start; the hidden Turnstile input is not one (spec 0020, AC-3).
+const DRAFT_FIELDS = new Set(["name", "email", "company", "budget", "description", "acknowledged"]);
+// Classified by status before the body is read, so an unreadable body never changes the reason (AC-4, AC-5).
+const failureReason = (status: number): InquiryFailure =>
+  status === 422
+    ? "validation"
+    : status === 403
+      ? "challenge"
+      : status === 429
+        ? "rate_limited"
+        : "server";
 const fieldClass =
   "mt-2 block w-full rounded-lg border border-border bg-card p-3 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 export default function ContactForm({
@@ -33,7 +55,20 @@ export default function ContactForm({
     widget = useRef<HTMLDivElement>(null),
     widgetId = useRef<string>(undefined),
     key = useRef<string>(undefined),
-    summary = useRef<HTMLDivElement>(null);
+    summary = useRef<HTMLDivElement>(null),
+    // Read once on mount, so a later click in this tab mid draft never changes it; never rendered (spec 0020, AC-2).
+    source = useRef<ContactLocation | null>(null),
+    started = useRef(false);
+  useEffect(() => {
+    source.current = readContactLocation();
+  }, []);
+  const eventLocation = () => source.current ?? "direct";
+  function startDraft(event: React.FormEvent<HTMLFormElement>) {
+    const target = event.target as HTMLInputElement;
+    if (started.current || !DRAFT_FIELDS.has(target.name)) return;
+    started.current = true;
+    trackInquiryStart(eventLocation());
+  }
   useEffect(() => {
     if (
       !ready ||
@@ -62,7 +97,9 @@ export default function ContactForm({
     setToken("");
     if (widgetId.current) window.turnstile?.reset(widgetId.current);
   }
-  function newDraft() {
+  // Only "Start another inquiry" restarts the funnel; "Edit draft" keeps the same started draft (AC-3).
+  function newDraft({ restart = false }: { restart?: boolean } = {}) {
+    if (restart) started.current = false;
     key.current = undefined;
     setFrozen(false);
     setSuccess(false);
@@ -93,9 +130,20 @@ export default function ContactForm({
           acknowledged: data.get("acknowledged") === "on",
           noticeVersion: contactData.noticeVersion,
           challengeToken: token,
+          ...(source.current && { sourceLocation: source.current }),
         }),
       });
-      const result = await response.json();
+      if (!response.ok) trackInquiryFailed(eventLocation(), failureReason(response.status));
+      else {
+        trackInquirySent(eventLocation());
+        // A later inquiry in this tab counts as direct unless a call to action is clicked again (AC-2).
+        forgetContactLocation();
+        source.current = null;
+      }
+      let result: { fieldErrors?: Record<string, string> } = {};
+      try {
+        result = await response.json();
+      } catch {}
       if (!response.ok) {
         setErrors(result.fieldErrors ?? {});
         setMessage(
@@ -114,6 +162,7 @@ export default function ContactForm({
         setMessage(contactData.success);
       }
     } catch {
+      trackInquiryFailed(eventLocation(), "network");
       setMessage(
         "Your inquiry could not be confirmed. Retry this draft to avoid a duplicate.",
       );
@@ -165,11 +214,20 @@ export default function ContactForm({
         )}
       </div>
       {success ? (
-        <button type="button" className={fieldClass} onClick={newDraft}>
+        <button
+          type="button"
+          className={fieldClass}
+          onClick={() => newDraft({ restart: true })}
+        >
           Start another inquiry
         </button>
       ) : (
-        <form ref={form} onSubmit={submit} className="space-y-6">
+        <form
+          ref={form}
+          onSubmit={submit}
+          onInput={startDraft}
+          className="space-y-6"
+        >
           <p className="text-sm">
             Name, email, and project description are required.
           </p>
@@ -278,7 +336,11 @@ export default function ContactForm({
                 : "Send inquiry"}
           </button>
           {frozen && !pending && (
-            <button type="button" onClick={newDraft} className="ml-4 underline">
+            <button
+              type="button"
+              onClick={() => newDraft()}
+              className="ml-4 underline"
+            >
               Edit draft (new submission)
             </button>
           )}

@@ -8,6 +8,7 @@ import {
 } from "@/studio/inquiries/actions";
 import { IntakeError } from "@/inquiries/rules";
 import { formatDateTime } from "@/studio/format";
+import { CONTACT_LOCATION_LABELS, isContactLocation } from "@/lib/contact-location";
 import MutationForm from "../_components/MutationForm";
 import { card, textLink } from "../../../_components/ui";
 export default async function InquiryPage({
@@ -36,6 +37,15 @@ export default async function InquiryPage({
           ["Email", i.email],
           ["Company", i.company ?? "Not provided"],
           ["Budget", i.budget ?? "Not provided"],
+          // A code with no label (a location since removed) shows as stored; null is every inquiry with no recorded call to action.
+          [
+            "Source",
+            i.source_location === null
+              ? "Not recorded"
+              : isContactLocation(i.source_location)
+                ? CONTACT_LOCATION_LABELS[i.source_location]
+                : i.source_location,
+          ],
           ["Project description", i.description],
         ].map(([label, value]) => (
           <div key={label}>

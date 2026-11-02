@@ -136,6 +136,8 @@ export const inquiries = studio.table(
       (): AnyPgColumn => notes.id,
       { onDelete: "set null" },
     ),
+    // The call to action that led to /contact; null when none was recorded. Never in the payload hash (spec 0020).
+    sourceLocation: text("source_location"),
   },
   (t) => [
     unique("inquiries_workspace_submission_uq").on(
@@ -152,6 +154,11 @@ export const inquiries = studio.table(
     check(
       "inquiries_fields_check",
       sql`length(trim(${t.name})) between 1 and 200 and length(${t.email}) between 1 and 320 and ${t.email}=lower(${t.email}) and length(trim(${t.description})) between 20 and 5000 and (${t.company} is null or length(${t.company}) <= 200) and (${t.budget} is null or length(${t.budget}) <= 200)`,
+    ),
+    // A shape check, not the list: the application allowlist is the real gate, so a new location needs no migration.
+    check(
+      "inquiries_source_location_check",
+      sql`${t.sourceLocation} is null or ${t.sourceLocation} ~ '^[a-z_]{1,32}$'`,
     ),
     check(
       "inquiries_conversion_check",

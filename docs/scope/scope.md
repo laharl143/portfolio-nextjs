@@ -51,7 +51,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 34 | Landing hero motion and portrait | Sales slice | done |
 | 35 | Section calls to action | Sales slice | done |
 | 36 | Contact next steps | Sales slice | done |
-| 37 | Inquiry conversion tracking | Sales slice | planned |
+| 37 | Inquiry conversion tracking | Sales slice | done |
 | 38 | Project outcomes first | Sales slice | planned |
 | 39 | FAQs for business owners | Sales slice | planned |
 | 40 | Vital Stats case study | Sales slice | planned |
@@ -431,11 +431,17 @@ After a visitor sends an inquiry, the `/contact` success state tells them exactl
 - [x] Verify it: `/check verify contact next steps` (2026-11-02: AC-1 to AC-7 met; success state driven in the browser with Cloudflare's always pass test keys and the inquiries response stubbed in the page, so no row or alert email; desktop and 375px, light and dark, no horizontal scroll; lint, 211 unit tests, build with leak check pass)
 spec [0019](../specs/0019-contact-next-steps.md) · code in `utils/data/contact-data.ts`, `src/components/ContactForm.tsx` · Jira [DP-96](https://vital-stats.atlassian.net/browse/DP-96)
 
-### 37. Inquiry conversion tracking · needs a decision
+### 37. Inquiry conversion tracking · done
 Measure the path from a visit to a sent inquiry: which section or call to action brought the visitor to `/contact`, and how many of those finish the form. This is the loop that tells you which of the other changes work.
 **Done when:** a sent inquiry can be traced back to the call to action that led to `/contact`; form starts and successful submissions show as distinct events in the analytics dashboard; no personal data is sent to analytics.
-- [ ] Design it (spec): `/architect inquiry conversion tracking`
-Jira [DP-97](https://vital-stats.atlassian.net/browse/DP-97)
+- [x] Design it (spec): `/architect inquiry conversion tracking` (2026-11-02: location carried in `sessionStorage` with a 30 minute limit and cleared after a send; stored on the inquiry as `source_location` and shown in the studio; `inquiry_start` on first edit, `inquiry_sent`, `inquiry_failed` with a fixed reason, fixed codes only; remaining choices delegated to the recommended picks; cross checked on another model and its fixes applied)
+- [x] Build it: `/develop inquiry conversion tracking` (2026-11-02: migration `0014` applied to the Neon dev branch and the column confirmed live; lint, typecheck, 239 unit and DOM tests, 50 database tests, build with leak check clean; e2e `conversion-tracking`, `lead-intake`, `landing`, `brand` pass at desktop and 375px. The e2e server runs with intake off, so the submit chain is covered by the DOM and database tests, not a live browser submission)
+   - [x] Location handoff: shared `CONTACT_LOCATIONS` module, `sessionStorage` write on clicks that go to `/contact`, read on the form, satisfies AC-1, AC-2
+   - [x] Stored source: `source_location` column and migration, server allowlist outside the payload hash, studio "Source" row, satisfies AC-7 to AC-9
+   - [x] Funnel events: `inquiry_start`, `inquiry_sent`, `inquiry_failed` in `ContactForm`, status first classification, satisfies AC-3 to AC-6
+   - [x] Checks: unit, DOM, database, and e2e tests from the spec, plus the unchanged regression runs, satisfies AC-1 to AC-10
+- [x] Verify it: `/check verify inquiry conversion tracking` (2026-11-02: AC-1 to AC-10 met. Real browser sends on a dev server with intake on, Cloudflare's always pass test keys, and a fake workspace: hero click to `inquiry_start` and `inquiry_sent` with `hero`, row stored `hero` even after the stored value was changed mid draft, key cleared, "Start another inquiry" sent as `direct` with no `sourceLocation`. Failure reasons checked by stubbing the page's fetch (network, 503, 422, 403, 429, 500, 409), plus a real 422. API tampering stored `null`, a replay kept `hero`, studio Source row at desktop and 375px in both themes. Lint, 239 unit tests, 50 database tests, 73 e2e (3 existing skips), build with leak check clean. Fake rows removed)
+spec [0020](../specs/0020-inquiry-conversion-tracking/index.md) · code in `src/lib/contact-location.ts`, `src/lib/analytics.ts`, `src/components/ContactForm.tsx`, `src/inquiries/rules.ts`, `src/inquiries/ingest.ts`, `drizzle/0014_daffy_metal_master.sql`, studio inquiry page · Jira [DP-97](https://vital-stats.atlassian.net/browse/DP-97)
 
 ### 38. Project outcomes first · needs a decision
 Give each project a one line outcome (the problem it solved or the result it delivered) and show it before the tech stack icons, from one shared data source: the landing page shows the client relevant projects, `/personal` keeps the full tiered list.

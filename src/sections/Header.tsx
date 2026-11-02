@@ -159,7 +159,8 @@ const Header: FC<{ variant?: "personal" | "brand" }> = ({ variant = "personal" }
   ]);
 
   const handleClickMobileNavItem = (e: MouseEvent<HTMLAnchorElement>) => {
-    if (e.currentTarget.pathname === "/contact" || e.currentTarget.hash === "#contact") trackContactClick("mobile_nav");
+    if (e.currentTarget.pathname === "/contact" || e.currentTarget.hash === "#contact")
+      trackContactClick("mobile_nav", { navigates: e.currentTarget.pathname === "/contact" });
     setIsOpen(false);
     scrollToSectionIfSamePage(e);
   };

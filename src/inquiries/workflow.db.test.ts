@@ -38,6 +38,7 @@ async function submit(
   key = randomUUID(),
   email = `fake${counter++}@example.invalid`,
   description = "This is a fake project for isolated integration verification.",
+  extra: Record<string, unknown> = {},
 ) {
   return ingest(
     new Request(config.origin + "/api/inquiries", {
@@ -53,6 +54,7 @@ async function submit(
         acknowledged: true,
         noticeVersion: "lead-intake-v1",
         challengeToken: "fake",
+        ...extra,
       }),
     }),
     { config, address: `192.0.2.${counter++}`, fetcher: challenge },
@@ -125,6 +127,27 @@ describe("AC-3 through AC-10: isolated development transactions", () => {
         "A changed description must be rejected without saving.",
       ),
     ).rejects.toMatchObject({ status: 409 });
+  });
+  it("keeps the first source location on a retry with a different one (spec 0020, AC-8)", async () => {
+    const key = randomUUID();
+    const address = `fake-source${counter++}@example.invalid`;
+    const description = "This is a fake project for source location retries.";
+    const first = await submit(key, address, description, { sourceLocation: "hero" });
+    expect(first.id).toBeTruthy();
+    const retry = await submit(key, address, description, { sourceLocation: "footer" });
+    expect(retry.id).toBeFalsy();
+    await submit(key, address, description);
+    const [saved] = await rows<{ source_location: string | null }>(
+      getDb(),
+      sql`select source_location from studio.inquiries where workspace_id=${workspace}::uuid and submission_key=${key}::uuid`,
+    );
+    expect(saved.source_location).toBe("hero");
+    const direct = await submit(undefined, undefined, undefined, { sourceLocation: "<script>" });
+    const [none] = await rows<{ source_location: string | null }>(
+      getDb(),
+      sql`select source_location from studio.inquiries where id=${direct.id}::uuid`,
+    );
+    expect(none.source_location).toBeNull();
   });
   it("rolls back a competing conversion and returns the same result after later client archive", async () => {
     const { id } = await submit();
