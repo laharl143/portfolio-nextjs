@@ -195,6 +195,48 @@
     font-stretch: 112%;
     letter-spacing: -0.01em;
   }
+
+  /* Landing hero motion (spec 0017). CSS only, so the text never waits for JavaScript, and every entrance ends by 450ms. */
+  .brand-reveal-word {
+    display: inline-block;
+    animation: brand-rise 300ms ease-out both;
+    /* --i is the word index; the cap keeps the last word ending by 450ms whatever the headline length. */
+    animation-delay: min(calc(var(--i) * 20ms), 150ms);
+  }
+  .brand-rise {
+    animation: brand-rise 300ms ease-out 150ms both;
+  }
+  .brand-scroll-chevron {
+    animation: brand-pulse 1.5s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 300ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .brand-reveal-word,
+    .brand-rise,
+    .brand-scroll-chevron {
+      animation: none;
+    }
+  }
+}
+
+@keyframes brand-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes brand-pulse {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 /* The <body> sits in the (site) layout with stone colors; keep overscroll and short pages on the brand surface.

@@ -8,6 +8,7 @@ import { scrollToSectionIfSamePage } from "@/lib/section-nav";
 import { trackContactClick } from "@/lib/analytics";
 import { useRouter } from "next/navigation";
 import { focusRing } from "@/lib/utils";
+import SocialIconLink from "@/components/brand/SocialIconLink";
 import { brandData } from "../../utils/data/brand-data";
 
 const navItems = [
@@ -116,6 +117,15 @@ const Footer: FC<{ variant?: "personal" | "brand" }> = ({ variant = "personal" }
                 Contact Me
               </Button>
               <a className={`mt-4 block underline ${brand ? `w-fit rounded-sm ${focusRing}` : ""}`} href="mailto:erskine.duenas@gmail.com">erskine.duenas@gmail.com</a>
+              {brand && (
+                <ul aria-label="Social links" className="mt-6 flex flex-wrap gap-3">
+                  {brandData.socials.map((social) => (
+                    <li key={social.platform}>
+                      <SocialIconLink social={social} />
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div>
               <nav className="flex flex-col md:items-end gap-8 mt-16 md:mt-0">

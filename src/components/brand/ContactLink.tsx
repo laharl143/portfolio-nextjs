@@ -30,12 +30,13 @@ export default function ContactLink({ location, className }: { location: Contact
       className={buttonClassName(
         "pill",
         // The label wraps to two lines at 375px, so the pill grows with it instead of keeping the fixed button height.
-        `h-auto min-h-11 py-2.5 text-left ${focusRing} ${className ?? ""}`,
+        // The lift and arrow slide stop under reduced motion; the color swap stays (spec 0017, AC-7 and AC-8).
+        `h-auto min-h-11 py-2.5 text-left motion-safe:hover:-translate-y-0.5 ${focusRing} ${className ?? ""}`,
       )}
     >
       <span>{landingData.ctaLabel}</span>
       <span className="size-6 overflow-hidden">
-        <span className="w-12 h-6 flex transition-transform duration-300 group-hover/button:-translate-x-1/2">
+        <span className="w-12 h-6 flex transition-transform duration-300 group-hover/button:-translate-x-1/2 motion-reduce:transition-none motion-reduce:group-hover/button:translate-x-0">
           {arrow}
           {arrow}
         </span>

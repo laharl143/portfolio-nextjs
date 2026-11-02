@@ -5,6 +5,8 @@ export const landingData = {
     headline: "I build the connected systems small businesses run on.",
     stance: "I don't build marketing sites. I build the systems behind them.",
     credibility: "Application Developer at IBM by day, building for small businesses.",
+    portraitAlt: "Erskine Duenas from behind, wearing an eat sleep code shirt",
+    scrollHint: "Scroll",
   },
   services: {
     label: "What I build",

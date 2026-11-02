@@ -185,3 +185,125 @@ test("AC-14: Tab reaches the hero call to action with a visible focus ring", asy
   await expect(hero).toBeFocused();
   expect(await hero.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe("none");
 });
+
+// Spec 0017: the hero motion, portrait, and socials.
+const SOCIALS = [
+  ["LinkedIn", "https://www.linkedin.com/in/erskine-duenas/"],
+  ["GitHub", "https://github.com/laharl143"],
+  ["Codewars", "https://www.codewars.com/users/laharl143"],
+  ["MonkeyType", "https://monkeytype.com/profile/laharl143"],
+  ["Facebook", "https://www.facebook.com/erskine.duenas/"],
+] as const;
+const zoom = (page: Page) => page.getByTestId("landing-portrait-zoom");
+const transformOf = (page: Page) => zoom(page).evaluate((el) => getComputedStyle(el).transform);
+
+test("0017 AC-1, AC-2, AC-4: split hero, words revealed by 500ms, LinkedIn and GitHub beside the button", async ({ page }) => {
+  await page.goto("/");
+  const hero = page.locator("#pitch");
+  await expect(hero.locator(".brand-reveal-word")).toHaveCount(9);
+  await page.waitForTimeout(600);
+  const opacities = await hero
+    .locator(".brand-reveal-word, .brand-rise")
+    .evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity));
+  expect(opacities.every((o) => o === "1")).toBe(true);
+
+  const cta = hero.getByRole("link", { name: "Tell me about your project" });
+  for (const [label, href] of SOCIALS.slice(0, 2)) {
+    const link = hero.getByRole("link", { name: `${label} (opens in a new tab)` });
+    await expect(link).toHaveAttribute("href", href);
+    await expect(link).toHaveAttribute("target", "_blank");
+    await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    const box = (await link.boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+  }
+  const ctaBox = (await cta.boundingBox())!;
+  const portraitBox = (await zoom(page).boundingBox())!;
+  const linkedInBox = (await hero.getByRole("link", { name: "LinkedIn (opens in a new tab)" }).boundingBox())!;
+  if (isMobile(page)) {
+    expect(linkedInBox.y).toBeGreaterThan(ctaBox.y + ctaBox.height - 1);
+    expect(portraitBox.y).toBeGreaterThan(linkedInBox.y);
+  } else {
+    expect(linkedInBox.x).toBeGreaterThan(ctaBox.x + ctaBox.width - 1);
+    expect(portraitBox.x).toBeGreaterThan(ctaBox.x + ctaBox.width);
+  }
+  await expect(hero.getByRole("img", { name: "Erskine Duenas from behind, wearing an eat sleep code shirt" })).toBeVisible();
+});
+
+test("0017 AC-3: the portrait zooms inside its frame as the page scrolls", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  expect(await transformOf(page)).toBe("none");
+  await page.evaluate(() => window.scrollTo(0, 600));
+  await expect.poll(async () => (await transformOf(page)).match(/^matrix\(([\d.]+)/)?.[1]).toBe("1.12");
+  expect(await noHorizontalScroll(page)).toBe(true);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect.poll(() => transformOf(page)).toMatch(/^(none|matrix\(1, 0, 0, 1, 0, 0\))$/);
+});
+
+test("0017 AC-6: the scroll hint shows from md up and is hidden from assistive tech", async ({ page }) => {
+  await page.goto("/");
+  const hint = page.locator("#pitch .brand-scroll-chevron").first().locator("..");
+  await expect(hint).toHaveAttribute("aria-hidden", "true");
+  if (isMobile(page)) {
+    await expect(hint).toBeHidden();
+    return;
+  }
+  await expect(hint).toBeVisible();
+  expect(await hint.evaluate((el) => getComputedStyle(el).pointerEvents)).toBe("none");
+  const cta = (await page.locator("#pitch").getByRole("link", { name: "Tell me about your project" }).boundingBox())!;
+  expect((await hint.boundingBox())!.y).toBeGreaterThan(cta.y + cta.height);
+});
+
+test("0017 AC-6: on common laptop sizes the scroll hint sits in the first viewport, below the button", async ({ page }) => {
+  test.skip(isMobile(page), "the hint is hidden below md");
+  for (const size of [
+    { width: 1366, height: 768 },
+    { width: 1280, height: 800 },
+  ]) {
+    await page.setViewportSize(size);
+    await page.goto("/");
+    const hint = (await page.locator("#pitch .brand-scroll-chevron").first().locator("..").boundingBox())!;
+    const cta = (await page.locator("#pitch").getByRole("link", { name: "Tell me about your project" }).boundingBox())!;
+    expect(hint.y + hint.height).toBeLessThanOrEqual(size.height);
+    expect(hint.y).toBeGreaterThan(cta.y + cta.height);
+  }
+});
+
+test("0017 AC-8: reduced motion renders everything still", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  const names = await page
+    .locator("#pitch .brand-reveal-word, #pitch .brand-rise, #pitch .brand-scroll-chevron")
+    .evaluateAll((els) => els.map((el) => getComputedStyle(el).animationName));
+  expect(names.every((n) => n === "none")).toBe(true);
+  await page.evaluate(() => window.scrollTo(0, 600));
+  await page.waitForTimeout(300);
+  expect(await transformOf(page)).toBe("none");
+});
+
+test.describe("0017 AC-2: no JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+  test("the headline is in the server HTML and visible", async ({ page }) => {
+    await page.goto("/");
+    const h1 = page.getByRole("heading", { level: 1 });
+    await expect(h1).toHaveText("I build the connected systems small businesses run on.");
+    await expect(h1).toBeVisible();
+  });
+});
+
+test("0017 AC-5: the brand footer lists all five socials; /personal keeps its footer", async ({ page }) => {
+  for (const path of ["/", "/products"]) {
+    await page.goto(path);
+    const links = page.locator("footer").getByRole("list", { name: "Social links" }).getByRole("link");
+    await expect(links).toHaveCount(5);
+    for (const [i, [label, href]] of SOCIALS.entries()) {
+      await expect(links.nth(i)).toHaveAccessibleName(`${label} (opens in a new tab)`);
+      await expect(links.nth(i)).toHaveAttribute("href", href);
+      await expect(links.nth(i)).toHaveAttribute("target", "_blank");
+    }
+  }
+  await page.goto("/personal");
+  await expect(page.locator("footer").getByRole("list", { name: "Social links" })).toHaveCount(0);
+});

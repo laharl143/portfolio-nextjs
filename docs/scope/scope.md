@@ -48,7 +48,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 31 | Portfolio moves to /personal | Sales slice | done |
 | 32 | ED Solutions rebrand | Sales slice | done |
 | 33 | ED Solutions landing page | Sales slice | done |
-| 34 | Landing hero client pitch | Sales slice | planned |
+| 34 | Landing hero motion and portrait | Sales slice | done |
 | 35 | Section calls to action | Sales slice | planned |
 | 36 | Contact next steps | Sales slice | planned |
 | 37 | Inquiry conversion tracking | Sales slice | planned |
@@ -398,11 +398,17 @@ The new `/` for small business clients: which sections it has and in what order,
 - [x] Verify it: `/check verify ed solutions landing page` (2026-11-01: AC-1 to AC-16 met; AC-14 fixed by /debug, closed menu now `inert`, Tab starts at the wordmark; lint, 199 unit tests, e2e 53 passed and 1 mobile skip)
 spec [0016](../specs/0016-ed-solutions-landing-page/index.md) · code in `src/app/(site)/(brand)/page.tsx`, `src/sections/`, `utils/data/landing-data.ts` · Jira [DP-93](https://vital-stats.atlassian.net/browse/DP-93)
 
-### 34. Landing hero client pitch · needs a decision
-The landing page hero. Decided in a paused `/architect` run (2026-10-23): headline "I build the connected systems small businesses run on."; stance line "I don't build marketing sites. I build the systems behind them."; credibility line "Application Developer at IBM by day, building for small businesses."; no Perseverance and Curiosity line; one primary button "Tell me about your project" to `/contact`, tracked as `contact_click` with location `hero`; LinkedIn and GitHub only (all five socials in a footer icon row); fast word reveal under 0.5s with no 3 second delay and no "Click Me!" ribbon; keep portrait scroll zoom, the scroll hint without idle zoom, and button hover; static under reduced motion; design from the current UI.
-**Done when:** the full message reads within about a second of load; the button leads to `/contact` and fires `contact_click` with location `hero`; reduced motion renders it static; no layout regression at desktop and 375px in both themes.
-- [ ] Design it (spec): `/architect landing hero client pitch`
-Jira [DP-94](https://vital-stats.atlassian.net/browse/DP-94)
+### 34. Landing hero motion and portrait · done
+The second touch to the landing hero that feature 33 shipped static (`src/sections/LandingHero.tsx`). 33 already built the headline, stance line, credibility line, and the one "Tell me about your project" button to `/contact` tracked as `contact_click` with location `hero`, so this feature adds only what was decided in the paused `/architect` run (2026-10-23) and not built yet: LinkedIn and GitHub links in the hero, with all five socials in a brand footer icon row; a fast word reveal under 0.5s (no 3 second delay, no "Click Me!" ribbon); the portrait with scroll zoom; the scroll hint without idle zoom; button hover; all static under reduced motion. Narrowed 2026-11-01 after 33 shipped; still owed: the portrait image and its place on the dark brand page, where the hero links and footer icon row sit, and how the reveal is built.
+**Done when:** the full hero message reads within about a second of load; the hero shows LinkedIn and GitHub and the brand footer shows all five socials; the portrait zooms on scroll and the scroll hint shows without idle zoom; reduced motion renders all of it static; the 33 copy, button, and `contact_click` tracking keep working; no layout regression at desktop and 375px in both themes.
+- [x] Design it (spec): `/architect landing hero motion and portrait` (2026-11-01: `eat-sleep-code.png` in a right column split layout; LinkedIn and GitHub beside the button; CSS only word reveal on server split spans; remaining choices delegated to the recommended picks)
+- [x] Build it: `/develop landing hero motion and portrait` (2026-11-01: lint, 204 unit tests, landing and brand e2e 40 passed and 1 mobile skip, build and leak check clean; the scroll hint sits in the hero's bottom padding instead of `100svh - 5rem`, so it never covers the button on 768 to 800px tall laptops)
+   - [x] Thin thread: split layout, static portrait, `brandData.socials`, `SocialIconLink`, hero LinkedIn and GitHub, satisfies AC-1, AC-3, AC-4
+   - [x] Motion: CSS word reveal and rise, scroll zoom in the frame, scroll hint, button hover lift, all still under reduced motion, satisfies AC-2, AC-3, AC-6 to AC-8
+   - [x] Brand footer icon row with all five socials, satisfies AC-5, AC-9
+   - [x] Checks: unit and e2e tests, lint, build, browser pass at desktop and 375px in both themes, satisfies AC-9, AC-10
+- [x] Verify it: `/check verify landing hero motion and portrait` (2026-11-02: every step passes; AC-6 fixed so the scroll hint sits in the first viewport at 1366x768 and 1280x800; at 1024x768 it still falls below the fold, a known gap)
+spec [0017](../specs/0017-landing-hero-motion-portrait/index.md) · code in `src/sections/LandingHero.tsx`, `src/components/brand/`, `src/sections/Footer.tsx`, `src/app/globals.css`, `utils/data/` · Jira [DP-94](https://vital-stats.atlassian.net/browse/DP-94)
 
 ### 35. Section calls to action · needs a decision
 End the key landing page sections with a short "Tell me about your project" link to `/contact`, so every part of the page has a next step, following the existing `contact_click` tracking pattern.
